@@ -188,7 +188,7 @@ export function usePregnancyNotifications(profile: any, logs: any[], appointment
               
               // Move to missed if it's way past due (e.g. 1 hour late), otherwise keep it in a "triggered/missed" state
               // For simplicity, we just mark it missed instantly after firing so the user has to manually complete it in the center.
-              return { ...reminder, status: 'missed' }; 
+              return { ...reminder, status: 'missed' as ReminderStatus }; 
             }
           }
           return reminder;
@@ -237,12 +237,12 @@ export function usePregnancyNotifications(profile: any, logs: any[], appointment
   };
 
   const markCompleted = (id: string) => {
-    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' } : r));
+    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' as ReminderStatus } : r));
   };
 
   const snoozeReminder = (id: string, hours: number = 1) => {
     const snoozedUntil = Date.now() + (hours * 60 * 60 * 1000);
-    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'snoozed', snoozedUntil } : r));
+    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'snoozed' as ReminderStatus, snoozedUntil } : r));
   };
 
   const deleteReminder = (id: string) => {

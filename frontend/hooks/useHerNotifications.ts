@@ -262,7 +262,7 @@ export function useHerNotifications(profile: any, logs: any[], cycleHistory: any
               // FIRE NOTIFICATION
               fireNativeNotification(reminder.title, reminder.message);
               hasChanges = true;
-              return { ...reminder, status: 'missed' }; 
+              return { ...reminder, status: 'missed' as ReminderStatus }; 
             }
           }
           return reminder;
@@ -309,12 +309,12 @@ export function useHerNotifications(profile: any, logs: any[], cycleHistory: any
   };
 
   const markCompleted = (id: string) => {
-    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' } : r));
+    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' as ReminderStatus } : r));
   };
 
   const snoozeReminder = (id: string, hours: number = 1) => {
     const snoozedUntil = Date.now() + (hours * 60 * 60 * 1000);
-    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'snoozed', snoozedUntil } : r));
+    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'snoozed' as ReminderStatus, snoozedUntil } : r));
   };
 
   const deleteReminder = (id: string) => {
