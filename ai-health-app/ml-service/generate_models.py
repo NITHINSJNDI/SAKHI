@@ -1,6 +1,5 @@
 import pickle
 import numpy as np
-import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
 # 1. Train and save dummy Cycle Prediction model
@@ -45,6 +44,13 @@ X_thyroid[:, 0] = np.random.randint(1, 11, size=100) # fatigue 1-10
 X_thyroid[:, 1] = np.random.choice([0, 1], size=100) # heavy/prolonged flow
 X_thyroid[:, 2] = np.random.choice([0, 1], size=100) # cycle regularity (0=irregular, 1=regular)
 y_thyroid = ((X_thyroid[:, 0] >= 6) & (X_thyroid[:, 1] == 1)).astype(int)
+
+model_thyroid = LogisticRegression()
+model_thyroid.fit(X_thyroid, y_thyroid)
+
+with open("thyroid.pkl", "wb") as f:
+    pickle.dump(model_thyroid, f)
+print("Saved thyroid.pkl successfully.")
 
 # 4. Train and save Preeclampsia Prediction model
 # Features: [systolic_bp, diastolic_bp, has_hypertension_history]

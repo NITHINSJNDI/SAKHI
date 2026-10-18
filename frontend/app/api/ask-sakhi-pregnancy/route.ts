@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { cookies } from 'next/headers';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { executeGeminiWithAutoSwitch } from '@/lib/gemini';
 
 // 1. Tool to log or update maternal vitals and daily check-in metrics
 const log_pregnancy_vital_declaration = {
@@ -119,7 +120,6 @@ const log_pregnancy_nutrition_declaration = {
 };
 
 export async function POST(req: Request) {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const session = await getServerSession(authOptions);
 
   try {
@@ -134,7 +134,8 @@ export async function POST(req: Request) {
     const storedPreferredName = cookieStore.get('sakhi_preferred_name')?.value;
     const effectiveName = userName || storedPreferredName || data.profile?.preferred_name || session?.user?.name?.split(' ')[0] || 'Mama';
 
-    const chat = ai.chats.create({
+    const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
+      const chat = ai.chats.create({
       model: 'gemini-flash-lite-latest',
       config: {
         systemInstruction: `You are Sakhi, an empathetic, caring, and nurturing feminine AI maternal health companion.
@@ -347,8 +348,14 @@ BACKGROUND DATA SYNCHRONIZATION:
       }
     }
 
+      return {
+        replyText: response.text,
+        updatedChartData
+      };
+    });
+
     return NextResponse.json({ 
-      reply: response.text,
+      reply: replyText,
       updatedChartData 
     });
 

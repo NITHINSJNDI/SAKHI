@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { cookies } from 'next/headers';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { executeGeminiWithAutoSwitch } from '@/lib/gemini';
 
 // 1. Tool to log user's daily symptoms, pain, bleeding flow, mood, and sleep
 const log_health_entry_declaration = {
@@ -143,11 +144,13 @@ export async function POST(req: Request) {
       }
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const chat = ai.chats.create({
-      model: 'gemini-flash-lite-latest',
-      config: {
-        systemInstruction: `You are Sakhi, an empathetic feminine AI health companion.
+    const personalizedPrompt = effectiveName ? `[The user's preferred name is ${effectiveName}. Please address ${effectiveName} naturally in your response.]\n${prompt}` : prompt;
+
+    const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
+      const chat = ai.chats.create({
+        model: 'gemini-flash-lite-latest',
+        config: {
+          systemInstruction: `You are Sakhi, an empathetic feminine AI health companion.
 The user's name is "${effectiveName || 'friend'}". Address them warmly and naturally by their name ("${effectiveName || 'friend'}") in your responses whenever suitable.
 
 CRITICAL MEDICAL & COMMUNICATION RULES:
@@ -159,21 +162,19 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
 1. Whenever the user mentions physical sensations, symptoms (like acne, cramps, headache, fatigue, nausea, bloating), pain level, bleeding flow, mood, or sleep hours, call log_health_entry silently.
 2. Whenever the user says their period started today or gives a period start date, cycle length, or past cycle history, call update_period_info silently.
 3. If they ask about PCOS risk or cycle prediction, call analyze_pcos_risk or analyze_cycle.`,
-        tools: [{ 
-          functionDeclarations: [
-            log_health_entry_declaration, 
-            update_period_info_declaration, 
-            analyze_cycle_declaration, 
-            analyze_pcos_risk_declaration
-          ] 
-        }]
-      }
-    });
+          tools: [{ 
+            functionDeclarations: [
+              log_health_entry_declaration, 
+              update_period_info_declaration, 
+              analyze_cycle_declaration, 
+              analyze_pcos_risk_declaration
+            ] 
+          }]
+        }
+      });
 
-    const personalizedPrompt = effectiveName ? `[The user's preferred name is ${effectiveName}. Please address ${effectiveName} naturally in your response.]\n${prompt}` : prompt;
-
-    let response = await chat.sendMessage({ message: personalizedPrompt });
-    let updatedChartData: any = null;
+      let response = await chat.sendMessage({ message: personalizedPrompt });
+      let currentUpdatedChartData: any = null;
 
     // Handle function calls
     if (response.functionCalls && response.functionCalls.length > 0) {
@@ -233,7 +234,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
             message: "Daily health log successfully updated and saved to dashboard.", 
             logged: finalLog 
           };
-          updatedChartData = { type: "daily_log", log: finalLog };
+          currentUpdatedChartData = { type: "daily_log", log: finalLog };
 
         } else if (call.name === "update_period_info") {
           const args = call.args as any;
@@ -282,7 +283,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
             profile,
             cycleHistory: updatedHistory
           };
-          updatedChartData = { 
+          currentUpdatedChartData = { 
             type: updatedHistory ? "cycle_history_update" : "profile_update", 
             profile, 
             cycleHistory: updatedHistory 
@@ -300,7 +301,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
             })
           });
           apiResult = await res.json();
-          updatedChartData = { type: "cycle", data: apiResult };
+          currentUpdatedChartData = { type: "cycle", data: apiResult };
 
         } else if (call.name === "analyze_pcos_risk") {
           const args = call.args as any;
@@ -315,7 +316,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
             })
           });
           apiResult = await res.json();
-          updatedChartData = { type: "pcos", data: apiResult };
+          currentUpdatedChartData = { type: "pcos", data: apiResult };
         }
 
         if (apiResult) {
@@ -342,10 +343,16 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
       }
     }
 
-    return NextResponse.json({
-      reply: response.text,
-      updatedChartData
-    });
+    return {
+      replyText: response.text,
+      updatedChartData: currentUpdatedChartData
+    };
+  });
+
+  return NextResponse.json({
+    reply: replyText,
+    updatedChartData
+  });
   } catch (error: any) {
     console.error("Ask Sakhi API Error:", error);
     return NextResponse.json(
