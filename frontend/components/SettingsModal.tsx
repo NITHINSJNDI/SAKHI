@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight } from '@phosphor-icons/react';
 
 interface SettingsModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: void | any;
   mode: 'her' | 'pregnancy';
   currentData: any; // The profile data
 }
 
 export default function SettingsModal({ isOpen, onClose, mode, currentData }: SettingsModalProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState<any>({});
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -34,8 +36,32 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
     
     // Save voice setting
     localStorage.setItem('sakhi_voice_enabled', voiceEnabled.toString());
+    const trimmedName = formData.preferred_name ? formData.preferred_name.trim() : '';
+    if (trimmedName) {
+      localStorage.setItem('sakhi_preferred_name', trimmedName);
+      if (typeof document !== 'undefined') {
+        document.cookie = `sakhi_preferred_name=${encodeURIComponent(trimmedName)}; path=/; max-age=31536000`;
+        const cookies = document.cookie.split(';');
+        for (const c of cookies) {
+          const trimmed = c.trim();
+          if (trimmed.startsWith('sakhi_preg_profile_') || trimmed.startsWith('sakhi_her_profile_')) {
+            const eqPos = trimmed.indexOf('=');
+            const cookieName = eqPos > -1 ? trimmed.substring(0, eqPos) : trimmed;
+            try {
+              const parsed = JSON.parse(decodeURIComponent(trimmed.substring(eqPos + 1)));
+              parsed.preferred_name = trimmedName;
+              document.cookie = `${cookieName}=${encodeURIComponent(JSON.stringify(parsed))}; path=/; max-age=31536000`;
+            } catch (err) {}
+          }
+        }
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sakhi-name-updated', { detail: { name: trimmedName } }));
+        window.dispatchEvent(new CustomEvent('sakhi_name_updated', { detail: { name: trimmedName } }));
+      }
+    }
     
-    // Save profile data (we use a simple API route that sets a cookie for demo mode)
+    // Save profile data
     try {
       await fetch('/api/update-profile', {
         method: 'POST',
@@ -67,7 +93,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       }
     }
-    window.location.href = "/onboarding";
+    router.push("/onboarding");
   };
 
   return (
@@ -83,7 +109,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
             initial={{ opacity: 0, scale: 0.95, y: 20 }} 
             animate={{ opacity: 1, scale: 1, y: 0 }} 
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white shadow-2xl z-50 rounded-[2.5rem] overflow-hidden"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white border-2 border-pink-200/90 shadow-[0_20px_60px_rgba(244,114,182,0.22)] z-50 rounded-[2.5rem] overflow-hidden"
           >
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-pink-50/50">
               <h2 className="text-2xl font-semibold text-[#2D1B36]">Settings</h2>
@@ -105,7 +131,18 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     <p className="text-sm text-[#2D1B36]/60">Sakhi will read her replies aloud.</p>
                   </div>
                   <button 
-                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    type="button"
+                    onClick={() => {
+                      const next = !voiceEnabled;
+                      setVoiceEnabled(next);
+                      localStorage.setItem('sakhi_voice_enabled', next.toString());
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('sakhi-voice-toggled', { detail: { enabled: next } }));
+                        if (!next && window.speechSynthesis) {
+                          window.speechSynthesis.cancel();
+                        }
+                      }
+                    }}
                     className={`w-14 h-8 rounded-full p-1 transition-colors ${voiceEnabled ? 'bg-pink-500' : 'bg-gray-200'}`}
                   >
                     <div className={`w-6 h-6 rounded-full bg-white shadow-sm transition-transform ${voiceEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -113,11 +150,11 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 </div>
               </div>
 
-              {/* Profile Data */}
+              {/* Profile Data - Only Name can be changed */}
               <div>
                 <h3 className="text-lg font-medium text-[#2D1B36] flex items-center gap-2 mb-4">
-                  {mode === 'pregnancy' ? <Baby weight="duotone" className="text-pink-500" /> : <Clock weight="duotone" className="text-pink-500" />} 
-                  Health Profile
+                  <User weight="duotone" className="text-pink-500" /> 
+                  Personal Profile
                 </h3>
                 
                 <div className="space-y-4">
@@ -127,79 +164,60 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                       type="text" name="preferred_name"
                       value={formData.preferred_name || ''} 
                       onChange={handleChange}
+                      placeholder="Enter your name"
                       className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none"
                     />
+                    <p className="text-xs text-[#2D1B36]/50 mt-1">
+                      Sakhi will address you with this name in your conversations and dashboards.
+                    </p>
                   </div>
-
-                  {mode === 'pregnancy' ? (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-[#2D1B36]/80 mb-1">Weeks Pregnant</label>
-                        <input 
-                          type="number" name="weeks_pregnant"
-                          value={formData.weeks_pregnant || ''} 
-                          onChange={handleChange}
-                          className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-[#2D1B36]/80 mb-1">Expected Due Date</label>
-                        <input 
-                          type="date" name="expected_due_date"
-                          value={formData.expected_due_date ? new Date(formData.expected_due_date).toISOString().split('T')[0] : ''} 
-                          onChange={handleChange}
-                          className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none"
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-[#2D1B36]/80 mb-1">Average Cycle Length (Days)</label>
-                        <input 
-                          type="number" name="cycle_length_avg"
-                          value={formData.cycle_length_avg || ''} 
-                          onChange={handleChange}
-                          className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-[#2D1B36]/80 mb-1">Period Duration (Days)</label>
-                        <input 
-                          type="number" name="period_duration"
-                          value={formData.period_duration || ''} 
-                          onChange={handleChange}
-                          className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none"
-                        />
-                      </div>
-                    </>
-                  )}
                 </div>
               </div>
-              {/* Mode Switcher */}
-              <div className="pt-6 border-t border-black/5">
-                <h3 className="text-lg font-medium text-[#2D1B36] flex items-center gap-2 mb-4">
-                  <ArrowsLeftRight weight="duotone" className="text-pink-500" /> Switch Mode & Restart Setup
-                </h3>
-                <p className="text-sm text-[#2D1B36]/60 mb-4">
-                  Want to switch between Her Mode and Pregnancy Mode? Or change your initial onboarding answers?
-                </p>
-                <button 
-                  onClick={handleRestartSetup}
-                  className="w-full py-3 rounded-xl font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors border border-pink-100"
-                >
-                  Restart Initial Setup
-                </button>
+
+              {/* Switch to Mom Mode - Dedicated Square Box */}
+              <div className="pt-2">
+                <div className="p-5 rounded-2xl border-2 border-pink-200/90 bg-pink-50/60 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <ArrowsLeftRight weight="bold" className="text-pink-600 w-5 h-5" />
+                    <h3 className="text-base font-semibold text-[#2D1B36]">
+                      {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-[#2D1B36]/70 mb-4">
+                    {mode === 'her' 
+                      ? 'Transition your dashboard to pregnancy wellness tracking, weekly baby progress, and maternal care.' 
+                      : 'Transition back to cycle rhythm, ovulation prediction, and hormonal balance.'}
+                  </p>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      const targetMode = mode === 'her' ? 'mom' : 'her';
+                      const activeTarget = mode === 'her' ? 'pregnancy' : 'her';
+                      localStorage.setItem('sakhi_active_mode', activeTarget);
+                      document.cookie = `sakhi_active_mode=${activeTarget}; path=/; max-age=31536000`;
+                      router.push(`/onboarding?mode=${targetMode}&switch=true`);
+                    }}
+                    className="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-all shadow-md flex items-center justify-center gap-2.5 cursor-pointer group"
+                  >
+                    <Baby weight="bold" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span className="text-base tracking-wide">
+                      {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-black/5 bg-gray-50 flex justify-end gap-3">
-              <button onClick={onClose} className="px-6 py-3 rounded-xl font-medium text-[#2D1B36]/70 hover:bg-black/5 transition-colors">
-                Cancel
-              </button>
-              <button onClick={handleSave} disabled={isSaving || showSuccess} className="px-6 py-3 rounded-xl font-medium text-white bg-pink-500 hover:bg-pink-600 transition-colors flex items-center gap-2">
-                {showSuccess ? <><CheckCircle weight="bold" /> Saved!</> : (isSaving ? "Saving..." : "Save Changes")}
-              </button>
+            <div className="p-6 border-t border-black/5 bg-gray-50 flex items-center justify-end">
+              <div className="flex gap-2">
+                <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-medium text-[#2D1B36]/70 hover:bg-black/5 transition-colors cursor-pointer">
+                  Cancel
+                </button>
+                <button onClick={handleSave} disabled={isSaving || showSuccess} className="px-5 py-2.5 rounded-xl font-medium text-white bg-pink-500 hover:bg-pink-600 transition-colors flex items-center gap-2 cursor-pointer">
+                  {showSuccess ? <><CheckCircle weight="bold" /> Saved!</> : (isSaving ? "Saving..." : "Save Changes")}
+                </button>
+              </div>
             </div>
           </motion.div>
         </>

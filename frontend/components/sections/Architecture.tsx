@@ -56,9 +56,9 @@ const ENGINES: Engine[] = [
   },
   {
     id: "maternal",
-    name: "Maternal Triage",
-    algo: "Heuristic Rules",
-    desc: "Maps trimester danger signs to immediate, privacy-safe healthcare alerts.",
+    name: "Maternal & GDM Triage",
+    algo: "ML Microservice · FastAPI",
+    desc: "Evaluates blood pressure, fasting blood sugar, and symptoms to screen for Preeclampsia and Gestational Diabetes risk.",
     glow: "from-plum-700 to-blush-400",
     hex: "#764aa3",
   },

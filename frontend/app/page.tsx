@@ -19,26 +19,29 @@ export default function Home() {
   const reduce = useReducedMotion();
   const { status } = useSession();
   const [playIntro, setPlayIntro] = useState(false);
-  const [introDone, setIntroDone] = useState(false);
+  const [introDone, setIntroDone] = useState(true);
 
+  // Play intro ONLY on first entry/open of application; skip when returning via back button
   useEffect(() => {
-    if (status === "authenticated") {
-      window.location.href = "/onboarding";
-    }
-  }, [status]);
-
-  // Always play intro on load (skipped only under reduced motion)
-  useEffect(() => {
-    if (reduce) {
+    try {
+      const hasPlayed = sessionStorage.getItem(INTRO_KEY);
+      if (hasPlayed === "true" || reduce) {
+        setIntroDone(true);
+        setPlayIntro(false);
+      } else {
+        setIntroDone(false);
+        setPlayIntro(true);
+      }
+    } catch (e) {
       setIntroDone(true);
       setPlayIntro(false);
-    } else {
-      setIntroDone(false);
-      setPlayIntro(true);
     }
   }, [reduce]);
 
   const handleIntroComplete = () => {
+    try {
+      sessionStorage.setItem(INTRO_KEY, "true");
+    } catch (e) {}
     setIntroDone(true);
     setPlayIntro(false);
   };
@@ -56,19 +59,28 @@ export default function Home() {
       {/* Main content stays in the DOM (for SEO/accessibility) but is hidden
           until the intro settles, then reveals without overlapping the intro. */}
       <main
+        id="main"
         className={`relative transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           introDone
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-6 opacity-0"
         }`}
       >
-        <Hero />
-        <AhaMoment />
-        <Architecture />
-        <section id="features">
+        <section id="hero">
+          <Hero />
+        </section>
+        <section id="cycle">
+          <AhaMoment />
+        </section>
+        <section id="care">
+          <Architecture />
+        </section>
+        <section id="mind">
           <FeatureBento />
         </section>
-        <Footer />
+        <section id="privacy">
+          <Footer />
+        </section>
       </main>
     </>
   );

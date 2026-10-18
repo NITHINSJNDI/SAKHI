@@ -11,6 +11,7 @@ export function useSakhiChat(onChartUpdate: (data: any) => void, profileName?: s
   const [isLoading, setIsLoading] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [autoPlayVoice, setAutoPlayVoice] = useState<boolean>(true);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -20,7 +21,56 @@ export function useSakhiChat(onChartUpdate: (data: any) => void, profileName?: s
     if (typeof window !== "undefined" && window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+
+    const checkVoiceSetting = () => {
+      const storedVoice = typeof window !== 'undefined' ? localStorage.getItem('sakhi_voice_enabled') : null;
+      if (storedVoice !== null) {
+        const enabled = storedVoice !== 'false';
+        setAutoPlayVoice(enabled);
+        if (!enabled && typeof window !== 'undefined' && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          setIsSpeaking(false);
+        }
+      }
+    };
+
+    checkVoiceSetting();
+
+    const handleVoiceEvent = (e: any) => {
+      if (e.detail && typeof e.detail.enabled === 'boolean') {
+        setAutoPlayVoice(e.detail.enabled);
+        if (!e.detail.enabled && typeof window !== 'undefined' && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          setIsSpeaking(false);
+        }
+      } else {
+        checkVoiceSetting();
+      }
+    };
+
+    window.addEventListener('storage', checkVoiceSetting);
+    window.addEventListener('sakhi-voice-toggled', handleVoiceEvent);
+
+    return () => {
+      window.removeEventListener('storage', checkVoiceSetting);
+      window.removeEventListener('sakhi-voice-toggled', handleVoiceEvent);
+    };
   }, []);
+
+  const toggleAutoPlayVoice = () => {
+    setAutoPlayVoice(prev => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sakhi_voice_enabled', next.toString());
+        window.dispatchEvent(new CustomEvent('sakhi-voice-toggled', { detail: { enabled: next } }));
+        if (!next && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          setIsSpeaking(false);
+        }
+      }
+      return next;
+    });
+  };
 
   const stopSpeaking = () => {
     if (typeof window !== "undefined" && window.speechSynthesis) {
@@ -30,9 +80,10 @@ export function useSakhiChat(onChartUpdate: (data: any) => void, profileName?: s
   };
 
   const speakText = (text: string) => {
-    // Check if voice is disabled in settings
-    const voiceEnabled = localStorage.getItem('sakhi_voice_enabled') !== 'false';
-    if (!voiceEnabled || !("speechSynthesis" in window)) return;
+    // Check if voice is disabled in settings or current state
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('sakhi_voice_enabled') : null;
+    const isVoiceAllowed = stored !== 'false' && autoPlayVoice;
+    if (!isVoiceAllowed || !("speechSynthesis" in window)) return;
     
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
@@ -77,11 +128,13 @@ export function useSakhiChat(onChartUpdate: (data: any) => void, profileName?: s
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
+    const effectiveName = (typeof window !== 'undefined' ? localStorage.getItem('sakhi_preferred_name') : null) || profileName;
+
     try {
       const res = await fetch("/api/ask-sakhi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, userName: profileName })
+        body: JSON.stringify({ prompt, userName: effectiveName })
       });
       
       const data = await res.json();
@@ -114,5 +167,5 @@ export function useSakhiChat(onChartUpdate: (data: any) => void, profileName?: s
     }
   };
 
-  return { messages, isLoading, sendMessage, speakText, isSpeaking, stopSpeaking };
+  return { messages, isLoading, sendMessage, speakText, isSpeaking, stopSpeaking, autoPlayVoice, toggleAutoPlayVoice };
 }

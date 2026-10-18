@@ -60,7 +60,7 @@ export default function HerNotificationCenter({
           <motion.div 
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col overflow-hidden"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white border-l-2 border-pink-200/80 shadow-[0_20px_60px_rgba(244,114,182,0.22)] z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-purple-50/50">

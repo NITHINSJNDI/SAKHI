@@ -20,12 +20,12 @@ import { motion, useReducedMotion, useMotionValue, animate } from "motion/react"
  * it only mounts when the intro should actually play.
  */
 
-const STAGE1 = 1.8; // s — vortex in + reveal
-const HOLD = 0.6; // s — hold revealed state
-const TRANSITION = 1.2; // s — shrink + glide to corner
-const EXIT = 0.4; // s — overlay fade out
+const STAGE1 = 0.9; // s — vortex in + reveal
+const HOLD = 0.2; // s — hold revealed state
+const TRANSITION = 0.6; // s — shrink + glide to corner
+const EXIT = 0.25; // s — overlay fade out
 
-const PETAL_COUNT = 150;
+const PETAL_COUNT = 80;
 const VORTEX_EYE = 70; // px — petals settle into a ring near center
 
 type Petal = {
@@ -61,6 +61,7 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
   const stageRef = useRef<1 | 2>(1);
   const doneRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
+  const finishRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -186,7 +187,7 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
       return;
     }
 
-    const finish = () => {
+    finishRef.current = () => {
       if (doneRef.current) return;
       doneRef.current = true;
       animate(overlayOpacity, 0, {
@@ -196,11 +197,13 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
       });
     };
 
+    const finish = finishRef.current;
+
     const t1 = setTimeout(() => {
       stageRef.current = 2;
       const ease = [0.22, 1, 0.36, 1] as const;
       animate(groupX, 24, { duration: TRANSITION, ease });
-      animate(groupY, 8, { duration: TRANSITION, ease });
+      animate(groupY, 12, { duration: TRANSITION, ease });
       animate(groupScale, 1, { duration: TRANSITION, ease });
       animate(innerTx, "0%", { duration: TRANSITION, ease });
       animate(innerTy, "0%", { duration: TRANSITION, ease });
@@ -219,9 +222,11 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[100] overflow-hidden bg-cream"
+      className="fixed inset-0 z-[100] overflow-hidden bg-cream cursor-pointer"
       style={{ opacity: overlayOpacity }}
       aria-hidden="true"
+      onClick={() => finishRef.current?.()}
+      title="Click anywhere to skip intro"
     >
       {/* Petal vortex */}
       <canvas
@@ -261,13 +266,10 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png"
-            alt="Sakhi Logo"
-            className="h-10 w-auto mix-blend-multiply"
+            src="/original-logo.png?v=4"
+            alt="Sakhi — Your AI Health Companion"
+            className="h-14 sm:h-16 w-auto object-contain mix-blend-multiply"
           />
-          <span className="text-4xl font-cute text-plum-900 pr-2">
-            Sakhi
-          </span>
         </motion.div>
       </motion.div>
     </motion.div>

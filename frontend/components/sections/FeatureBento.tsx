@@ -113,25 +113,29 @@ function MaternalCell() {
   return (
     <motion.article
       variants={itemVariants}
-      className="md:col-span-6 group relative overflow-hidden rounded-[26px] bg-blush-50 border border-blush-100 p-7"
+      className="md:col-span-6 group relative overflow-hidden rounded-[26px] bg-gradient-to-br from-pink-50 via-rose-50/60 to-lavender-50 border border-pink-200/80 p-7 sm:p-9 shadow-[0_20px_50px_-25px_rgba(244,114,182,0.2)]"
     >
-      <div className="relative z-10 flex h-full flex-col">
-        <Icon size={26} {...IconProps} />
-        <h3 className="mt-4 text-xl font-semibold text-plum-900">
-          Maternal Care
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-          Fertility, pregnancy week-by-week, and postpartum support in one
-          continuous thread. Care that does not reset between phases.
+      <div className="relative z-10 flex h-full flex-col max-w-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <Badge variant="plum">mom mode</Badge>
+          <span className="text-xs font-semibold text-pink-700">Clinical Screening ML</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Icon size={28} className="text-pink-600" {...IconProps} />
+          <h3 className="text-2xl font-semibold text-plum-900">
+            Mom Mode & Maternal Health
+          </h3>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+          Continuous pregnancy care from conception through postpartum: weekly baby size & milestone tracking, fetal kick count logging, and live machine learning screening for Gestational Diabetes and Preeclampsia.
         </p>
       </div>
-      <img
-        src="https://picsum.photos/seed/sakhi-maternal-care-bloom/400/200"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-6 -right-6 h-32 w-32 rounded-full object-cover opacity-70 grayscale-[20%] mix-blend-multiply"
-        loading="lazy"
-      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-10 -right-6 text-pink-200/40 select-none"
+      >
+        <Icon size={210} {...IconProps} />
+      </span>
     </motion.article>
   );
 }

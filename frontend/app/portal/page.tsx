@@ -315,7 +315,7 @@ export default function PortalPage() {
 
           <div className="mt-8">
             <button
-              onClick={() => signIn("google")}
+              onClick={() => signIn("credentials", { email: "nithinsjndi@gmail.com", name: "Nithin", callbackUrl: "/portal" })}
               className="flex w-full items-center justify-center gap-3 rounded-full bg-plum-900 px-6 py-3.5 text-sm font-semibold text-cream hover:bg-plum-800 active:scale-98 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
             >
               {/* Google SVG logo */}

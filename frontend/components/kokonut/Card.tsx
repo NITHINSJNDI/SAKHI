@@ -14,7 +14,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ glass = false, className = "", children, ...rest }, ref) => {
     const surface = glass
       ? "glass"
-      : "bg-white/55 border border-white/70 shadow-[0_24px_60px_-28px_rgba(74,42,82,0.22)]";
+      : "bg-white/60 border border-pink-200/70 shadow-[0_24px_60px_-24px_rgba(244,114,182,0.18)]";
     return (
       <div
         ref={ref}

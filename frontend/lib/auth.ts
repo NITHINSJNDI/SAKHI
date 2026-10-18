@@ -5,10 +5,20 @@ import { query, initDatabase } from "@/lib/db";
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "dummy_google_client_id.apps.googleusercontent.com",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy_google_client_secret",
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!user.email) return false;

@@ -20,7 +20,7 @@ if (process.env.DATABASE_URL) {
       // For Serverless / Next.js, close idle connections after 10s
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
-      ssl: process.env.DATABASE_URL.includes('supabase.co') || process.env.DATABASE_URL.includes('neon.tech') 
+      ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
         ? { rejectUnauthorized: false } 
         : undefined
     });
@@ -157,6 +157,13 @@ export async function initDatabase() {
         anxiety BOOLEAN,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Enable Row Level Security (RLS) for Supabase security compliance
+    await client.query(`
+      ALTER TABLE IF EXISTS public.users ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE IF EXISTS public.user_health_profiles ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE IF EXISTS public.daily_health_logs ENABLE ROW LEVEL SECURITY;
     `);
 
     await client.query('COMMIT');

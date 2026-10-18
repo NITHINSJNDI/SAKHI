@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         {/* Geist + Instrument Serif via Google Fonts (self-host in production) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -14,7 +14,7 @@ export function Footer() {
   const reduce = useReducedMotion();
 
   return (
-    <footer id="footer" className="relative px-6 pt-24 pb-12">
+    <footer id="privacy" className="relative px-6 pt-24 pb-12">
       <div className="mx-auto max-w-6xl">
         {/* Closing CTA band */}
         <Reveal>

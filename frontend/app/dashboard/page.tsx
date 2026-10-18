@@ -27,8 +27,8 @@ import SymptomRadar from "@/components/charts/SymptomRadar";
 import PainFlowCorrelation from "@/components/charts/PainFlowCorrelation";
 
 // --- KOKONUT STYLE HELPERS ---
-const cardClass = "bg-white/40 backdrop-blur-md rounded-[2.5rem] border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 relative overflow-hidden";
-const innerCardClass = "bg-white/50 backdrop-blur-sm rounded-[2rem] border border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] p-6 flex flex-col justify-between";
+const cardClass = "bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-all duration-300 p-8 relative overflow-hidden";
+const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-6 flex flex-col justify-between";
 const iconWrapClass = "w-12 h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-4";
 
 // --- DASHBOARD PANELS ---

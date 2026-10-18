@@ -85,12 +85,10 @@ export function PetalWind() {
     window.addEventListener("pointerout", onLeave, { passive: true });
 
     // ---- Petal population ----
-    // Denser, more immersive floral storm: ~280 on a full HD viewport, never
-    // fewer than 120 so even small screens feel lush. Reduced-motion renders
-    // nothing (handled above), so this only affects the animated path.
+    // Elegant, featherweight floral breeze (~50 petals on full HD viewport).
     const density = Math.min(
-      280,
-      Math.max(120, Math.floor((width * height) / 7000))
+      60,
+      Math.max(25, Math.floor((width * height) / 32000))
     );
     const petals: Petal[] = [];
 
@@ -117,26 +115,19 @@ export function PetalWind() {
     for (let i = 0; i < density; i++) petals.push(spawnPetal(false));
 
     // ---- Global wind, eased alive by anime.js ----
-    // windTarget.x / windTarget.y are eased toward periodically-changing goals.
     const wind = { x: 0.35, y: 0.15 };
     const windTarget = { x: 0.35, y: 0.15 };
 
-    // anime.js orchestrates slow, organic shifts in wind direction.
-    // (Imported dynamically so SSR is safe and the effect is a leaf concern.)
     let anime: typeof import("animejs") | null = null;
     let windTimeline: any = null;
     import("animejs").then((mod) => {
       anime = mod.default || (mod as any);
-      // Re-randomize wind direction every ~6-10s, easing toward new vector.
       windTimeline = anime?.timeline({
         loop: true,
         autoplay: true,
-        update: () => {
-          // soft decay so wind stays calm
-        },
       });
       const shiftWind = () => {
-        windTarget.x = 0.15 + Math.random() * 0.55; // mostly blowing right
+        windTarget.x = 0.15 + Math.random() * 0.55;
         windTarget.y = -0.05 + (Math.random() - 0.5) * 0.4;
         anime?.({
           targets: wind,
@@ -162,12 +153,7 @@ export function PetalWind() {
       ctx.scale(wobbleScale, 1);
       ctx.globalAlpha = p.alpha;
 
-      // Soft blur via shadow (cheap fake of lens blur).
-      ctx.shadowColor = c;
-      ctx.shadowBlur = 10 * p.depth;
-
       ctx.beginPath();
-      // teardrop petal shape
       ctx.moveTo(0, -p.size);
       ctx.bezierCurveTo(
         p.size * 0.7,
@@ -187,7 +173,7 @@ export function PetalWind() {
       );
       ctx.closePath();
 
-      // translucent radial fill for depth
+      // Translucent radial fill for depth (feathered gradient without GPU-blocking shadowBlur)
       const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
       grad.addColorStop(0, c);
       grad.addColorStop(1, "rgba(255,255,255,0)");
@@ -198,7 +184,10 @@ export function PetalWind() {
 
     // ---- Main animation loop ----
     let raf = 0;
+    let isRunning = true;
+
     const tick = () => {
+      if (!isRunning) return;
       ctx.clearRect(0, 0, width, height);
 
       for (let i = 0; i < petals.length; i++) {
@@ -236,7 +225,6 @@ export function PetalWind() {
 
         // recycle when off-screen
         if (p.x > width + 50 || p.x < -60 || p.y > height + 60 || p.y < -60) {
-          // respawn from the left edge mostly, occasionally top
           const fromLeft = Math.random() > 0.25;
           Object.assign(p, spawnPetal(fromLeft));
           if (!fromLeft) {
@@ -252,15 +240,30 @@ export function PetalWind() {
     };
     tick();
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        isRunning = false;
+        cancelAnimationFrame(raf);
+      } else {
+        if (!isRunning) {
+          isRunning = true;
+          raf = requestAnimationFrame(tick);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     const onResize = () => setSize();
     window.addEventListener("resize", onResize, { passive: true });
 
     // ---- Cleanup ----
     return () => {
+      isRunning = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerout", onLeave);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       if (windTimeline) windTimeline.pause();
     };
   }, [reduce]);

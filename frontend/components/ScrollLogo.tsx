@@ -15,22 +15,19 @@
 
 export function ScrollLogo() {
   return (
-    <div className="pointer-events-none fixed top-2 left-6 z-[60] flex items-center">
+    <div className="pointer-events-none fixed top-3 left-6 sm:left-8 z-[60] flex items-center">
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Sakhi — back to top"
-        className="pointer-events-auto group flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer"
+        className="pointer-events-auto group flex items-center border-0 bg-transparent p-0 cursor-pointer transition-transform duration-300 hover:scale-105"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/logo.png"
-          alt="Sakhi"
-          className="h-10 w-auto mix-blend-multiply transition-opacity duration-300 group-hover:opacity-90"
+          src="/original-logo.png?v=4"
+          alt="Sakhi — Your AI Health Companion"
+          className="h-14 sm:h-16 w-auto object-contain mix-blend-multiply"
         />
-        <span className="text-3xl font-cute text-plum-900 pr-1">
-          Sakhi
-        </span>
       </button>
     </div>
   );
