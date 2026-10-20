@@ -510,14 +510,20 @@ export default function HerModePage() {
 
   const displayName = profile?.preferred_name || (typeof window !== 'undefined' ? localStorage.getItem('sakhi_preferred_name') : null) || session?.user?.name?.split(" ")[0] || "Beautiful";
   
-  // Calculate next period
-  const startDate = profile ? new Date(profile.last_period_start) : new Date();
+  // Calculate next period with safe parsing
+  const rawStart = profile?.last_period_start || profile?.lastPeriodStart;
+  const parsedStart = rawStart ? new Date(rawStart) : null;
+  const startDate = parsedStart && !isNaN(parsedStart.getTime()) 
+    ? parsedStart 
+    : new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  const cycleInterval = Number(profile?.cycle_length_avg || profile?.cycle_length) || 28;
   const nextPeriod = new Date(startDate);
-  nextPeriod.setDate(startDate.getDate() + (profile?.cycle_length_avg || 28));
+  nextPeriod.setDate(startDate.getDate() + cycleInterval);
   const today = new Date();
   const diffTime = nextPeriod.getTime() - today.getTime();
-  const daysUntilNext = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const isPcosRisk = profile?.diagnosed_conditions?.includes("PCOS") || profile?.cycle_regularity === "No";
+  const rawDaysUntilNext = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const daysUntilNext = isNaN(rawDaysUntilNext) ? 14 : rawDaysUntilNext;
+  const isPcosRisk = profile?.diagnosed_conditions?.includes("PCOS") || profile?.cycle_regularity === "No" || profile?.cycle_regularity === "Irregular";
 
   const handleCheckInComplete = async (data: any) => {
     setAiState("thinking");

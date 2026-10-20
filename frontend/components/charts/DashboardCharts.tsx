@@ -437,23 +437,33 @@ export const SleepHoursChart = ({ data }: { data: any[] }) => {
 
 // 9. Ovulation & Fertile Window Calendar
 export const OvulationCalendar = ({ profile }: { profile: any }) => {
-  if (!profile || !profile.last_period_start) return null;
-  
   const today = new Date();
   const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
-  const lastP = new Date(profile.last_period_start);
+  // Safe date resolution with robust fallback
+  let lastP: Date;
+  const rawDate = profile?.last_period_start || profile?.lastPeriodStart || profile?.last_period_date;
+  if (rawDate) {
+    const parsed = new Date(rawDate);
+    lastP = isNaN(parsed.getTime()) ? new Date(todayMidnight.getTime() - 14 * 24 * 60 * 60 * 1000) : parsed;
+  } else {
+    // Default baseline: 14 days ago so today aligns with ovulation/fertile window
+    lastP = new Date(todayMidnight.getTime() - 14 * 24 * 60 * 60 * 1000);
+  }
+  
   const lastPMidnight = new Date(lastP.getFullYear(), lastP.getMonth(), lastP.getDate());
   
   const diffTime = Math.abs(todayMidnight.getTime() - lastPMidnight.getTime());
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-  const cycleLen = profile.cycle_length_avg || 28;
-  const periodDur = profile.period_duration || 5;
+  const cycleLen = Number(profile?.cycle_length_avg || profile?.cycle_length || profile?.cycleLengthAvg) || 28;
+  const periodDur = Number(profile?.period_duration || profile?.periodDuration) || 5;
   const currentCycleDay = diffDays % cycleLen;
   const ovulationCycleDay = Math.floor(cycleLen / 2); // Midpoint of cycle (e.g. Day 14 of 28)
   
   const days = [];
   let ovuDateStr = "";
+  let fertileStartStr = "";
+  let fertileEndStr = "";
 
   for (let i = -3; i <= 10; i++) {
     const d = new Date(todayMidnight);
@@ -464,8 +474,14 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
     const isOvulation = cDay === ovulationCycleDay;
     const isToday = i === 0;
     
-    if (isOvulation) {
+    if (isOvulation && !ovuDateStr) {
       ovuDateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+    if (cDay === Math.max(0, ovulationCycleDay - 4) && !fertileStartStr) {
+      fertileStartStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+    if (cDay === ovulationCycleDay + 1 && !fertileEndStr) {
+      fertileEndStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     }
 
     days.push({
@@ -479,8 +495,40 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
     });
   }
 
+  // Phase badge calculation
+  const phaseLabel = currentCycleDay === ovulationCycleDay 
+    ? "Ovulation Peak Day" 
+    : (currentCycleDay >= ovulationCycleDay - 4 && currentCycleDay <= ovulationCycleDay + 1)
+      ? "Fertile Window Open" 
+      : (currentCycleDay < periodDur) 
+        ? "Menstrual Phase" 
+        : (currentCycleDay < ovulationCycleDay) 
+          ? "Follicular Phase" 
+          : "Luteal Phase";
+
   return (
     <div className="w-full mt-3">
+      {/* Quick Summary Pill Row */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Cycle Day {currentCycleDay + 1} of {cycleLen}
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200/80 shadow-sm">
+            {phaseLabel}
+          </span>
+        </div>
+        {ovuDateStr && (
+          <div className="text-xs text-[#2D1B36]/70 flex items-center gap-2">
+            <span>Estimated Ovulation: <strong className="text-emerald-700 font-bold">{ovuDateStr}</strong></span>
+            {fertileStartStr && fertileEndStr && (
+              <span className="hidden sm:inline text-[#2D1B36]/50">• Fertile Window: <strong className="text-[#2D1B36] font-semibold">{fertileStartStr} – {fertileEndStr}</strong></span>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Scrollable Day Strip */}
       <div className="flex gap-2.5 overflow-x-auto custom-scrollbar pb-3 pt-1 px-1 w-full items-center">
         {days.map((d, idx) => {
