@@ -1,0 +1,15 @@
+[project]
+name = "sakhi-ml-service"
+version = "0.1.0"
+description = "SAKHI ML Microservice for health assessments"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "numpy==1.26.4",
+    "scikit-learn==1.3.2",
+]
+
+[tool.uv]
+package = false
