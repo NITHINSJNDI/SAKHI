@@ -8,12 +8,6 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   devIndicators: false,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   outputFileTracingRoot: __dirname,
   compress: true,
   poweredByHeader: false,

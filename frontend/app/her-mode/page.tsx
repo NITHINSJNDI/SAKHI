@@ -390,8 +390,13 @@ export default function HerModePage() {
     setIsMlLoading(true);
     try {
       const hasAcne = (userLogs || []).some((l: any) => l.symptoms?.includes("Acne"));
-      const hasFatigue = (userLogs || []).some((l: any) => l.symptoms?.includes("Fatigue"));
-      const isProlongedOrHeavy = (userLogs || []).some((l: any) => l.flow_intensity === "Heavy") || (userProfile?.period_duration && userProfile.period_duration > 7);
+      const hasFatigue = (userLogs || []).some((l: any) => 
+        l.symptoms?.includes("Fatigue") || 
+        l.mood === "Tired" || 
+        l.mood === "Fatigued"
+      );
+      const isProlongedOrHeavy = ((userProfile?.period_duration || 5) > 7) || 
+        (userLogs || []).some((l: any) => l.flow_intensity === "Heavy" || l.flow_intensity === "very_heavy");
       const isRegular = (userProfile?.cycle_regularity === "No" || userProfile?.cycle_regularity === "Irregular") ? 0 : 1;
       
       // Parallel PCOS & Thyroid ML requests

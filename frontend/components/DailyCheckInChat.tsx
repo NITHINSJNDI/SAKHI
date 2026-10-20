@@ -265,7 +265,7 @@ export default function DailyCheckInChat({ onComplete, profileName }: DailyCheck
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-2 flex flex-col items-end w-full">
               <div className="flex flex-wrap gap-2 justify-end mb-3">
-                {["Headache", "Bloating", "Acne", "Backache", "Nausea", "Breast Tenderness", "None"].map(sym => (
+                {["Fatigue", "Headache", "Bloating", "Acne", "Backache", "Nausea", "Breast Tenderness", "None"].map(sym => (
                   <button
                     key={sym}
                     onClick={() => toggleSymptom(sym)}
