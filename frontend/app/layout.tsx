@@ -13,6 +13,14 @@ export const metadata: Metadata = {
   title: "Sakhi — your body speaks. Sakhi listens.",
   description:
     "The AI-powered companion connecting menstrual cycle, maternal care, and mental wellness into one seamless system.",
+  icons: {
+    icon: [
+      { url: "/original-logo.png?v=5", type: "image/png" },
+      { url: "/favicon.ico?v=5" },
+    ],
+    shortcut: "/original-logo.png?v=5",
+    apple: "/original-logo.png?v=5",
+  },
   keywords: [
     "women's health",
     "menstrual cycle",
@@ -39,6 +47,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <link rel="icon" href="/original-logo.png?v=5" type="image/png" />
+        <link rel="shortcut icon" href="/original-logo.png?v=5" type="image/png" />
+        <link rel="apple-touch-icon" href="/original-logo.png?v=5" />
         {/* Geist + Instrument Serif via Google Fonts (self-host in production) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
