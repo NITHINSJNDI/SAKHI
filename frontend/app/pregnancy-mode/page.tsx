@@ -254,9 +254,9 @@ const getGdmExplainability = (
   };
 };
 
-const cardClass = "bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-all duration-300 p-8 relative overflow-hidden";
-const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-6 flex flex-col justify-between";
-const iconWrapClass = "w-12 h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-4";
+const cardClass = "bg-white/60 backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.12)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(244,114,182,0.18)] transition-all duration-300 p-4 sm:p-6 md:p-8 relative overflow-hidden min-w-0";
+const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between min-w-0";
+const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-3 sm:mb-4";
 
 export default function PregnancyModePage() {
   const router = useRouter();
@@ -541,9 +541,9 @@ export default function PregnancyModePage() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white/80 border-2 border-pink-300/60 shadow-[0_4px_16px_rgba(244,114,182,0.2)] shrink-0 flex items-center justify-center">
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8 flex items-center justify-between print:hidden">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white/80 border-2 border-pink-300/60 shadow-[0_4px_16px_rgba(244,114,182,0.2)] shrink-0 flex items-center justify-center">
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -553,29 +553,29 @@ export default function PregnancyModePage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-[#2D1B36] font-semibold text-lg">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-[#2D1B36] font-semibold text-base sm:text-lg">
                 {displayName?.charAt(0)?.toUpperCase() || "M"}
               </div>
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom Mode</span>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom Mode</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-light tracking-tight text-[#2D1B36] flex items-center gap-2 mt-0.5">
-              Good morning, {displayName} 
+            <h1 className="text-base sm:text-2xl font-light tracking-tight text-[#2D1B36] flex items-center gap-1.5 sm:gap-2 mt-0.5 truncate">
+              <span>Good morning, {displayName}</span>
               <span className="inline-block hover:rotate-12 hover:scale-110 cursor-pointer transition-all duration-300">🍼</span>
             </h1>
           </div>
         </div>
         
-        <div className="flex items-center gap-3 relative print:hidden">
+        <div className="flex items-center gap-2 sm:gap-3 relative print:hidden shrink-0">
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
             title="Settings"
           >
-            <GearSix weight="duotone" className="w-5 h-5" />
+            <GearSix weight="duotone" className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button 
             onClick={() => {
@@ -591,11 +591,11 @@ export default function PregnancyModePage() {
               } catch (e) {}
               router.push('/');
             }}
-            className="w-12 h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/70 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/70 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
             title="Back to Landing Page"
             aria-label="Back to Landing Page"
           >
-            <ArrowLeft weight="bold" className="w-5 h-5" />
+            <ArrowLeft weight="bold" className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </header>

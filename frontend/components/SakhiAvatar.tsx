@@ -97,7 +97,7 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
   }, [isDollTalking]);
 
   return (
-    <div className="w-full bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.14)] p-8 flex flex-col md:flex-row gap-8 mb-8 overflow-hidden relative">
+    <div className="w-full bg-white/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.14)] p-4 sm:p-6 md:p-8 flex flex-col md:flex-row gap-5 sm:gap-6 md:gap-8 mb-6 sm:mb-8 overflow-hidden relative">
       
       {/* Subtle background glow when talking */}
       {isDollTalking && (
@@ -107,7 +107,7 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
       {/* Left Column: Doll Avatar */}
       <div className="w-full md:w-1/3 flex flex-col items-center justify-center relative">
         <div
-          className="relative w-64 h-64 rounded-full overflow-hidden border-8 border-white shadow-[0_10px_40px_rgba(244,114,182,0.3)] bg-pink-50 select-none"
+          className="relative w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 sm:border-8 border-white shadow-[0_10px_40px_rgba(244,114,182,0.3)] bg-pink-50 select-none"
         >
           {/* Base doll image - always rendered, never unmounts, never disappears */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -137,13 +137,13 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
           />
         </div>
 
-        <div className="mt-6 flex items-center gap-2">
-          <Sparkle weight="duotone" className="text-pink-500 w-6 h-6" />
-          <h3 className="text-[#2D1B36] font-semibold text-2xl tracking-tight">Sakhi</h3>
+        <div className="mt-3 sm:mt-5 md:mt-6 flex items-center gap-2">
+          <Sparkle weight="duotone" className="text-pink-500 w-5 h-5 sm:w-6 sm:h-6" />
+          <h3 className="text-[#2D1B36] font-semibold text-xl sm:text-2xl tracking-tight">Sakhi</h3>
         </div>
       </div>
 
-      <div className="w-full md:w-2/3 flex flex-col h-[400px] bg-white/70 rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-6 overflow-hidden">
+      <div className="w-full md:w-2/3 flex flex-col h-[380px] sm:h-[400px] bg-white/70 rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 overflow-hidden min-w-0">
         
         {checkInMode ? (
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 w-full">
@@ -166,7 +166,7 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
               {messages.map((m) => (
                 <div 
                   key={m.id} 
-                  className={`max-w-[85%] p-4 rounded-2xl text-base shadow-sm border border-white/40 ${
+                  className={`max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border border-white/40 ${
                     m.role === 'user' 
                       ? 'bg-pink-100/90 text-pink-900 self-end rounded-tr-sm' 
                       : 'bg-white/90 backdrop-blur-md text-[#2D1B36] self-start rounded-tl-sm'
@@ -176,7 +176,7 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
                 </div>
               ))}
               {isLoading && (
-                <div className="bg-white/90 backdrop-blur-md text-[#2D1B36] self-start rounded-2xl rounded-tl-sm p-4 shadow-sm border border-white/40 flex gap-1.5 items-center">
+                <div className="bg-white/90 backdrop-blur-md text-[#2D1B36] self-start rounded-2xl rounded-tl-sm p-3 sm:p-4 shadow-sm border border-white/40 flex gap-1.5 items-center">
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -199,34 +199,34 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
                   placeholder="Type your question or speak to me..."
-                  className="w-full bg-white/60 border border-[#2D1B36]/10 rounded-2xl pl-5 pr-32 py-4 text-[#2D1B36] placeholder:text-[#2D1B36]/40 focus:outline-none focus:ring-2 focus:ring-pink-300/50 transition-all text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                  className="w-full bg-white/60 border border-[#2D1B36]/10 rounded-2xl pl-3.5 sm:pl-5 pr-28 sm:pr-32 py-3 sm:py-4 text-[#2D1B36] placeholder:text-[#2D1B36]/40 focus:outline-none focus:ring-2 focus:ring-pink-300/50 transition-all text-xs sm:text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
                 />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-2">
                   <button 
                     type="button"
                     onClick={toggleAutoPlayVoice}
-                    className={`p-2.5 rounded-full transition-all duration-300 ${autoPlayVoice ? 'bg-pink-100 text-pink-600 hover:bg-pink-200 shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                    className={`p-2 sm:p-2.5 rounded-full transition-all duration-300 ${autoPlayVoice ? 'bg-pink-100 text-pink-600 hover:bg-pink-200 shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                     title={autoPlayVoice ? "Auto-play voice is ON (click to mute)" : "Auto-play voice is OFF (click to unmute)"}
                   >
                     {autoPlayVoice ? (
-                      <SpeakerHigh weight="fill" className="w-5 h-5" />
+                      <SpeakerHigh weight="fill" className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <SpeakerSlash weight="fill" className="w-5 h-5" />
+                      <SpeakerSlash weight="fill" className="w-4 h-4 sm:w-5 sm:h-5" />
                     )}
                   </button>
                   <button 
                     type="button"
                     onClick={toggleListening}
-                    className={`p-2.5 rounded-full transition-all duration-300 ${isListening ? 'bg-pink-200 text-pink-600 shadow-[0_0_15px_rgba(244,114,182,0.5)] animate-pulse' : 'bg-[#2D1B36]/5 text-[#2D1B36] hover:bg-pink-100 hover:text-pink-600'}`}
+                    className={`p-2 sm:p-2.5 rounded-full transition-all duration-300 ${isListening ? 'bg-pink-200 text-pink-600 shadow-[0_0_15px_rgba(244,114,182,0.5)] animate-pulse' : 'bg-[#2D1B36]/5 text-[#2D1B36] hover:bg-pink-100 hover:text-pink-600'}`}
                   >
-                    <Microphone weight={isListening ? "fill" : "regular"} className="w-5 h-5" />
+                    <Microphone weight={isListening ? "fill" : "regular"} className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                   <button 
                     type="submit" 
                     disabled={!inputVal.trim() || isLoading}
-                    className="p-2.5 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:bg-[#2D1B36]/10 disabled:text-[#2D1B36]/30 shadow-md"
+                    className="p-2 sm:p-2.5 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:bg-[#2D1B36]/10 disabled:text-[#2D1B36]/30 shadow-md"
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="22" y1="2" x2="11" y2="13"></line>
                       <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                     </svg>

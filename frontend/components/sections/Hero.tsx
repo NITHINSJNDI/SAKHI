@@ -60,23 +60,23 @@ export function Hero() {
         className="flex max-w-4xl flex-col items-center"
       >
         {/* Centered angel figure (Stage 3 hero graphic) */}
-        <motion.div variants={item} className="relative mb-10">
+        <motion.div variants={item} className="relative mb-6 sm:mb-10">
           <div
             aria-hidden
-            className="breathe absolute left-1/2 top-1/2 -z-10 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-lavender-300/40 to-blush-300/40 blur-3xl mix-blend-multiply"
+            className="breathe absolute left-1/2 top-1/2 -z-10 h-44 w-44 sm:h-56 sm:w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-lavender-300/40 to-blush-300/40 blur-3xl mix-blend-multiply"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/original-logo.png?v=4"
             alt="Sakhi Logo"
-            className="relative h-56 w-auto drop-shadow-[0_8px_30px_rgba(122,74,163,0.25)] sm:h-64 mix-blend-multiply"
+            className="relative h-44 sm:h-56 md:h-64 w-auto drop-shadow-[0_8px_30px_rgba(122,74,163,0.25)] mix-blend-multiply"
           />
         </motion.div>
 
         {/* Headline */}
         <motion.h1
           variants={item}
-          className="text-balance text-[2.4rem] leading-[1.08] tracking-tight
+          className="text-balance text-3xl leading-[1.15] tracking-tight
                      text-plum-900 sm:text-5xl lg:text-6xl"
         >
           Your AI Companion for Every Stage of{" "}
@@ -86,23 +86,23 @@ export function Hero() {
         {/* Subtext */}
         <motion.p
           variants={item}
-          className="mt-6 max-w-[44rem] text-pretty text-base leading-relaxed
-                     text-ink-soft sm:text-lg"
+          className="mt-4 sm:mt-6 max-w-[44rem] text-pretty text-sm sm:text-base md:text-lg leading-relaxed
+                     text-ink-soft"
         >
           Sakhi bridges menstrual cycle rhythm, clinical AI risk prediction, and maternal care. Seamlessly switch between <strong>Her Mode</strong> (cycle intelligence & hormone screening) and <strong>Mom Mode</strong> (pregnancy tracking, kick counts & gestational risk monitoring).
         </motion.p>
 
         {/* Updated Dual-Mode Feature Pills */}
-        <motion.div variants={item} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-xs font-semibold text-plum-900">
+        <motion.div variants={item} className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
             <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
             <span>Her Mode • Cycle & PCOS/Thyroid Screening</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-xs font-semibold text-plum-900">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
             <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
             <span>Mom Mode • Trimester Care & GDM/BP AI</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-xs font-semibold text-plum-900">
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 border border-pink-200/90 shadow-[0_4px_16px_rgba(244,114,182,0.14)] text-[11px] sm:text-xs font-semibold text-plum-900">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span>Voice Check-in & Real-time Clinical ML</span>
           </div>

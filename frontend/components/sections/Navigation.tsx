@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/kokonut";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { List, X } from "@phosphor-icons/react";
 
 /**
  * Navigation — single line at desktop, height capped under 80px.
@@ -170,6 +171,8 @@ export function Navigation() {
     }
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const links = [
     { label: "Main", href: "#hero" },
     { label: "Cycle", href: "#cycle" },
@@ -180,6 +183,7 @@ export function Navigation() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
     if (href === "#hero" || href === "#main") {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -195,15 +199,15 @@ export function Navigation() {
       initial={reduce ? false : { y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-      className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4"
+      className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-3 sm:px-4 pt-3 sm:pt-4"
     >
       <nav
-        className={`flex w-full max-w-5xl items-center justify-between gap-4 rounded-full px-5 py-2.5 transition-all duration-500 ease-[var(--ease-soft)]
-          ${scrolled ? "glass-strong" : "bg-white/30 border border-white/40 backdrop-blur-sm"}`}
-        style={{ height: "60px" }}
+        className={`flex w-full max-w-5xl items-center justify-between gap-3 sm:gap-4 rounded-full pl-16 sm:pl-6 pr-3 sm:pr-5 py-2 transition-all duration-500 ease-[var(--ease-soft)]
+          ${scrolled ? "glass-strong" : "bg-white/40 border border-white/50 backdrop-blur-md shadow-sm"}`}
+        style={{ minHeight: "56px" }}
       >
-        {/* Center links — hidden on small screens to keep one line */}
-        <div className="hidden items-center gap-7 md:flex pl-4">
+        {/* Center links — hidden on small screens, shown on md+ */}
+        <div className="hidden items-center gap-7 md:flex">
           {links.map((l) => (
             <a
               key={l.label}
@@ -216,10 +220,10 @@ export function Navigation() {
           ))}
         </div>
 
-        {/* Auth status & CTA */}
-        <div className="flex items-center gap-4">
+        {/* Right side: Auth status, CTA, and Mobile menu button */}
+        <div className="flex items-center gap-2 sm:gap-3 ml-auto">
           {status === "authenticated" ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 rounded-full overflow-hidden bg-white/95 border border-pink-300/50 shadow-[0_2px_8px_rgba(244,114,182,0.15)] shrink-0 flex items-center justify-center">
                 {session?.user?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -241,14 +245,14 @@ export function Navigation() {
               <Button
                 variant="primary"
                 onClick={goToMode}
-                className="px-4 py-1.5 text-xs font-medium"
+                className="px-3.5 py-1.5 text-xs font-semibold"
                 glow
               >
                 Mode
               </Button>
               <button
                 onClick={handleSignOut}
-                className="text-xs font-medium text-ink-soft hover:text-plum-900 transition-colors cursor-pointer"
+                className="hidden text-xs font-medium text-ink-soft hover:text-plum-900 transition-colors cursor-pointer sm:inline"
               >
                 Sign Out
               </button>
@@ -257,14 +261,61 @@ export function Navigation() {
             <Button
               variant="primary"
               onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
-              className="px-5 py-2 text-sm"
+              className="px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
               glow
             >
               Sign In
             </Button>
           )}
+
+          {/* Mobile hamburger menu toggle button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="flex md:hidden w-9 h-9 rounded-full bg-white/60 border border-white/60 items-center justify-center text-[#2D1B36] hover:bg-white/90 transition-all shadow-sm"
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? <X size={18} weight="bold" /> : <List size={18} weight="bold" />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Drawer Dropdown */}
+      {mobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -8, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.97 }}
+          transition={{ duration: 0.2 }}
+          className="md:hidden mt-2 w-full max-w-sm rounded-2xl bg-white/95 backdrop-blur-xl border border-pink-200/80 shadow-[0_12px_36px_rgba(244,114,182,0.22)] p-4 flex flex-col gap-2 z-50"
+        >
+          {links.map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              onClick={(e) => handleNavClick(e, l.href)}
+              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-plum-900 hover:bg-pink-50 transition-colors flex items-center justify-between"
+            >
+              <span>{l.label}</span>
+              <span className="text-pink-400 text-xs">→</span>
+            </a>
+          ))}
+
+          {status === "authenticated" && (
+            <div className="border-t border-pink-100/80 pt-2 mt-1 flex items-center justify-between px-2">
+              <span className="text-xs text-ink-soft">
+                Signed in as <strong>{userName}</strong>
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+        </motion.div>
+      )}
     </motion.header>
   );
 }

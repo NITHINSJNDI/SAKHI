@@ -99,7 +99,7 @@ export const CycleLengthChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
@@ -134,7 +134,7 @@ export const PeriodDurationChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
@@ -182,7 +182,7 @@ export const SymptomFrequencyChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={chartData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
@@ -230,7 +230,7 @@ export const MoodCycleChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 10, right: 15, left: 20, bottom: 0 }}>
@@ -277,7 +277,7 @@ export const FlowIntensityChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={chartData} margin={{ top: 10, right: 15, left: 20, bottom: 0 }}>
@@ -320,7 +320,7 @@ export const PainTrendChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <AreaChart data={chartData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
@@ -365,7 +365,7 @@ export const WeightTrendChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
@@ -407,7 +407,7 @@ export const SleepHoursChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <AreaChart data={chartData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>

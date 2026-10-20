@@ -118,7 +118,7 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
             key={i} 
             whileHover={{ scale: 1.08, y: -3 }}
             transition={{ duration: 0.2 }}
-            className={`flex flex-col items-center justify-center w-24 h-24 shrink-0 rounded-[2rem] border-2 transition-all ${
+            className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl sm:rounded-[2rem] border-2 transition-all ${
               isCurrent 
                 ? "border-pink-400 bg-pink-50/90 scale-105 shadow-[0_8px_25px_rgba(244,114,182,0.3)] ring-4 ring-pink-300/40 animate-pulse" 
                 : isPast 
@@ -126,9 +126,9 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
                   : "border-black/5 bg-black/5 opacity-40 grayscale"
             }`}
           >
-            <span className={`text-xs font-bold ${isCurrent ? "text-pink-700" : "text-[#2D1B36]/60"}`}>Week {f.w}</span>
-            <span className="text-3xl mt-1 select-none">{f.fruit.split(" ")[0]}</span>
-            <span className="text-[10px] uppercase font-bold text-[#2D1B36]/50 mt-1 truncate max-w-[80px]">{f.fruit.split(" ")[1]}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${isCurrent ? "text-pink-700" : "text-[#2D1B36]/60"}`}>Week {f.w}</span>
+            <span className="text-2xl sm:text-3xl mt-0.5 sm:mt-1 select-none">{f.fruit.split(" ")[0]}</span>
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#2D1B36]/50 mt-0.5 sm:mt-1 truncate max-w-[70px] sm:max-w-[80px]">{f.fruit.split(" ")[1]}</span>
           </motion.div>
         );
       })}
@@ -163,7 +163,7 @@ export const WeightGainChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -214,7 +214,7 @@ export const BloodPressureChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -277,7 +277,7 @@ export const BloodSugarChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -355,7 +355,7 @@ export const BabyMovementChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -500,7 +500,7 @@ export const MoodTrackerChart = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -553,7 +553,7 @@ export const NutritionScoreChart = ({ nutrition }: { nutrition: any }) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <PieChart>
@@ -601,7 +601,7 @@ export const PregnancySleepGraph = ({ data }: { data: any[] }) => {
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <ResponsiveContainer width="100%" height={250}>
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
