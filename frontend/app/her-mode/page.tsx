@@ -216,7 +216,7 @@ const getPcosAssessment = (profile: any, logs: any[], mlData: any): ClinicalBrea
   return { score, riskCategory: riskCategory as any, badgeClass, barGradient, summary, factors, isMlActive: Boolean(hasDailyLogs && mlData) };
 };
 
-export const getThyroidAssessment = (profile: any, logs: any[], mlData: any): ClinicalBreakdown => {
+ const getThyroidAssessment = (profile: any, logs: any[], mlData: any): ClinicalBreakdown => {
   const factors: RiskFactor[] = [];
   const hasDailyLogs = logs && logs.length > 0;
   let score = 10; // Baseline prevalence
