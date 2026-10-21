@@ -1,0 +1,158 @@
+================================================================================
+                                SAKHI (सखी)
+          Your Caring AI Health Companion for Every Stage of Womanhood
+================================================================================
+
+1. WHAT IS SAKHI?
+--------------------------------------------------------------------------------
+Sakhi (meaning "a close female friend" in Sanskrit and Hindi) is an easy-to-use,
+friendly, and intelligent health platform created for women. 
+
+In everyday life, women often navigate menstruation, hormonal imbalances, 
+fertility questions, pregnancy, and emotional changes in silence, without quick
+access to clear health guidance. Sakhi acts as a 24/7 personal health guide that
+listens to women, tracks their physical and emotional symptoms, and provides 
+compassionate, easy-to-understand health insights.
+
+Sakhi is designed with two distinct modes to support a woman throughout her life:
+  • "Her Mode"  - For menstrual cycle tracking, hormone wellness, ovulation, and
+                  early screening for conditions like PCOS and Thyroid problems.
+  • "Mom Mode"  - For pregnant mothers to track baby growth, fetal movements,
+                  blood pressure, blood sugar, and safe pregnancy milestones.
+
+
+2. HOW IS THIS USEFUL TO WOMEN?
+--------------------------------------------------------------------------------
+1. Personalized to Her Real Body:
+   Most apps assume every woman has a textbook 28-day cycle. Sakhi learns her 
+   actual body rhythm, adapting to irregular periods, stress variations, and 
+   postpartum return.
+
+2. Early Health Warnings (PCOS & Thyroid Screening):
+   Many women suffer from PCOS or Thyroid imbalances for years before getting 
+   diagnosed. By simply logging everyday signs (bleeding length, cramps, acne, 
+   mood, and cycle intervals), Sakhi warns her early if risk factors appear, 
+   empowering her to visit a doctor before conditions worsen.
+
+3. Safer Pregnancies & Baby Monitoring:
+   High blood pressure (Preeclampsia) and high blood sugar (Gestational Diabetes) 
+   can endanger both mother and child during pregnancy. Sakhi monitors these vital 
+   signs daily, helping mothers notice red flags early.
+
+4. 24/7 Voice & Chat Companion:
+   Women can talk or type directly to Sakhi in plain, comfortable language. Sakhi 
+   replies with warmth, guidance, and medical reassurance, breaking the isolation 
+   and fear around sensitive health issues.
+
+5. Doctor-Ready Medical Reports:
+   Women often forget their exact symptoms or dates when visiting their gynecologist. 
+   Sakhi generates a clean 1-click summary report that she can print or show to her 
+   doctor during clinic visits.
+
+6. A Lifelong Companion:
+   When a woman becomes pregnant, she doesn't need a new app. With one click, she 
+   switches from cycle tracking to pregnancy care, and back again postpartum.
+
+
+3. THE TWO CORE JOURNEYS
+--------------------------------------------------------------------------------
+
+A. "HER MODE" (Cycle & Hormonal Intelligence)
+---------------------------------------------
+  • Smart Cycle & Bleeding Tracking:
+    Predicts when her next period will arrive and how long bleeding will last.
+  • Ovulation & Fertile Window Calendar:
+    Calculates her most fertile days to help her plan conception or understand 
+    her natural cycle rhythms.
+  • Hormone Wellness & Risk Indicators:
+    Evaluates risk for PCOS and Thyroid imbalances by analyzing irregular cycle 
+    patterns, cramps severity, heavy bleeding, and related physical symptoms.
+  • Daily Check-in & Emotional Wellness:
+    A 60-second daily check to log energy, sleep hours, physical pain, and mood 
+    (happy, calm, anxious, fatigued), showing how her hormones influence feelings.
+  • Animated Live Health Visuals:
+    Clear graphs showing cycle history, pain trends, and sleep over time.
+
+B. "MOM MODE" (Pregnancy & Maternal Care)
+----------------------------------------
+  • Weekly Baby Growth & Trimester Milestones:
+    Visualizes baby development week-by-week using friendly fruit comparisons 
+    (from a tiny blueberry in early weeks up to a full pumpkin at term).
+  • Fetal Kick Counter:
+    Tracks baby movement across morning, afternoon, and night so the mother can 
+    confirm her baby is active and healthy.
+  • Vital Signs Screening:
+    Monitors blood pressure and fasting blood sugar, watching for signs of 
+    preeclampsia and gestational diabetes.
+  • Daily Nutrition Guide:
+    Reminds mothers about essential pregnancy nutrients: Protein, Iron, Calcium, 
+    and daily hydration.
+  • Prenatal Visit Schedule:
+    Organizes routine antenatal checkup reminders and medical scans.
+  • Emergency Red-Flag Triage:
+    Immediately alerts the mother if dangerous symptoms (such as severe swelling, 
+    blurry vision, or sudden bleeding) are reported, urging her to visit an 
+    OB/GYN or hospital without delay.
+
+
+4. END-TO-END WORKFLOW (HOW IT WORKS STEP-BY-STEP)
+--------------------------------------------------------------------------------
+
+Step 1: Simple Sign-In
+  • The user visits the website and signs in securely with one tap using her 
+    Google account.
+
+Step 2: Friendly 2-Minute Onboarding
+  • Sakhi welcomes her by name and asks: "Which journey would you like to set up?"
+  • If she chooses "Her Mode":
+    - Sakhi asks for the date her last period started, typical cycle length, and 
+      any known past health history.
+  • If she chooses "Mom Mode":
+    - Sakhi asks how many weeks pregnant she is, her due date, and whether this is 
+      her first pregnancy.
+
+Step 3: Talking With the Sakhi AI Avatar
+  • On her private dashboard, an interactive animated Sakhi doll greets her.
+  • She can speak aloud using her microphone or type questions like:
+    "Why are my cramps so bad this month?" or 
+    "Is it normal to feel nausea in week 12?"
+  • Sakhi answers aloud with a caring voice and offers supportive, reliable health 
+    guidance.
+
+Step 4: 60-Second Daily Check-in
+  • Once every day, Sakhi prompts her for a quick check-in:
+    - In Her Mode: Bleeding flow, cramp level, symptoms, sleep, and emotional mood.
+    - In Mom Mode: Blood pressure, sugar reading, baby kicks, symptoms, and sleep.
+  • Filling this in takes less than a minute.
+
+Step 5: Automatic Dashboard Update
+  • Immediately after the check-in, all charts and health risk gauges animate and 
+    update with her latest numbers.
+  • She can visually spot trends, such as how sleep affects her mood or whether her 
+    blood pressure is remaining stable.
+
+Step 6: Smart Alerts & Clinical Help
+  • If her numbers look healthy, Sakhi provides positive encouragement.
+  • If any warning sign or risk emerges (such as elevated blood pressure or severe 
+    pain), Sakhi explains what it means in simple words and advises her to speak 
+    with a doctor.
+
+Step 7: Seamless Life Stage Switching
+  • If a woman in Her Mode becomes pregnant, she opens Settings and taps "Switch to 
+    Mom Mode." Her dashboard transforms immediately into pregnancy care without 
+    losing her personal account history.
+
+
+5. TECHNOLOGY STACK (NAMES ONLY)
+--------------------------------------------------------------------------------
+  • User Interface & Web Framework: Next.js, React, Tailwind CSS, Framer Motion
+  • Interactive Health Charts: Recharts
+  • Conversational AI Companion: Google Gemini AI
+  • Clinical Health Prediction Engine: Python, FastAPI, Scikit-learn
+  • Database & Cloud Storage: PostgreSQL (Supabase)
+  • Secure Authentication: NextAuth (Google Sign-In)
+  • Voice & Speech Integration: Web Speech API (Speech Recognition & Speech Synthesis)
+
+================================================================================
+                               End of Overview
+================================================================================
