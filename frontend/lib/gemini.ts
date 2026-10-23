@@ -4,9 +4,10 @@ interface KeyMetadata {
   key: string;
   disabledUntil: number; // timestamp in ms
   consecutiveFailures: number;
+  totalSuccesses: number;
 }
 
-// Global state across hot-reloads in development
+// Global state across hot-reloads in Next.js development
 const globalForGemini = globalThis as unknown as {
   geminiKeyStates?: Map<string, KeyMetadata>;
   geminiCurrentIndex?: number;
@@ -20,40 +21,56 @@ if (globalForGemini.geminiCurrentIndex === undefined) {
 }
 
 /**
- * Returns an array of all configured Gemini API keys
+ * Returns a deduplicated array of all configured Gemini API keys from environment variables.
+ * Supports:
+ * - GEMINI_API_KEYS (comma-separated list)
+ * - GEMINI_API_KEY_1, GEMINI_API_KEY_2, ... GEMINI_API_KEY_20
+ * - GEMINI_API_KEY (primary fallback)
  */
 export function getGeminiKeyPool(): string[] {
   const keys: string[] = [];
 
+  // 1. Check comma-separated GEMINI_API_KEYS
   if (process.env.GEMINI_API_KEYS) {
-    keys.push(...process.env.GEMINI_API_KEYS.split(',').map(k => k.trim()).filter(Boolean));
+    const split = process.env.GEMINI_API_KEYS.split(',').map(k => k.trim()).filter(Boolean);
+    for (const k of split) {
+      if (!keys.includes(k)) keys.push(k);
+    }
   }
 
+  // 2. Check numbered keys GEMINI_API_KEY_1 to GEMINI_API_KEY_20
   for (let i = 1; i <= 20; i++) {
     const k = process.env[`GEMINI_API_KEY_${i}`];
-    if (k && !keys.includes(k.trim())) keys.push(k.trim());
+    if (k && !keys.includes(k.trim())) {
+      keys.push(k.trim());
+    }
   }
 
-  if (process.env.GEMINI_API_KEY && !keys.includes(process.env.GEMINI_API_KEY.trim())) {
-    keys.unshift(process.env.GEMINI_API_KEY.trim());
+  // 3. Check legacy single GEMINI_API_KEY
+  if (process.env.GEMINI_API_KEY) {
+    const primary = process.env.GEMINI_API_KEY.trim();
+    if (primary && !keys.includes(primary)) {
+      keys.unshift(primary);
+    }
   }
 
   return keys;
 }
 
 /**
- * Initializes metadata for all keys in the pool
+ * Ensures key metadata entries exist
  */
 function ensureKeyStates(pool: string[]) {
   for (const k of pool) {
     if (!keyStates.has(k)) {
-      keyStates.set(k, { key: k, disabledUntil: 0, consecutiveFailures: 0 });
+      keyStates.set(k, { key: k, disabledUntil: 0, consecutiveFailures: 0, totalSuccesses: 0 });
     }
   }
 }
 
 /**
- * Selects the next available key in the cycle that is not on cooldown.
+ * Selects the next available key in the rotation that is not currently on cooldown.
+ * If all keys are on cooldown, gracefully selects the one whose cooldown expires soonest.
  */
 export function getNextGeminiKey(): { key: string; index: number; poolSize: number } {
   const pool = getGeminiKeyPool();
@@ -64,7 +81,7 @@ export function getNextGeminiKey(): { key: string; index: number; poolSize: numb
   ensureKeyStates(pool);
   const now = Date.now();
 
-  // Try to find the next key in the cycle that is not on cooldown
+  // Try to find the next key in the rotation that is active & not on cooldown
   for (let step = 0; step < pool.length; step++) {
     const idx = (globalForGemini.geminiCurrentIndex! + step) % pool.length;
     const candidate = pool[idx];
@@ -91,50 +108,62 @@ export function getNextGeminiKey(): { key: string; index: number; poolSize: numb
 }
 
 /**
- * Reports that a key encountered a rate limit or quota exhaustion error.
- * Places the key on cooldown so subsequent calls automatically skip it.
+ * Places a key on cooldown when it encounters rate limiting, quota exhaustion, or API errors.
+ * Implements exponential backoff for repeat offenders.
  */
 export function reportKeyExhausted(key: string, cooldownSeconds: number = 60) {
-  const meta = keyStates.get(key) || { key, disabledUntil: 0, consecutiveFailures: 0 };
+  const meta = keyStates.get(key) || { key, disabledUntil: 0, consecutiveFailures: 0, totalSuccesses: 0 };
   meta.consecutiveFailures += 1;
-  // Exponential backoff if repeated failures: 60s, 120s, 240s...
   const backoff = cooldownSeconds * Math.min(10, Math.pow(2, meta.consecutiveFailures - 1));
   meta.disabledUntil = Date.now() + backoff * 1000;
   keyStates.set(key, meta);
-  console.warn(`[Gemini Rotator] Key ...${key.slice(-6)} rate-limited! Placed on cooldown for ${backoff}s. Switching to next key.`);
+  console.warn(`[Gemini Auto-Switch] Key ...${key.slice(-6)} placed on cooldown for ${backoff}s (failures: ${meta.consecutiveFailures}). Rotating to next key.`);
 }
 
 /**
- * Reports that a key successfully served a request.
+ * Records successful execution with a key, resetting failure counters.
  */
 export function reportKeySuccess(key: string) {
   const meta = keyStates.get(key);
   if (meta) {
     meta.consecutiveFailures = 0;
     meta.disabledUntil = 0;
+    meta.totalSuccesses += 1;
   }
 }
 
 /**
- * Helper to check if an error is a rate limit or quota exhaustion
+ * Comprehensive check for Gemini quota, rate limit, or server capacity errors.
  */
 export function isRateLimitError(err: any): boolean {
   if (!err) return false;
-  const status = err.status || err.statusCode || err.code;
-  const msg = (err.message || '').toLowerCase();
+  const status = err.status || err.statusCode || err.code || err?.error?.code;
+  const errorStatus = String(err?.error?.status || '').toUpperCase();
+  const msg = (err.message || JSON.stringify(err) || '').toLowerCase();
+
   return (
     status === 429 ||
+    status === 403 ||
+    status === 503 ||
+    errorStatus === 'RESOURCE_EXHAUSTED' ||
     msg.includes('429') ||
     msg.includes('resource_exhausted') ||
     msg.includes('quota') ||
     msg.includes('rate limit') ||
-    msg.includes('too many requests')
+    msg.includes('rate_limit') ||
+    msg.includes('too many requests') ||
+    msg.includes('exceeded your current quota') ||
+    msg.includes('overloaded') ||
+    msg.includes('capacity') ||
+    msg.includes('temporarily unavailable') ||
+    msg.includes('permission_denied')
   );
 }
 
 /**
- * Executes an AI operation with automatic cycle-switching on limit exhaustion.
- * If Key 1 hits its limit, it automatically switches to Key 2, Key 3, etc.
+ * Executes an AI operation with automatic failover across all keys in the pool.
+ * If one key limit is over or encounters a quota error, it automatically switches
+ * to the next key without failing the user's request.
  */
 export async function executeGeminiWithAutoSwitch<T>(
   operation: (client: GoogleGenAI, key: string, attempt: number) => Promise<T>,
@@ -155,17 +184,55 @@ export async function executeGeminiWithAutoSwitch<T>(
       return result;
     } catch (err: any) {
       lastError = err;
-      if (isRateLimitError(err)) {
-        console.warn(`[Gemini Rotator] Key #${index} (...${key.slice(-6)}) hit rate limit on attempt ${attempt}/${attemptsLimit}.`);
-        reportKeyExhausted(key, 60);
-        // Continue to the next key in the cycle!
+      const isQuota = isRateLimitError(err);
+      
+      console.warn(
+        `[Gemini Auto-Switch] Key #${index} (...${key.slice(-6)}) ${
+          isQuota ? 'rate limit / quota reached' : 'encountered error'
+        }: ${err?.message || err}. Attempt ${attempt}/${attemptsLimit}.`
+      );
+
+      // Place the failing key on cooldown
+      reportKeyExhausted(key, isQuota ? 60 : 30);
+
+      // If there are more keys/attempts available, try the next key immediately!
+      if (attempt < attemptsLimit) {
+        console.log(`[Gemini Auto-Switch] Seamlessly switching to next key in pool (attempt ${attempt + 1})...`);
         continue;
-      } else {
-        // If it's a fatal non-rate-limit error (e.g. invalid request structure), don't loop endlessly
-        throw err;
       }
     }
   }
 
   throw lastError;
+}
+
+/**
+ * Diagnostic helper to inspect pool health and rotation status.
+ */
+export function getPoolDiagnosticInfo() {
+  const pool = getGeminiKeyPool();
+  const now = Date.now();
+  return {
+    totalKeys: pool.length,
+    activeKeys: pool.filter(k => {
+      const meta = keyStates.get(k);
+      return !meta || meta.disabledUntil <= now;
+    }).length,
+    cooldownKeys: pool.filter(k => {
+      const meta = keyStates.get(k);
+      return meta && meta.disabledUntil > now;
+    }).length,
+    keys: pool.map((k, i) => {
+      const meta = keyStates.get(k);
+      const isCooling = Boolean(meta && meta.disabledUntil > now);
+      return {
+        index: i + 1,
+        masked: `...${k.slice(-6)}`,
+        status: isCooling ? 'COOLDOWN' : 'ACTIVE',
+        cooldownRemainingSeconds: isCooling ? Math.max(0, Math.round((meta!.disabledUntil - now) / 1000)) : 0,
+        failures: meta?.consecutiveFailures || 0,
+        successes: meta?.totalSuccesses || 0
+      };
+    })
+  };
 }
