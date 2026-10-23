@@ -1,0 +1,48 @@
+================================================================================
+                                SAKHI (सखी)
+                            PROJECT TECH STACK
+================================================================================
+
+1. FRONTEND
+• Core Framework: Next.js 15 (App Router)
+• Core Library: React 19
+• Programming Language: TypeScript 5
+• Styling & Design System: Tailwind CSS v4
+• UI Motion & Micro-animations: Motion (Framer Motion v11), Anime.js
+• Data Visualization & Analytics: Recharts
+• Iconography: Phosphor Icons (@phosphor-icons/react), Lucide Icons
+
+2. BACKEND & APIS
+• Web API Layer: Next.js Serverless Route Handlers
+• ML Microservice: FastAPI (Python 3.11+)
+• Production ASGI Server: Uvicorn
+• Data Validation & Serialization: Pydantic v2
+
+3. ARTIFICIAL INTELLIGENCE & MACHINE LEARNING
+• Generative AI & Reasoning: Google Gemini API (@google/genai, Gemini 2.5 Flash)
+• Conversational Agent: Sakhi Voice & Text Assistant with Avatar Lip-Sync
+• Clinical Predictive Models: Scikit-learn (Ensemble & Classifier Pipelines)
+  - PCOS Risk Classifier (pcos.pkl)
+  - Preeclampsia Risk Predictor (preeclampsia.pkl)
+  - Gestational Diabetes Predictor (gestational_diabetes.pkl)
+  - Thyroid Risk Screener (thyroid.pkl)
+  - Menstrual Cycle & Ovulation Predictor (cycle.pkl)
+• Numerical Computing: NumPy
+
+4. VOICE & AUDIO (V2V / MULTIMODAL)
+• Speech-to-Text (Voice Input): Web Speech Recognition API
+• Text-to-Speech (Voice Output): Web Speech Synthesis API
+• Avatar Animation: Real-time audio-synced visual avatar engine
+
+5. DATABASE & AUTHENTICATION
+• Database: PostgreSQL (Hosted on Supabase)
+• Database Client: 'pg' (node-postgres with connection pooling)
+• User Authentication: NextAuth.js (v4)
+• Auth Providers: Google OAuth 2.0 & Secure Credentials
+
+6. DEPLOYMENT & ENVIRONMENT
+• Hosting Platform: Vercel
+• Source Control: Git & GitHub
+• Python Environment & Dependency Tooling: uv / pip
+
+================================================================================
