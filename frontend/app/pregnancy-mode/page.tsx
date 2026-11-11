@@ -4,10 +4,21 @@ import React, { useState, useEffect } from "react";
 import ConsentGate from "@/components/ConsentGate";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import {
-  Bell, GearSix, Baby, Drop, Brain, WarningCircle, FilePdf, Heartbeat, ShieldCheck, SignOut,
-  Info, CaretDown, CaretUp, CheckCircle, ArrowLeft, FileText } from "@phosphor-icons/react";
+  Bell, Baby, Drop, Brain, WarningCircle, FilePdf, Heartbeat, ShieldCheck,
+  Info, CaretDown, CaretUp, CheckCircle, Sun, CalendarCheck, Heart } from "@phosphor-icons/react";
+import AccountMenu from "@/components/AccountMenu";
+import DashboardTabs, { useHashTab, type TabDef } from "@/components/DashboardTabs";
+
+type MomTab = "today" | "vitals" | "plan" | "care";
+const MOM_TAB_IDS = ["today", "vitals", "plan", "care"] as const;
+const MOM_TABS: TabDef<MomTab>[] = [
+  { id: "today", label: "Today", icon: Sun },
+  { id: "vitals", label: "Vitals", icon: Heartbeat },
+  { id: "plan", label: "Plan", icon: CalendarCheck },
+  { id: "care", label: "Care", icon: Heart },
+];
 import PregnancyAvatar, { AIState } from "@/components/PregnancyAvatar";
 import {
   PregnancyWeekProgress,
@@ -272,6 +283,50 @@ const cardClass = "bg-white/60 backdrop-blur-md rounded-2xl sm:rounded-3xl md:ro
 const innerCardClass = "bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between min-w-0";
 const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#2D1B36]/5 flex items-center justify-center text-[#2D1B36] mb-3 sm:mb-4";
 
+/** Today tab: the most recent reading of each vital, colour-coded against common pregnancy thresholds. */
+function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: () => void }) {
+  const sorted = [...(logs || [])].sort((a, b) => String(b.log_date).localeCompare(String(a.log_date)));
+  const latest = (key: string) => sorted.find(l => l[key] !== undefined && l[key] !== null && Number(l[key]) > 0);
+  const bp = latest("blood_pressure_systolic");
+  const sugar = latest("blood_sugar");
+  const kicks = latest("baby_movement");
+  const weight = latest("weight");
+  const when = (l: any) => (l ? new Date(String(l.log_date).slice(0, 10) + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
+  const tone = (level: "ok" | "watch" | "high" | "none") =>
+    level === "high" ? "bg-rose-50 border-rose-200 text-rose-700" : level === "watch" ? "bg-amber-50 border-amber-200 text-amber-700" : level === "ok" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/70 border-pink-100 text-[#2D1B36]/60";
+  const sys = Number(bp?.blood_pressure_systolic), dia = Number(bp?.blood_pressure_diastolic);
+  const bpLevel = !bp ? "none" : sys >= 140 || dia >= 90 ? "high" : sys >= 130 || dia >= 80 ? "watch" : "ok";
+  const bs = Number(sugar?.blood_sugar);
+  const bsLevel = !sugar ? "none" : bs >= 140 ? "high" : bs >= 95 ? "watch" : "ok";
+  const items = [
+    { label: "Blood pressure", value: bp ? `${sys}/${dia}` : "—", unit: "mmHg", level: bpLevel, log: bp,
+      note: bpLevel === "high" ? "High: contact your doctor today" : bpLevel === "watch" ? "A little raised: recheck soon" : bpLevel === "ok" ? "In a healthy range" : "Not logged yet" },
+    { label: "Blood sugar", value: sugar ? `${bs}` : "—", unit: "mg/dL", level: bsLevel, log: sugar,
+      note: bsLevel === "high" ? "High: mention it to your doctor" : bsLevel === "watch" ? "Above fasting target" : bsLevel === "ok" ? "Within target" : "Not logged yet" },
+    { label: "Baby kicks", value: kicks ? `${kicks.baby_movement}` : "—", unit: "counted", level: "none" as const, log: kicks,
+      note: "Call your doctor if movements slow down or change" },
+    { label: "Weight", value: weight ? `${weight.weight}` : "—", unit: "kg", level: "none" as const, log: weight, note: weight ? "Latest check-in" : "Not logged yet" },
+  ];
+  return (
+    <section className={`${cardClass} md:col-span-12`}>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2 className="text-xl font-medium text-[#2D1B36]">Latest readings</h2>
+        <button onClick={onOpenVitals} className="text-sm font-medium text-pink-600 hover:text-pink-700 cursor-pointer">See trends →</button>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {items.map(i => (
+          <div key={i.label} className={`rounded-2xl border p-4 ${tone(i.level as any)}`}>
+            <p className="text-[11px] font-bold uppercase tracking-wider opacity-70">{i.label}</p>
+            <p className="mt-1 text-2xl font-semibold text-[#2D1B36]">{i.value} <span className="text-xs font-normal text-[#2D1B36]/50">{i.unit}</span></p>
+            <p className="mt-1 text-xs">{i.note}</p>
+            {i.log && <p className="mt-1 text-[11px] text-[#2D1B36]/45">{when(i.log)}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function PregnancyModePage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -288,6 +343,7 @@ export default function PregnancyModePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showExplainability, setShowExplainability] = useState(false);
   const [explainTab, setExplainTab] = useState<"preeclampsia" | "gdm">("preeclampsia");
+  const [tab, setTab] = useHashTab<MomTab>(MOM_TAB_IDS, "today");
   const [mlPredictions, setMlPredictions] = useState<{
     preeclampsia: any;
     gdm: any;
@@ -532,15 +588,6 @@ export default function PregnancyModePage() {
     }
   };
 
-  const handleSignOut = async () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("sakhi-intro-played", "true");
-    }
-    localStorage.removeItem("sakhi_last_checkin");
-    localStorage.removeItem("sakhi_last_checkin_mom");
-    await signOut({ callbackUrl: '/', redirect: true });
-  };
-
   if (!mounted || isCheckingData) {
     return (
       <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
@@ -564,70 +611,27 @@ export default function PregnancyModePage() {
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
       <ConsentGate />
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8 flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white/80 border-2 border-pink-300/60 shadow-[0_4px_16px_rgba(244,114,182,0.2)] shrink-0 flex items-center justify-center">
-            {session?.user?.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={session.user.image}
-                alt={displayName || "User profile"}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-pink-200 to-purple-200 text-[#2D1B36] font-semibold text-base sm:text-lg">
-                {displayName?.charAt(0)?.toUpperCase() || "M"}
-              </div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom Mode</span>
-            </div>
-            <h1 className="text-base sm:text-2xl font-light tracking-tight text-[#2D1B36] flex items-center gap-1.5 sm:gap-2 mt-0.5 truncate">
-              <span>Good morning, {displayName}</span>
-              <span className="inline-block hover:rotate-12 hover:scale-110 cursor-pointer transition-all duration-300">🍼</span>
-            </h1>
-          </div>
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between gap-3 print:hidden">
+        <div className="min-w-0">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200/60">Mom Mode · Week {weeks}</span>
+          <h1 className="text-lg sm:text-2xl font-light tracking-tight text-[#2D1B36] mt-1 truncate">
+            {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {displayName} <span aria-hidden>🍼</span>
+          </h1>
         </div>
-        
-        <div className="flex items-center gap-2 sm:gap-3 relative print:hidden shrink-0">
-          <a
-            href="/doctor-summary?mode=pregnancy"
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
-            title="Doctor visit summary (PDF)"
-            aria-label="Doctor visit summary"
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <button
+            onClick={() => setIsNotificationOpen(true)}
+            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#2D1B36]/65 hover:text-[#2D1B36] hover:bg-white/90 transition-all shadow-sm cursor-pointer"
+            title="Reminders" aria-label="Reminders"
           >
-            <FileText weight="duotone" className="w-4 h-4 sm:w-5 sm:h-5" />
-          </a>
-          <button 
-            onClick={() => setIsSettingsOpen(true)}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
-            title="Settings"
-          >
-            <GearSix weight="duotone" className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Bell weight="duotone" className="w-5 h-5" />
+            {(reminders || []).filter((r: any) => r.status === "upcoming").length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {(reminders || []).filter((r: any) => r.status === "upcoming").length}
+              </span>
+            )}
           </button>
-          <button 
-            onClick={() => {
-              try {
-                sessionStorage.setItem('sakhi-intro-played', 'true');
-                localStorage.setItem('sakhi_active_mode', 'pregnancy');
-                document.cookie = 'sakhi_active_mode=pregnancy; path=/; max-age=31536000';
-                const nameToSave = profile?.preferred_name || localStorage.getItem('sakhi_preferred_name');
-                if (nameToSave) {
-                  localStorage.setItem('sakhi_preferred_name', nameToSave);
-                  document.cookie = `sakhi_preferred_name=${encodeURIComponent(nameToSave)}; path=/; max-age=31536000`;
-                }
-              } catch (e) {}
-              router.push('/');
-            }}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/70 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
-            title="Back to Landing Page"
-            aria-label="Back to Landing Page"
-          >
-            <ArrowLeft weight="bold" className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          <AccountMenu mode="pregnancy" displayName={displayName} onOpenSettings={() => setIsSettingsOpen(true)} />
         </div>
       </header>
 
@@ -647,15 +651,18 @@ export default function PregnancyModePage() {
           </motion.div>
         )}
 
+        <DashboardTabs tabs={MOM_TABS} active={tab} onChange={setTab} />
+
         {/* VISUAL DASHBOARD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 pb-24 print:pb-0"
+          className="w-full grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 pb-28 sm:pb-16 print:pb-0"
         >
           {/* Avatar Section */}
-          <div className="md:col-span-12 print:hidden no-print">
+          {/* Chat stays mounted on every tab so a conversation is never lost */}
+          <div className={tab === "today" ? "md:col-span-12 print:hidden no-print" : "hidden"}>
             <PregnancyAvatar 
               aiState={aiState} 
               onChartUpdate={handleChartUpdate} 
@@ -668,6 +675,7 @@ export default function PregnancyModePage() {
             />
           </div>
 
+          {tab === "today" && (<>
           {/* Top Hero Card - Week Progress & Baby Growth */}
           <div className={`${cardClass} md:col-span-12 flex flex-col justify-between`}>
             <div className="mb-8">
@@ -684,6 +692,10 @@ export default function PregnancyModePage() {
             </div>
           </div>
 
+          <LatestVitalsCard logs={logs} onOpenVitals={() => setTab("vitals")} />
+          </>)}
+
+          {tab === "vitals" && (<>
           {/* Vitals Row */}
           <div className={`${cardClass} md:col-span-6`}>
             <div className="flex items-center gap-2 mb-4">
@@ -714,6 +726,9 @@ export default function PregnancyModePage() {
             <BabyMovementChart data={logs} />
           </div>
 
+          </>)}
+
+          {tab === "plan" && (<>
           {/* Appointments & Nutrition Row */}
           <div className={`${cardClass} md:col-span-6`}>
             <div className="flex items-center justify-between mb-4">
@@ -746,6 +761,9 @@ export default function PregnancyModePage() {
           </div>
 
 
+          </>)}
+
+          {tab === "vitals" && (<>
           {/* Mood & Sleep Row */}
           <div className={`${cardClass} md:col-span-6`}>
             <h3 className="text-xl font-medium text-[#2D1B36] mb-4">Mood Tracker</h3>
@@ -757,6 +775,9 @@ export default function PregnancyModePage() {
             <PregnancySleepGraph data={logs} />
           </div>
 
+          </>)}
+
+          {tab === "care" && (<>
           {/* Machine Learning Maternal Risk Assessment */}
           <div className={`${cardClass} md:col-span-6 border ${
             (mlPredictions.preeclampsia?.risk_level === "High" || mlPredictions.gdm?.risk_level === "High") 
@@ -971,8 +992,8 @@ export default function PregnancyModePage() {
             </div>
           </div>
 
-          <div 
-            onClick={() => window.print()}
+          <a
+            href="/doctor-summary?mode=pregnancy"
             className={`${cardClass} md:col-span-6 flex flex-col justify-center items-center text-center group cursor-pointer no-print print:hidden`}
           >
             <div className="w-20 h-20 rounded-full bg-white/50 border border-white/40 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-500">
@@ -980,14 +1001,27 @@ export default function PregnancyModePage() {
             </div>
             <h3 className="text-lg font-medium text-[#2D1B36]">Doctor Summary</h3>
             <p className="text-sm text-[#2D1B36]/60 mt-2">Generate your Pregnancy PDF report for your next ANC visit.</p>
-          </div>
+          </a>
+          </>)}
         </motion.div>
       </main>
 
-      <SettingsModal 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
-        mode="pregnancy" 
+      <PregnancyNotificationCenter
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        preferences={preferences}
+        reminders={reminders}
+        onToggleMaster={toggleMaster}
+        onUpdatePref={updatePreference}
+        onMarkCompleted={markCompleted}
+        onSnooze={snoozeReminder}
+        onDelete={deleteReminder}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        mode="pregnancy"
         currentData={profile} 
       />
     </div>

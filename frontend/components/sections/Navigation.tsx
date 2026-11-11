@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/kokonut";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
+import { sakhiSignOut } from "@/lib/clientSignOut";
 import { List, X } from "@phosphor-icons/react";
 
 /**
@@ -135,16 +136,7 @@ export function Navigation() {
 
   const handleSignOut = async () => {
     try {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("sakhi-intro-played", "true");
-        localStorage.removeItem("sakhi_active_mode");
-        localStorage.removeItem("sakhi_preferred_name");
-        localStorage.removeItem("sakhi_last_checkin");
-        localStorage.removeItem("sakhi_last_checkin_mom");
-        document.cookie = "sakhi_active_mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "sakhi_preferred_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      }
-      await signOut({ callbackUrl: "/", redirect: true });
+      await sakhiSignOut({ signedIn: true });
     } catch (e) {
       console.error(e);
       window.location.href = "/";

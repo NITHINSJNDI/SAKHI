@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import UnifiedOnboardingChat from "@/components/UnifiedOnboardingChat";
 import { Heartbeat } from "@phosphor-icons/react";
 import { Card } from "@/components/kokonut";

@@ -32,11 +32,13 @@ export type DocKind =
   | 'pregnancy_appointments'
   | 'appointments_month'
   | 'notifications'
-  | 'consent';
+  | 'consent'
+  | 'relief_feedback';
 
 export const ALL_KINDS: DocKind[] = [
   'her_profile', 'daily_logs', 'cycle_history', 'preg_profile', 'pregnancy_logs',
   'pregnancy_nutrition', 'pregnancy_appointments', 'appointments_month', 'notifications', 'consent',
+  'relief_feedback',
 ];
 
 const YEAR = 60 * 60 * 24 * 365;

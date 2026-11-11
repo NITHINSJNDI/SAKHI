@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
+import { sakhiSignOut } from "@/lib/clientSignOut";
 import {
   Heartbeat,
   Brain,
@@ -396,7 +397,7 @@ export default function PortalPage() {
 
         {/* Logout */}
         <button
-          onClick={() => signOut()}
+          onClick={() => sakhiSignOut({ signedIn: true })}
           className="mt-8 flex items-center justify-center gap-2 w-full px-4 py-3 border border-plum-700/10 rounded-xl text-sm font-medium text-ink-soft hover:bg-blush-50 hover:text-blush-500 hover:border-blush-100 transition-colors cursor-pointer"
         >
           <SignOut size={18} />

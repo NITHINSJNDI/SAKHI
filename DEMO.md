@@ -29,9 +29,9 @@ Open a **private window** at http://localhost:3000/onboarding so you start as a 
 
 ## 0:15 – 0:50 · Her Mode (Priya, 24)
 1. On onboarding, click **Her Mode demo**. This loads 3 months of realistic check-ins.
-2. Point at the **cycle chart**: cycles of 31–38 days, flagged as irregular.
-3. Point at the **PCOS card**: "High: 2 of 3 Rotterdam criteria", showing the exact criteria met (irregular cycles + hirsutism/acne). Say: *rule-based on the clinical standard, not a black box.*
-4. In chat, type: `cramps 7/10 today, slept 5 hours, some acne`. Sakhi logs it and the chart updates.
+2. **Today** tab: the phase ring shows where Priya is in her cycle, with an honest confidence badge (her cycles vary, so it says so). Below are three tips for this phase (move, nourish, mind) that change daily and soften when she logs low energy.
+3. In chat, type: `cramps 8/10 today, slept 5 hours`. Sakhi logs it and the **pain relief sheet** opens with three varied, timed steps. Tap "Helped" on one; next time it comes first.
+4. **Care** tab: "Worth mentioning to a doctor" lists patterns from her own logs (severe pain across cycles, heavy flow) with a question to ask. Say: *Sakhi doesn't diagnose PCOS or anything else; it helps her have a better conversation with her doctor.*
 
 ## 0:50 – 1:30 · Mom Mode (Meera, 32 weeks)
 1. Go back to `/onboarding` and choose **Mom Mode demo**.

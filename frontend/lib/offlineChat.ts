@@ -7,7 +7,8 @@
  * danger-sign escalation. So logging and the dashboards keep working in a demo
  * even without network access to the LLM.
  */
-import { Owner } from '@/lib/store';
+import { Owner, readDoc, writeDoc } from '@/lib/store';
+import { pickRelief, recordShown, reliefText, type ReliefFeedback } from '@/lib/reliefTips';
 import { runHerTool, runPregnancyTool } from '@/lib/sakhiTools';
 
 const has = (text: string, ...words: string[]) => words.some(w => new RegExp(`\\b${w}`, 'i').test(text));
@@ -99,9 +100,14 @@ export async function offlineHerReply(message: string, owner: Owner, name: strin
     // Cramps already appear with their severity above
     const otherSymptoms = entry.cramps_severity !== undefined ? symptoms.filter(s => s !== 'Cramps') : symptoms;
     if (otherSymptoms.length) bits.push(otherSymptoms.join(', ').toLowerCase());
-    const tip = (entry.cramps_severity ?? 0) >= 6
-      ? ' A warm compress, gentle stretching and staying hydrated can ease cramps; if pain stops you from daily activities, please see a doctor.'
-      : (entry.sleep_hours ?? 8) < 6 ? ' Try to rest a little earlier tonight; sleep makes a real difference to how your cycle feels.'
+    let tip: string;
+    if ((entry.cramps_severity ?? 0) >= 5 || has(t, 'cramp', 'period pain')) {
+      // Rotating relief steps, favouring what helped her before
+      const fb = await readDoc<ReliefFeedback | null>('relief_feedback', null, owner);
+      const tips = pickRelief(fb, 3, entry.cramps_severity ?? 5);
+      await writeDoc('relief_feedback', recordShown(fb, tips.map(x => x.id)), owner);
+      tip = ` I'm sorry it hurts. A few things that can ease it right now:\n${reliefText(tips)}\nIf pain regularly stops your day or these rarely help, please see a doctor.`;
+    } else tip = (entry.sleep_hours ?? 8) < 6 ? ' Try to rest a little earlier tonight; sleep makes a real difference to how your cycle feels.'
       : ' Keep checking in so I can spot patterns for you.';
     reply = `Thank you for telling me, ${who}. I've got it: ${bits.join(', ')}.${tip}`;
   } else {

@@ -15,6 +15,7 @@ export async function GET() {
     ]);
     return NextResponse.json({
       authenticated: !owner.isGuest,
+      email: owner.email || null,
       name: preg?.preferred_name || her?.preferred_name || owner.name?.split(' ')[0] || '',
       hasHerProfile: Boolean(her),
       hasMomProfile: Boolean(preg && preg.preferred_name),

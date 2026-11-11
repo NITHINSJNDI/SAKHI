@@ -52,9 +52,25 @@ export async function runHerTool(name: string, args: any, owner: Owner): Promise
     if (args.last_period_date) patch.last_period_start = args.last_period_date;
     if (args.cycle_length_avg) patch.cycle_length = Number(args.cycle_length_avg);
     if (args.period_duration) patch.period_duration = Number(args.period_duration);
+    const before = await readDoc<any>('her_profile', null, owner);
     const profile = await patchDoc('her_profile', patch, owner);
 
     let cycleHistory: any[] | null = null;
+
+    // A new period start closes the previous cycle: record its real length
+    const prevStart = before?.last_period_start ? new Date(String(before.last_period_start).slice(0, 10)) : null;
+    const newStart = args.last_period_date ? new Date(String(args.last_period_date).slice(0, 10)) : null;
+    if (prevStart && newStart && !Array.isArray(args.cycle_history)) {
+      const days = Math.round((newStart.getTime() - prevStart.getTime()) / 86_400_000);
+      if (days >= 15 && days <= 90) {
+        const stored = await readDoc<any[]>('cycle_history', [], owner);
+        const hist = Array.isArray(stored) ? stored : [];
+        const month = prevStart.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+        hist.push({ month, cycleLength: days, periodDuration: Number(profile?.period_duration) || 5, start: prevStart.toISOString().slice(0, 10) });
+        cycleHistory = hist.slice(-12);
+        await writeDoc('cycle_history', cycleHistory, owner);
+      }
+    }
     if (Array.isArray(args.cycle_history) && args.cycle_history.length > 0) {
       const stored = await readDoc<any[]>('cycle_history', [], owner);
       const hist = Array.isArray(stored) ? stored : [];
