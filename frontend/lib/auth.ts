@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { query, initDatabase } from "@/lib/db";
+import { query, getPool } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,7 +25,8 @@ export const authOptions: NextAuthOptions = {
 
       try {
         // Automatically initialize database tables if they don't exist
-        await initDatabase();
+        // (runs the migration once per server process, not on every sign-in)
+        await getPool();
 
         // Check if user exists in the database
         const { rows } = await query("SELECT * FROM users WHERE email = $1", [user.email]);

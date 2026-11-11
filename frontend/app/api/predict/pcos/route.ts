@@ -9,9 +9,10 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        weight: body.weight || 62.0,
-        cycle_regularity: body.cycle_regularity !== undefined ? body.cycle_regularity : 1,
-        acne_severity: body.acne_severity || 2
+        weight: Number(body.weight) || 62.0,
+        cycle_regularity: Number(body.cycle_regularity ?? 1),
+        // FastAPI expects an int; round in case the client sends a float
+        acne_severity: Math.round(Number(body.acne_severity ?? 2))
       })
     });
 

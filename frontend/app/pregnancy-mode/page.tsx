@@ -420,7 +420,10 @@ export default function PregnancyModePage() {
     };
 
     setLogs((prev: any[]) => {
-      const updated = [...prev, newEntry];
+      // Replace any entry for the same day (the server merges per day too),
+      // instead of appending a duplicate that skews the charts.
+      const dayStr = (newEntry.log_date || new Date().toISOString()).split('T')[0];
+      const updated = [...prev.filter((l: any) => (l.log_date || '').split('T')[0] !== dayStr), { ...newEntry, log_date: newEntry.log_date || dayStr }];
       runMlRiskAssessment(profile, updated);
       return updated;
     });

@@ -25,7 +25,13 @@ export async function POST(req: Request) {
     }
 
     const existingStr = cookieStore.get(cookieName)?.value;
-    let appointments = existingStr ? JSON.parse(existingStr) : [];
+    let appointments: any[] = [];
+    try {
+      const parsed = existingStr ? JSON.parse(existingStr) : [];
+      appointments = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      appointments = [];
+    }
 
     if (data.action === 'toggle' && typeof data.index === 'number') {
       if (appointments[data.index]) {

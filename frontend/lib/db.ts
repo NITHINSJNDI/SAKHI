@@ -50,6 +50,25 @@ export async function getDbStatus() {
   }
 }
 
+// Run the schema migration at most once per server process.
+let initPromise: Promise<void> | null = null;
+
+/**
+ * Returns the shared PostgreSQL pool after making sure tables exist,
+ * or null when running in mock mode. Use this instead of creating new Pools.
+ */
+export async function getPool(): Promise<Pool | null> {
+  if (isMockMode || !pool) return null;
+  if (!initPromise) {
+    initPromise = initDatabase().catch((err) => {
+      console.error("Database initialization failed:", err?.message || err);
+      initPromise = null;
+    });
+  }
+  await initPromise;
+  return isMockMode ? null : pool;
+}
+
 // Schema Migration
 export async function initDatabase() {
   if (isMockMode || !pool) return;
@@ -195,15 +214,15 @@ export async function query(text: string, params?: any[]) {
 function mockQuery(text: string, params?: any[]) {
   const normalized = text.toLowerCase().replace(/\s+/g, ' ');
   
-  // 1. SELECT * FROM users WHERE email = $1
-  if (normalized.includes('select * from users where email =')) {
+  // 1. SELECT <cols> FROM users WHERE email = $1
+  if (/^select .* from users where email =/.test(normalized.trim())) {
     const email = params ? params[0] : '';
     const user = mockDb.users.find(u => u.email === email);
     return { rows: user ? [user] : [] };
   }
-  
-  // 2. INSERT INTO users (email, name, image) VALUES ($1, $2, $3) RETURNING *
-  if (normalized.includes('insert into users') && normalized.includes('returning *')) {
+
+  // 2. INSERT INTO users (email, name, image) VALUES ($1, $2, $3) [RETURNING *]
+  if (normalized.includes('insert into users')) {
     const email = params ? params[0] : '';
     const name = params ? params[1] : '';
     const image = params ? params[2] : '';
@@ -223,17 +242,28 @@ function mockQuery(text: string, params?: any[]) {
     return { rows: [user] };
   }
 
-  // 3. UPDATE users SET age = $1, bmi = $2 ... WHERE id = $3
-  if (normalized.includes('update users set') && normalized.includes('where id =')) {
+  // 3. UPDATE users SET age = $1, bmi = $2 WHERE (id|email) = $3
+  if (normalized.includes('update users set age')) {
     const age = params ? params[0] : null;
     const bmi = params ? params[1] : null;
-    const id = params ? params[2] : null;
-    const user = mockDb.users.find(u => u.id === id);
+    const key = params ? params[2] : null;
+    const byEmail = normalized.includes('where email =');
+    const user = mockDb.users.find(u => (byEmail ? u.email === key : u.id === key));
     if (user) {
       user.age = age;
       user.bmi = bmi;
     }
-    return { rows: [user || {}] };
+    return { rows: user ? [user] : [] };
+  }
+
+  // 3b. UPDATE users SET name = COALESCE($1, name), image = COALESCE($2, image) WHERE email = $3
+  if (normalized.includes('update users set name')) {
+    const user = mockDb.users.find(u => u.email === (params ? params[2] : null));
+    if (user) {
+      if (params?.[0]) user.name = params[0];
+      if (params?.[1]) user.image = params[1];
+    }
+    return { rows: user ? [user] : [] };
   }
 
   // 4. SELECT * FROM cycle_logs WHERE user_id = $1 ORDER BY start_date DESC
@@ -281,14 +311,18 @@ function mockQuery(text: string, params?: any[]) {
 
   // 7. INSERT INTO triage_logs
   if (normalized.includes('insert into triage_logs')) {
+    // The log_date may be passed as a parameter or inlined as CURRENT_DATE
+    const p = params || [];
+    const dateInlined = normalized.includes('current_date');
+    const offset = dateInlined ? 0 : 1;
     const log = {
       id: mockDb.triageLogs.length + 1,
-      user_id: params ? params[0] : null,
-      log_date: params ? params[1] : new Date().toISOString().split('T')[0],
-      urgency: params ? params[2] : 'NORMAL',
-      reasons: params ? params[3] : [],
-      suspected_profiles: params ? params[4] : [],
-      advice: params ? params[5] : '',
+      user_id: p[0] ?? null,
+      log_date: dateInlined ? new Date().toISOString().split('T')[0] : p[1],
+      urgency: p[1 + offset] ?? 'NORMAL',
+      reasons: p[2 + offset] ?? [],
+      suspected_profiles: p[3 + offset] ?? [],
+      advice: p[4 + offset] ?? '',
       created_at: new Date()
     };
     mockDb.triageLogs.push(log);

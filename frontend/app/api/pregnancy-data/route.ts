@@ -16,7 +16,12 @@ export async function GET() {
   // Get user profile from cookies
   const cookieStore = await cookies();
   const overridesStr = cookieStore.get(`sakhi_preg_profile_${email}`)?.value;
-  const overrides = overridesStr ? JSON.parse(overridesStr) : null;
+  let overrides: any = null;
+  try {
+    overrides = overridesStr ? JSON.parse(overridesStr) : null;
+  } catch {
+    overrides = null; // corrupted cookie: treat as not onboarded instead of returning 500
+  }
 
   if (!overrides || !overrides.preferred_name) {
     return NextResponse.json({

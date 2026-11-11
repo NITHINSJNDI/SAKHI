@@ -5,6 +5,21 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { executeGeminiWithAutoSwitch } from '@/lib/gemini';
 
+// Persist chat-logged data for a year (previously these were session cookies
+// and disappeared when the browser closed, unlike the pregnancy-mode cookies).
+const COOKIE_OPTS = { path: '/', maxAge: 60 * 60 * 24 * 365 };
+
+// A corrupted cookie must not break every future chat-logging call.
+function safeParse<T>(raw: string | undefined, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return (Array.isArray(fallback) ? Array.isArray(parsed) : parsed && typeof parsed === 'object') ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 // 1. Tool to log user's daily symptoms, pain, bleeding flow, mood, and sleep
 const log_health_entry_declaration = {
   name: "log_health_entry",
@@ -185,8 +200,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
         if (call.name === "log_health_entry") {
           const args = call.args as any;
           const cookieName = `sakhi_daily_logs_${email}`;
-          const existingStr = cookieStore.get(cookieName)?.value;
-          const logsList = existingStr ? JSON.parse(existingStr) : [];
+          const logsList: any[] = safeParse(cookieStore.get(cookieName)?.value, []);
 
           const todayIso = new Date().toISOString();
           const todayDateStr = todayIso.split('T')[0];
@@ -227,7 +241,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
             logsList.push(finalLog);
           }
 
-          cookieStore.set(cookieName, JSON.stringify(logsList), { path: '/' });
+          cookieStore.set(cookieName, JSON.stringify(logsList), COOKIE_OPTS);
 
           apiResult = { 
             success: true, 
@@ -239,14 +253,13 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
         } else if (call.name === "update_period_info") {
           const args = call.args as any;
           const profileCookieName = `sakhi_her_profile_${email}`;
-          const existingStr = cookieStore.get(profileCookieName)?.value;
-          const profile = existingStr ? JSON.parse(existingStr) : {};
+          const profile: any = safeParse(cookieStore.get(profileCookieName)?.value, {});
 
           if (args.last_period_date) profile.last_period_start = args.last_period_date;
           if (args.cycle_length_avg) profile.cycle_length = Number(args.cycle_length_avg);
           if (args.period_duration) profile.period_duration = Number(args.period_duration);
 
-          cookieStore.set(profileCookieName, JSON.stringify(profile), { path: '/' });
+          cookieStore.set(profileCookieName, JSON.stringify(profile), COOKIE_OPTS);
 
           let updatedHistory: any[] | null = null;
           if (Array.isArray(args.cycle_history) && args.cycle_history.length > 0) {
@@ -273,7 +286,7 @@ BACKGROUND DYNAMIC DASHBOARD ACTIONS:
               }
             });
 
-            cookieStore.set(histCookieName, JSON.stringify(histList), { path: '/' });
+            cookieStore.set(histCookieName, JSON.stringify(histList), COOKIE_OPTS);
             updatedHistory = histList;
           }
 

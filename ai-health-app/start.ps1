@@ -1,7 +1,13 @@
-# Powershell script to run all 3 tiers concurrently on Windows
+# Powershell script to run the SAKHI tiers concurrently on Windows:
+# the FastAPI ML service and the Next.js frontend (whose API routes do the orchestration).
 
-Write-Host "Cleaning up existing processes on ports 8000, 3001, 3000, 3002..." -ForegroundColor Yellow
-$ports = @(8000, 3001, 3000, 3002)
+$scriptDir = $PSScriptRoot
+$repoRoot = Split-Path -Parent $scriptDir
+$mlDir = Join-Path $scriptDir "ml-service"
+$frontendDir = Join-Path $repoRoot "frontend"
+
+Write-Host "Cleaning up existing processes on ports 8000, 3000..." -ForegroundColor Yellow
+$ports = @(8000, 3000)
 foreach ($port in $ports) {
     $proc = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
     if ($proc) {
@@ -13,15 +19,11 @@ foreach ($port in $ports) {
 
 # 1. Start FastAPI ML Service
 Write-Host "Starting FastAPI ML Service on port 8000..." -ForegroundColor Green
-$mlJob = Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", "cd ml-service; & .\.venv\Scripts\Activate.ps1; uvicorn main:app --host 127.0.0.1 --port 8000" -PassThru -WindowStyle Minimized
+$mlJob = Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", "Set-Location '$mlDir'; & .\.venv\Scripts\Activate.ps1; python -m uvicorn main:app --host 127.0.0.1 --port 8000" -PassThru -WindowStyle Minimized
 
-# 2. Start Express Backend
-Write-Host "Starting Express Orchestration Backend on port 3001..." -ForegroundColor Green
-$expressJob = Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", "cd backend; node server.js" -PassThru -WindowStyle Minimized
-
-# 3. Start Next.js Frontend
+# 2. Start Next.js Frontend
 Write-Host "Starting Next.js Frontend..." -ForegroundColor Green
-$frontendJob = Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", "cd frontend; npm run dev" -PassThru -WindowStyle Minimized
+$frontendJob = Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", "Set-Location '$frontendDir'; npm run dev" -PassThru -WindowStyle Minimized
 
-Write-Host "All tiers started. FastAPI is on port 8000, Express is on 3001, Next.js is on 3000/3002." -ForegroundColor Cyan
+Write-Host "All tiers started. FastAPI is on port 8000, Next.js is on 3000." -ForegroundColor Cyan
 Write-Host "You can close the spawned minimized PowerShell windows to terminate the apps." -ForegroundColor Cyan

@@ -46,7 +46,8 @@ export async function POST(req: Request) {
         cookieStore.set(`sakhi_appointments_month_${email}`, currentMonthStr, { path: '/' });
       } else {
         const existingStr = cookieStore.get(cookieName)?.value;
-        const existing = existingStr ? JSON.parse(existingStr) : {};
+        let existing: any = {};
+        try { existing = existingStr ? JSON.parse(existingStr) : {}; } catch { existing = {}; }
         cookieStore.set(cookieName, JSON.stringify({ ...existing, ...profile }), { path: '/' });
       }
 
@@ -79,7 +80,8 @@ export async function POST(req: Request) {
         cookieStore.set(`sakhi_cycle_history_${email}`, JSON.stringify(initialCycleHistory), { path: '/' });
       } else {
         const existingStr = cookieStore.get(cookieName)?.value;
-        const existing = existingStr ? JSON.parse(existingStr) : {};
+        let existing: any = {};
+        try { existing = existingStr ? JSON.parse(existingStr) : {}; } catch { existing = {}; }
         cookieStore.set(cookieName, JSON.stringify({ ...existing, ...profile }), { path: '/' });
       }
 

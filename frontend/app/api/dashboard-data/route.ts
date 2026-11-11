@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { Pool } from 'pg';
 import { cookies } from 'next/headers';
-
-let pool: Pool | null = null;
-if (process.env.DATABASE_URL) {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
-      ? { rejectUnauthorized: false } 
-      : undefined
-  });
-}
+import { getPool } from '@/lib/db';
+import type { PoolClient } from 'pg';
 
 // GET: Fetch real dashboard data for user (with robust database and cookie fallback)
 export async function GET() {
@@ -85,6 +76,7 @@ export async function GET() {
     }
   ];
 
+  const pool = await getPool();
   if (!pool || !session?.user?.email) {
     return NextResponse.json({ 
       profile: defaultProfile, 
@@ -94,8 +86,9 @@ export async function GET() {
     });
   }
 
+  let client: PoolClient | null = null;
   try {
-    const client = await pool.connect();
+    client = await pool.connect();
     
     // Get user id, or insert user if not yet registered
     let userRes = await client.query('SELECT id FROM users WHERE email = $1', [session.user.email]);
@@ -139,13 +132,18 @@ export async function GET() {
       'SELECT * FROM daily_health_logs WHERE user_id = $1 ORDER BY log_date ASC',
       [userId]
     );
-    let logs = logsRes.rows;
-    if (logs.length === 0 && cookieLogs.length > 0) {
-      logs = cookieLogs;
-    }
+    // Merge: DB rows win for a given day; chat-logged entries that only live in the
+    // cookie store (Ask Sakhi writes there) are kept for days the DB has no row.
+    const dayOf = (d: any) => {
+      const parsed = new Date(d);
+      return isNaN(parsed.getTime()) ? String(d || '').split('T')[0] : parsed.toISOString().split('T')[0];
+    };
+    const dbDays = new Set(logsRes.rows.map((r: any) => dayOf(r.log_date)));
+    const logs = [
+      ...logsRes.rows,
+      ...cookieLogs.filter((l: any) => l?.log_date && !dbDays.has(dayOf(l.log_date)))
+    ].sort((a: any, b: any) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
 
-    client.release();
-    
     return NextResponse.json({ 
       profile, 
       logs, 
@@ -159,7 +157,9 @@ export async function GET() {
       profile: defaultProfile, 
       logs: cookieLogs, 
       cycleHistory: cookieCycleHistory.length > 0 ? cookieCycleHistory : initialCycleHistory,
-      mode: 'fallback' 
+      mode: 'fallback'
     });
+  } finally {
+    client?.release();
   }
 }

@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { Pool } from 'pg';
-
-let pool: Pool | null = null;
-if (process.env.DATABASE_URL) {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
-      ? { rejectUnauthorized: false } 
-      : undefined
-  });
-}
+import { getPool } from '@/lib/db';
+import type { PoolClient } from 'pg';
 
 // GET: Check if the user has onboarded and return their profile
 export async function GET() {
@@ -21,25 +12,25 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const pool = await getPool();
   if (!pool) {
     return NextResponse.json({ onboarded: false, mode: 'mock' });
   }
 
+  let client: PoolClient | null = null;
   try {
-    const client = await pool.connect();
-    
+    client = await pool.connect();
+
     // Get user id
     const userRes = await client.query('SELECT id FROM users WHERE email = $1', [session.user.email]);
     if (userRes.rows.length === 0) {
-      client.release();
       return NextResponse.json({ onboarded: false });
     }
-    
+
     const userId = userRes.rows[0].id;
-    
+
     // Check onboarding profile
     const profileRes = await client.query('SELECT * FROM user_health_profiles WHERE user_id = $1', [userId]);
-    client.release();
 
     if (profileRes.rows.length > 0) {
       return NextResponse.json({ onboarded: true, profile: profileRes.rows[0] });
@@ -50,6 +41,8 @@ export async function GET() {
   } catch (error: any) {
     console.error('Error fetching onboarding state:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    client?.release();
   }
 }
 
@@ -61,6 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  let client: PoolClient | null = null;
   try {
     const body = await request.json();
     const {
@@ -73,12 +67,13 @@ export async function POST(request: Request) {
       diagnosedConditions
     } = body;
 
+    const pool = await getPool();
     if (!pool) {
       // Mock mode: just return success
       return NextResponse.json({ success: true, message: 'Saved to mock store' });
     }
 
-    const client = await pool.connect();
+    client = await pool.connect();
     
     // Ensure user exists
     let userRes = await client.query('SELECT id FROM users WHERE email = $1', [session.user.email]);
@@ -115,11 +110,12 @@ export async function POST(request: Request) {
       );
     }
     
-    client.release();
     return NextResponse.json({ success: true });
-    
+
   } catch (error: any) {
     console.error('Error saving onboarding data:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    client?.release();
   }
 }

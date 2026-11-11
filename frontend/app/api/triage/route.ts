@@ -65,7 +65,8 @@ export async function POST(req: Request) {
       headacheSeverity: triageInput.headacheSeverity,
       bloatingSeverity: triageInput.bloatingSeverity,
       nausea: !!data.nausea,
-      fatigueSeverity: triageInput.crampSeverity, // map fatigue or cramps
+      // Use the reported fatigue score; previously this wrongly reused the cramp score
+      fatigueSeverity: Number(data.fatigueSeverity ?? 0),
       anxietyOrStress: !!data.anxietyOrStress,
       moodSwings: !!data.moodSwings,
       cycleDelayed: !!data.cycleDelayed,

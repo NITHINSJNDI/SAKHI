@@ -2,17 +2,23 @@ import os
 import pickle
 import numpy as np
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI(title="SAKHI ML Microservice")
+# Routes are registered on a router so they can be served both at the root
+# (local dev: http://127.0.0.1:8000/predict/...) and under /api/ml (the prefix
+# vercel.json rewrites to this service).
+router = APIRouter()
 
-# Model Paths
-CYCLE_MODEL_PATH = "cycle.pkl"
-PCOS_MODEL_PATH = "pcos.pkl"
-THYROID_MODEL_PATH = "thyroid.pkl"
-PREECLAMPSIA_MODEL_PATH = "preeclampsia.pkl"
-GDM_MODEL_PATH = "gestational_diabetes.pkl"
+# Model Paths: resolve relative to this file, not the process working directory,
+# so the service finds its models no matter where uvicorn is started from.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CYCLE_MODEL_PATH = os.path.join(BASE_DIR, "cycle.pkl")
+PCOS_MODEL_PATH = os.path.join(BASE_DIR, "pcos.pkl")
+THYROID_MODEL_PATH = os.path.join(BASE_DIR, "thyroid.pkl")
+PREECLAMPSIA_MODEL_PATH = os.path.join(BASE_DIR, "preeclampsia.pkl")
+GDM_MODEL_PATH = os.path.join(BASE_DIR, "gestational_diabetes.pkl")
 
 # Global references to models
 model_cycle = None
@@ -39,7 +45,18 @@ def load_models():
     if os.path.exists(GDM_MODEL_PATH):
         with open(GDM_MODEL_PATH, "rb") as f:
             model_gdm = pickle.load(f)
-    print("Models loaded successfully.")
+    loaded = {
+        "cycle": model_cycle is not None,
+        "pcos": model_pcos is not None,
+        "thyroid": model_thyroid is not None,
+        "preeclampsia": model_preeclampsia is not None,
+        "gestational_diabetes": model_gdm is not None,
+    }
+    missing = [name for name, ok in loaded.items() if not ok]
+    if missing:
+        print(f"WARNING: models not found in {BASE_DIR}: {', '.join(missing)}")
+    else:
+        print("Models loaded successfully.")
 
 # Request Schemas
 class CycleRequest(BaseModel):
@@ -65,7 +82,7 @@ class GDMRequest(BaseModel):
     blood_sugar: float = 85.0
     diabetes_history: int = 0  # 0 or 1
 
-@app.post("/predict/cycle")
+@router.post("/predict/cycle")
 def predict_cycle(req: CycleRequest):
     if model_cycle is None:
         raise HTTPException(status_code=500, detail="Cycle prediction model not loaded.")
@@ -93,7 +110,7 @@ def predict_cycle(req: CycleRequest):
         "days_until_next_period": days_until_next
     }
 
-@app.post("/predict/pcos")
+@router.post("/predict/pcos")
 def predict_pcos(req: PCOSRequest):
     if model_pcos is None:
         raise HTTPException(status_code=500, detail="PCOS prediction model not loaded.")
@@ -110,7 +127,7 @@ def predict_pcos(req: PCOSRequest):
         "probability_pcos": prob_pcos
     }
 
-@app.post("/predict/thyroid")
+@router.post("/predict/thyroid")
 def predict_thyroid(req: ThyroidRequest):
     if model_thyroid is None:
         raise HTTPException(status_code=500, detail="Thyroid prediction model not loaded.")
@@ -127,7 +144,7 @@ def predict_thyroid(req: ThyroidRequest):
         "probability_thyroid": prob_thyroid
     }
 
-@app.post("/predict/preeclampsia")
+@router.post("/predict/preeclampsia")
 def predict_preeclampsia(req: PreeclampsiaRequest):
     if model_preeclampsia is None:
         raise HTTPException(status_code=500, detail="Preeclampsia prediction model not loaded.")
@@ -150,7 +167,7 @@ def predict_preeclampsia(req: PreeclampsiaRequest):
         }
     }
 
-@app.post("/predict/gdm")
+@router.post("/predict/gdm")
 def predict_gdm(req: GDMRequest):
     if model_gdm is None:
         raise HTTPException(status_code=500, detail="Gestational diabetes prediction model not loaded.")
@@ -172,7 +189,7 @@ def predict_gdm(req: GDMRequest):
         }
     }
 
-@app.get("/health")
+@router.get("/health")
 def health():
     return {
         "status": "healthy",
@@ -185,3 +202,6 @@ def health():
         }
     }
 
+
+app.include_router(router)
+app.include_router(router, prefix="/api/ml")

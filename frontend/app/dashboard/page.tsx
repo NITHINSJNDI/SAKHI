@@ -252,7 +252,9 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    // dashboard-data also serves a preview profile for signed-out visitors, so fetch
+    // in both states; previously an unauthenticated user saw an endless spinner.
+    if (status === "authenticated" || status === "unauthenticated") {
       fetchDashboardData();
     }
   }, [status]);
@@ -271,7 +273,11 @@ export default function Dashboard() {
         
         // Check if they've logged today
         const today = new Date().toISOString().split('T')[0];
-        const hasLoggedToday = data.logs.some((l: any) => new Date(l.log_date).toISOString().split('T')[0] === today);
+        const hasLoggedToday = (data.logs || []).some((l: any) => {
+          const d = new Date(l?.log_date);
+          // An invalid date would make toISOString() throw a RangeError
+          return !isNaN(d.getTime()) && d.toISOString().split('T')[0] === today;
+        });
         
         if (!hasLoggedToday) {
           // Show daily check-in only

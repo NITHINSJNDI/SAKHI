@@ -9,9 +9,10 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        fatigue_severity: body.fatigue_severity || 3,
+        // `??` (not `||`) so a real 0 score is not replaced by the default
+        fatigue_severity: Number(body.fatigue_severity ?? 3),
         heavy_or_prolonged_flow: body.heavy_or_prolonged_flow ? 1 : 0,
-        cycle_regularity: body.cycle_regularity !== undefined ? body.cycle_regularity : 1
+        cycle_regularity: Number(body.cycle_regularity ?? 1)
       })
     });
 
