@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ConsentGate from "@/components/ConsentGate";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
@@ -22,8 +23,7 @@ import {
   CheckCircle,
   ArrowsClockwise,
   FadersHorizontal,
-  ArrowLeft,
-} from "@phosphor-icons/react";
+  ArrowLeft, FileText } from "@phosphor-icons/react";
 import SakhiAvatar, { AIState } from "@/components/SakhiAvatar";
 import {
   CycleLengthChart,
@@ -168,11 +168,15 @@ const getPcosAssessment = (profile: any, logs: any[], mlData: any): ClinicalBrea
     if (mlData && typeof mlData.probability_pcos === 'number') {
       const mlScore = Math.round(mlData.probability_pcos * 100);
       score = Math.round((mlScore * 0.65) + (score * 0.35));
+      const met = mlData.criteria_met ?? 0;
+      const ex = mlData.explanation || {};
+      const signs = [...(ex.ovulatory_dysfunction || []), ...(ex.hyperandrogenism || []), ...(ex.supportive_signs || [])];
       factors.push({
-        title: `Comprehensive Risk Assessment (${mlScore}%)`,
-        impact: "Calibrated",
-        type: mlScore > 50 ? "negative" : "positive",
-        detail: "Evaluates cycle regularity, skin symptoms, and check-in history against clinical standards."
+        title: `Rotterdam Criteria Screen (${met} of 2 symptom criteria met)`,
+        impact: `${mlScore}%`,
+        type: met >= 2 ? "negative" : met === 1 ? "neutral" : "positive",
+        detail: (signs.length ? `Signals: ${signs.join("; ")}. ` : "No ovulatory or androgen criteria met. ") +
+          (mlData.next_step || "")
       });
     }
   }
@@ -302,11 +306,14 @@ const getPcosAssessment = (profile: any, logs: any[], mlData: any): ClinicalBrea
     if (mlData && typeof mlData.probability_thyroid === 'number') {
       const mlScore = Math.round(mlData.probability_thyroid * 100);
       score = Math.round((mlScore * 0.65) + (score * 0.35));
+      const ex = mlData.explanation || {};
+      const signs = [...(ex.hypothyroid_signs || []), ...(ex.hyperthyroid_signs || [])];
       factors.push({
-        title: `Comprehensive Risk Assessment (${mlScore}%)`,
-        impact: "Calibrated",
-        type: mlScore > 50 ? "negative" : "positive",
-        detail: "Evaluates bleeding duration, cycle timing, and energy patterns against thyroid guidelines."
+        title: `Thyroid Symptom Screen (${mlData.pattern === "hyperthyroid" ? "hyper" : "hypo"}thyroid pattern)`,
+        impact: `${mlScore}%`,
+        type: mlData.risk_level === "High" ? "negative" : mlData.risk_level === "Moderate" ? "neutral" : "positive",
+        detail: (signs.length ? `Signals: ${signs.join("; ")}. ` : "No thyroid-pattern symptoms logged. ") +
+          (mlData.next_step || "")
       });
     }
   }
@@ -398,6 +405,9 @@ export default function HerModePage() {
       const isProlongedOrHeavy = ((userProfile?.period_duration || 5) > 7) || 
         (userLogs || []).some((l: any) => l.flow_intensity === "Heavy" || l.flow_intensity === "very_heavy");
       const isRegular = (userProfile?.cycle_regularity === "No" || userProfile?.cycle_regularity === "Irregular") ? 0 : 1;
+      const logged = (name: string) => (userLogs || []).some((l: any) =>
+        (l.symptoms || []).some((s: string) => String(s).toLowerCase().includes(name)));
+      const cycleLength = Number(userProfile?.cycle_length_avg || userProfile?.cycle_length) || undefined;
       
       // Parallel PCOS & Thyroid ML requests
       const [pcosRes, thyroidRes] = await Promise.all([
@@ -407,7 +417,11 @@ export default function HerModePage() {
           body: JSON.stringify({
             weight: userProfile?.weight || 60,
             cycle_regularity: isRegular,
-            acne_severity: hasAcne ? 6 : 2
+            acne_severity: hasAcne ? 6 : 2,
+            cycle_length: cycleLength,
+            hair_growth: logged("hair growth") || logged("hirsutism") || logged("facial hair"),
+            skin_darkening: logged("skin darkening") || logged("dark patches"),
+            weight_gain: logged("weight gain")
           })
         }),
         fetch("/api/predict/thyroid", {
@@ -416,7 +430,12 @@ export default function HerModePage() {
           body: JSON.stringify({
             fatigue_severity: hasFatigue ? 7 : 2,
             heavy_or_prolonged_flow: isProlongedOrHeavy ? 1 : 0,
-            cycle_regularity: isRegular
+            cycle_regularity: isRegular,
+            weight_gain: logged("weight gain"),
+            hair_loss: logged("hair loss") || logged("hair thinning"),
+            cold_intolerance: logged("cold"),
+            palpitations_or_anxiety: logged("palpitation"),
+            light_or_short_flow: (userLogs || []).some((l: any) => l.flow_intensity === "Spotting")
           })
         })
       ]);
@@ -459,7 +478,8 @@ export default function HerModePage() {
         }
         setLogs(data.logs || []);
         setCycleHistory(data.cycleHistory || []);
-        if (!data.profile.preferred_name) {
+        // No saved Her Mode profile yet: run onboarding
+        if (data.onboarded === false) {
           router.push("/onboarding");
         }
         // Auto trigger dynamic ML predictions
@@ -630,6 +650,7 @@ export default function HerModePage() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+      <ConsentGate />
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
           <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white/80 border-2 border-pink-300/60 shadow-[0_4px_16px_rgba(244,114,182,0.2)] shrink-0 flex items-center justify-center">
@@ -659,6 +680,14 @@ export default function HerModePage() {
         </div>
         
         <div className="flex items-center gap-2 sm:gap-3 relative print:hidden shrink-0">
+          <a
+            href="/doctor-summary?mode=her"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
+            title="Doctor visit summary (PDF)"
+            aria-label="Doctor visit summary"
+          >
+            <FileText weight="duotone" className="w-4 h-4 sm:w-5 sm:h-5" />
+          </a>
           <button 
             onClick={() => setIsSettingsOpen(true)}
             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"

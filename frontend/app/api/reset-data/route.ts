@@ -3,10 +3,12 @@ import { cookies } from 'next/headers';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getPool } from '@/lib/db';
+import { deleteAllDocs, getOwner } from '@/lib/store';
 
 async function wipeAllData() {
   const session = await getServerSession(authOptions);
-  const email = session?.user?.email ? session.user.email.replace(/[^a-zA-Z0-9]/g, '_') : null;
+  // Resolve the owner (user or guest id) before any cookie is deleted
+  const owner = await getOwner();
   const cookieStore = await cookies();
 
   // Delete this browser's Sakhi + auth cookies
@@ -29,16 +31,8 @@ async function wipeAllData() {
   cookieStore.delete('next-auth.csrf-token');
   cookieStore.delete('next-auth.callback-url');
 
-  if (email) {
-    cookieStore.delete(`sakhi_her_profile_${email}`);
-    cookieStore.delete(`sakhi_preg_profile_${email}`);
-    cookieStore.delete(`sakhi_daily_logs_${email}`);
-    cookieStore.delete(`sakhi_cycle_history_${email}`);
-    cookieStore.delete(`sakhi_notifications_${email}`);
-    cookieStore.delete(`sakhi_pregnancy_logs_${email}`);
-    cookieStore.delete(`sakhi_pregnancy_nutrition_${email}`);
-    cookieStore.delete(`sakhi_pregnancy_appointments_${email}`);
-  }
+  // Delete all stored documents (Postgres rows or legacy cookies) for this user/guest
+  await deleteAllDocs(owner);
 
   // Clear the signed-in user's rows in PostgreSQL. Never touch other users' data:
   // an unauthenticated request only clears its own cookies.

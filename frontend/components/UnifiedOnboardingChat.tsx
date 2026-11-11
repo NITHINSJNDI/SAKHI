@@ -122,20 +122,7 @@ export default function UnifiedOnboardingChat() {
       localStorage.removeItem('sakhi_logs');
       localStorage.removeItem('sakhi_cycle_history');
 
-      // Clear cookies client-side as well
-      const cookies = document.cookie.split(';');
-      for (const c of cookies) {
-        const trimmed = c.trim();
-        if (
-          trimmed.startsWith('sakhi_daily_logs_') || 
-          trimmed.startsWith('sakhi_notifications_') ||
-          trimmed.startsWith('sakhi_cycle_history_')
-        ) {
-          const eqPos = trimmed.indexOf('=');
-          const cookieName = eqPos > -1 ? trimmed.substring(0, eqPos) : trimmed;
-          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        }
-      }
+      // Server-side data is reset by /api/update-profile (resetData: true)
     }
     try {
       await fetch('/api/update-profile', {
@@ -181,21 +168,7 @@ export default function UnifiedOnboardingChat() {
       localStorage.removeItem('sakhi_pregnancy_nutrition');
       localStorage.removeItem('sakhi_pregnancy_appointments');
 
-      // Clear cookies client-side as well
-      const cookies = document.cookie.split(';');
-      for (const c of cookies) {
-        const trimmed = c.trim();
-        if (
-          trimmed.startsWith('sakhi_pregnancy_logs_') || 
-          trimmed.startsWith('sakhi_pregnancy_nutrition_') ||
-          trimmed.startsWith('sakhi_pregnancy_appointments_') ||
-          trimmed.startsWith('sakhi_appointments_month_')
-        ) {
-          const eqPos = trimmed.indexOf('=');
-          const cookieName = eqPos > -1 ? trimmed.substring(0, eqPos) : trimmed;
-          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        }
-      }
+      // Server-side data is reset by /api/update-profile (resetData: true)
     }
     const chosenGoal = selectedGoal || maternalGoal;
     const calculatedDueDate = getEstimatedDueDateISO(weeksPregnant);

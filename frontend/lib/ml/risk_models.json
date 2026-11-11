@@ -1,0 +1,167 @@
+{
+  "version": "2026-11-11",
+  "models": {
+    "maternal_risk": {
+      "type": "standardized_logistic_regression",
+      "features": [
+        "SystolicBP",
+        "DiastolicBP",
+        "BS",
+        "Age",
+        "HeartRate"
+      ],
+      "labels": [
+        "Systolic BP",
+        "Diastolic BP",
+        "Blood sugar",
+        "Age",
+        "Heart rate"
+      ],
+      "units": [
+        "mmHg",
+        "mmHg",
+        "mmol/L",
+        "years",
+        "bpm"
+      ],
+      "medians": [
+        120.0,
+        80.0,
+        7.5,
+        25.0,
+        76.0
+      ],
+      "mean": [
+        110.553097,
+        75.418142,
+        8.346173,
+        29.19469,
+        73.949115
+      ],
+      "scale": [
+        17.852501,
+        13.739354,
+        2.826078,
+        13.752141,
+        8.147945
+      ],
+      "coef": [
+        0.306191,
+        0.217057,
+        1.411481,
+        -0.309578,
+        0.420039
+      ],
+      "intercept": -1.306462,
+      "name": "Maternal high-risk (hypertensive / metabolic) model",
+      "dataset": "UCI Maternal Health Risk (Ahmed & Kashem 2020)",
+      "dataset_url": "https://archive.ics.uci.edu/dataset/863/maternal+health+risk",
+      "n_records": 1014,
+      "n_unique_used": 452,
+      "positive_rate": 0.248,
+      "target": "RiskLevel == 'high risk'",
+      "metrics": {
+        "cv": "5-fold stratified, out-of-fold predictions",
+        "roc_auc": 0.836,
+        "brier": 0.12,
+        "high_cutoff": {
+          "threshold": 0.5,
+          "accuracy": 0.843,
+          "sensitivity": 0.455,
+          "specificity": 0.971,
+          "precision": 0.836
+        },
+        "screening_cutoff": {
+          "threshold": 0.14,
+          "accuracy": 0.631,
+          "sensitivity": 0.866,
+          "specificity": 0.553,
+          "precision": 0.39
+        },
+        "baseline_gradient_boosting_auc": 0.913,
+        "model_choice": "Logistic regression deployed for per-factor explainability and portability; gradient boosting AUC reported for comparison."
+      },
+      "limitations": "Labels are overall maternal risk assessed by clinicians, not a preeclampsia diagnosis. Data comes from one region (Bangladesh). Used as a screening signal alongside ACOG blood-pressure thresholds."
+    },
+    "diabetes_risk": {
+      "type": "standardized_logistic_regression",
+      "features": [
+        "Glucose",
+        "BMI",
+        "Age",
+        "Pregnancies"
+      ],
+      "labels": [
+        "Blood glucose",
+        "BMI",
+        "Age",
+        "Previous pregnancies"
+      ],
+      "units": [
+        "mg/dL",
+        "kg/m2",
+        "years",
+        "count"
+      ],
+      "medians": [
+        117.0,
+        32.3,
+        29.0,
+        3.0
+      ],
+      "mean": [
+        121.65625,
+        32.455208,
+        33.240885,
+        3.845052
+      ],
+      "scale": [
+        30.418463,
+        6.870699,
+        11.752573,
+        3.367384
+      ],
+      "coef": [
+        1.091281,
+        0.636005,
+        0.138933,
+        0.3876
+      ],
+      "intercept": -0.854576,
+      "name": "Diabetes risk model (gestational-diabetes screening proxy)",
+      "dataset": "Pima Indians Diabetes Database (NIDDK)",
+      "dataset_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
+      "n_records": 768,
+      "n_unique_used": 768,
+      "positive_rate": 0.349,
+      "target": "Outcome == 1 (diabetes within 5 years)",
+      "metrics": {
+        "cv": "5-fold stratified, out-of-fold predictions",
+        "roc_auc": 0.833,
+        "brier": 0.158,
+        "high_cutoff": {
+          "threshold": 0.5,
+          "accuracy": 0.77,
+          "sensitivity": 0.567,
+          "specificity": 0.878,
+          "precision": 0.714
+        },
+        "screening_cutoff": {
+          "threshold": 0.24,
+          "accuracy": 0.715,
+          "sensitivity": 0.851,
+          "specificity": 0.642,
+          "precision": 0.56
+        },
+        "baseline_gradient_boosting_auc": 0.799,
+        "model_choice": "Logistic regression deployed for per-factor explainability and portability; gradient boosting AUC reported for comparison."
+      },
+      "limitations": "Outcome is type 2 diabetes, not GDM, and glucose is a 2-hour OGTT value. Used as a proxy screen together with DIPSI / IADPSG glucose thresholds; an OGTT at 24-28 weeks is the diagnostic test."
+    }
+  },
+  "rule_based": {
+    "pcos": "Rotterdam 2003 criteria (ovulatory dysfunction + clinical hyperandrogenism); ultrasound criterion not available in-app.",
+    "thyroid": "Symptom screen for hypo/hyperthyroid menstrual patterns; TSH blood test required to confirm.",
+    "cycle": "Statistics from the user's own logged cycles (21-35 day normal range, variation <= 7-9 days per ACOG/FIGO)."
+  }
+}

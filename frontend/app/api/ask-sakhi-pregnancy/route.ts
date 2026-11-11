@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from '@google/genai';
+import { Type } from '@google/genai';
 import { cookies } from 'next/headers';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { executeGeminiWithAutoSwitch } from '@/lib/gemini';
+import { executeGeminiWithAutoSwitch, getGeminiKeyPool } from '@/lib/gemini';
+import { getOwner, readDoc } from '@/lib/store';
+import { clientKey, rateLimit } from '@/lib/rateLimit';
+import { onceper, runPregnancyTool } from '@/lib/sakhiTools';
+import { offlinePregnancyReply } from '@/lib/offlineChat';
 
 // 1. Tool to log or update maternal vitals and daily check-in metrics
 const log_pregnancy_vital_declaration = {
@@ -119,27 +121,8 @@ const log_pregnancy_nutrition_declaration = {
   }
 };
 
-export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-
-  try {
-    const { message, chatHistory = [], data = {}, userName } = await req.json();
-
-    if (!message) {
-      return NextResponse.json({ error: "Missing message" }, { status: 400 });
-    }
-
-    const email = session?.user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'demo_user';
-    const cookieStore = await cookies();
-    const storedPreferredName = cookieStore.get('sakhi_preferred_name')?.value;
-    const effectiveName = userName || storedPreferredName || data.profile?.preferred_name || session?.user?.name?.split(' ')[0] || 'Mama';
-
-    const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
-      const chat = ai.chats.create({
-      model: 'gemini-flash-lite-latest',
-      config: {
-        systemInstruction: `You are Sakhi, an empathetic, caring, and nurturing feminine AI maternal health companion.
-The mother's name is "${effectiveName}". Address her with warmth, love, and gentleness, referring to her by "${effectiveName}".
+const SYSTEM_PROMPT = (name: string) => `You are Sakhi, an empathetic, caring, and nurturing feminine AI maternal health companion.
+The mother's name is "${name}". Address her with warmth, love, and gentleness, referring to her by "${name}".
 
 CRITICAL MEDICAL & COMMUNICATION RULES:
 1. STRICT MEDICAL SAFETY - NO PRESCRIPTIONS: You are an AI companion, NOT a licensed doctor. You MUST NEVER give or suggest any medical prescriptions, medication names, pharmaceutical treatments, or drug dosages. If the user asks for medications, drugs, or medical prescriptions, gently and clearly inform them that you cannot prescribe medications and advise them to consult their OB/GYN or doctor.
@@ -151,214 +134,100 @@ BACKGROUND DATA SYNCHRONIZATION:
 - If the user mentions Blood Pressure, Blood Sugar, Baby kicks/movement, Sleep hours, Weight, Mood, or Symptoms, call the 'log_pregnancy_vital_entry' function.
 - If the user mentions current pregnancy week or due date, call 'update_pregnancy_progress'.
 - If the user mentions an upcoming doctor appointment or scan, call 'schedule_pregnancy_appointment'.
-- If the user mentions nutrition, call 'log_pregnancy_nutrition'.`,
-        tools: [{
-          functionDeclarations: [
-            log_pregnancy_vital_declaration,
-            update_pregnancy_progress_declaration,
-            schedule_pregnancy_appointment_declaration,
-            log_pregnancy_nutrition_declaration
-          ]
-        }]
-      }
-    });
+- If the user mentions nutrition, call 'log_pregnancy_nutrition'.`;
 
+export async function POST(req: Request) {
+  let body: any = {};
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+  const { message: rawMessage, data = {}, userName } = body;
+  if (!rawMessage || typeof rawMessage !== 'string') {
+    return NextResponse.json({ error: 'Missing message' }, { status: 400 });
+  }
+  const message = rawMessage.slice(0, 2000);
+
+  try {
+    const owner = await getOwner();
+    // 20 messages/minute per user+IP protects the shared Gemini key pool
+    const limit = rateLimit(`chat:${clientKey(req, owner.key)}`, 20, 60_000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: 'Too many messages', reply: "Let's take a short breath together. Please try again in a moment." },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
+      );
+    }
+    const cookieStore = await cookies();
+    const profile = (await readDoc<any>('preg_profile', null, owner)) || data.profile || {};
+    const effectiveName: string = String(
+      userName || profile.preferred_name || cookieStore.get('sakhi_preferred_name')?.value || owner.name?.split(' ')[0] || 'Mama'
+    ).slice(0, 60);
+
+    // Use the offline engine when no Gemini key is configured, or when the user
+    // opted out of AI processing in the consent screen.
+    const consent = await readDoc<any>('consent', null, owner);
+    if (getGeminiKeyPool().length === 0 || consent?.aiProcessing === false) {
+      const { reply, chartData } = await offlinePregnancyReply(message, owner, effectiveName);
+      return NextResponse.json({ reply, updatedChartData: chartData, offline: true });
+    }
+
+    const conditions: string[] = Array.isArray(profile.maternal_conditions) ? profile.maternal_conditions : [];
     const userContext = `
       [SYSTEM CONTEXT - DO NOT READ ALOUD]
       User's name: ${effectiveName}.
-      Current Gestational Age: ${data.profile?.weeks_pregnant ? `${data.profile.weeks_pregnant} weeks` : 'Pregnant'}.
-      Maternal Medical Background: ${(data.profile?.maternal_conditions || []).join(', ') || 'None reported'}.
+      Current Gestational Age: ${profile.weeks_pregnant ? `${profile.weeks_pregnant} weeks` : 'Pregnant'}.
+      Maternal Medical Background: ${conditions.join(', ') || 'None reported'}.
       [END SYSTEM CONTEXT]
 
       User says: ${message}
     `;
+    const runTool = onceper(runPregnancyTool);
 
-    let response = await chat.sendMessage({ message: userContext });
-    let updatedChartData: any = null;
-
-    if (response.functionCalls && response.functionCalls.length > 0) {
-      const call = response.functionCalls[0];
-      let apiResult: any = null;
-
-      try {
-        if (call.name === "log_pregnancy_vital_entry") {
-          const args = call.args as any;
-          const cookieName = `sakhi_pregnancy_logs_${email}`;
-          const existingStr = cookieStore.get(cookieName)?.value;
-          let logsList: any[] = [];
-          try {
-            logsList = existingStr ? JSON.parse(existingStr) : [];
-          } catch {
-            logsList = [];
-          }
-
-          const todayDateStr = new Date().toISOString().split('T')[0];
-          const existingIndex = logsList.findIndex((l: any) => (l.log_date || '').split('T')[0] === todayDateStr);
-          const existingToday = existingIndex >= 0 ? logsList[existingIndex] : {};
-
-          // Non-destructive merge: preserve all past history and keep non-mentioned fields
-          const newSymptoms = Array.isArray(args.symptoms) ? args.symptoms : (args.symptoms ? [args.symptoms] : []);
-          const mergedSymptoms = Array.from(new Set([
-            ...(existingToday.symptoms || []).filter((s: string) => s && s !== 'None'),
-            ...newSymptoms.filter((s: string) => s && s !== 'None')
-          ]));
-
-          const finalLog = {
-            log_date: todayDateStr,
-            weight: args.weight !== undefined && args.weight !== null ? Number(args.weight) : (existingToday.weight ?? (logsList.length > 0 ? logsList[logsList.length - 1].weight : null)),
-            blood_pressure_systolic: args.blood_pressure_systolic !== undefined && args.blood_pressure_systolic !== null ? Number(args.blood_pressure_systolic) : (existingToday.blood_pressure_systolic ?? null),
-            blood_pressure_diastolic: args.blood_pressure_diastolic !== undefined && args.blood_pressure_diastolic !== null ? Number(args.blood_pressure_diastolic) : (existingToday.blood_pressure_diastolic ?? null),
-            blood_sugar: args.blood_sugar !== undefined && args.blood_sugar !== null ? Number(args.blood_sugar) : (existingToday.blood_sugar ?? null),
-            baby_movement: args.baby_movement !== undefined && args.baby_movement !== null ? Number(args.baby_movement) : (existingToday.baby_movement ?? null),
-            mood: args.mood || existingToday.mood || "Calm",
-            sleep_hours: args.sleep_hours !== undefined && args.sleep_hours !== null ? Number(args.sleep_hours) : (existingToday.sleep_hours ?? 8),
-            symptoms: mergedSymptoms.length > 0 ? mergedSymptoms : (existingToday.symptoms || ["None"])
-          };
-
-          if (existingIndex >= 0) {
-            logsList[existingIndex] = finalLog;
-          } else {
-            logsList.push(finalLog);
-          }
-
-          logsList.sort((a: any, b: any) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
-
-          cookieStore.set(cookieName, JSON.stringify(logsList), { 
-            path: '/',
-            maxAge: 60 * 60 * 24 * 365 
-          });
-
-          apiResult = {
-            success: true,
-            message: "Maternal vital log updated in dashboard.",
-            log: finalLog
-          };
-          updatedChartData = { type: "daily_log", log: finalLog, logs: logsList };
-
-        } else if (call.name === "update_pregnancy_progress") {
-          const args = call.args as any;
-          const cookieName = `sakhi_preg_profile_${email}`;
-          const existingStr = cookieStore.get(cookieName)?.value;
-          let profile: any = {};
-          try {
-            profile = existingStr ? JSON.parse(existingStr) : {};
-          } catch {
-            profile = {};
-          }
-
-          if (args.weeks_pregnant) {
-            profile.weeks_pregnant = Number(args.weeks_pregnant);
-          }
-          if (args.expected_due_date) {
-            profile.expected_due_date = args.expected_due_date;
-          }
-
-          cookieStore.set(cookieName, JSON.stringify(profile), { 
-            path: '/',
-            maxAge: 60 * 60 * 24 * 365 
-          });
-
-          apiResult = {
-            success: true,
-            message: "Pregnancy gestational progress updated.",
-            profile
-          };
-          updatedChartData = { type: "profile_update", profile };
-
-        } else if (call.name === "schedule_pregnancy_appointment") {
-          const args = call.args as any;
-          const cookieName = `sakhi_pregnancy_appointments_${email}`;
-          const existingStr = cookieStore.get(cookieName)?.value;
-          let appointments: any[] = [];
-          try {
-            appointments = existingStr ? JSON.parse(existingStr) : [];
-          } catch {
-            appointments = [];
-          }
-
-          appointments.push({
-            name: args.name,
-            date: args.date || "Upcoming",
-            completed: Boolean(args.completed)
-          });
-
-          cookieStore.set(cookieName, JSON.stringify(appointments), { 
-            path: '/',
-            maxAge: 60 * 60 * 24 * 365 
-          });
-
-          apiResult = {
-            success: true,
-            message: "Appointment saved to maternal timeline.",
-            appointments
-          };
-          updatedChartData = { type: "appointment_update", appointments };
-
-        } else if (call.name === "log_pregnancy_nutrition") {
-          const args = call.args as any;
-          const cookieName = `sakhi_pregnancy_nutrition_${email}`;
-          const existingStr = cookieStore.get(cookieName)?.value;
-          let nutrition: any = {};
-          try {
-            nutrition = existingStr ? JSON.parse(existingStr) : {};
-          } catch {
-            nutrition = {};
-          }
-
-          nutrition = {
-            protein: args.protein !== undefined ? Number(args.protein) : (nutrition.protein || 0),
-            iron: args.iron !== undefined ? Number(args.iron) : (nutrition.iron || 0),
-            calcium: args.calcium !== undefined ? Number(args.calcium) : (nutrition.calcium || 0),
-            water: args.water !== undefined ? Number(args.water) : (nutrition.water || 0)
-          };
-
-          cookieStore.set(cookieName, JSON.stringify(nutrition), { 
-            path: '/',
-            maxAge: 60 * 60 * 24 * 365 
-          });
-
-          apiResult = {
-            success: true,
-            message: "Nutrition logged.",
-            nutrition
-          };
-          updatedChartData = { type: "nutrition_update", nutrition };
-        }
-
-        if (apiResult) {
-          response = await chat.sendMessage({
-            message: [{
-              functionResponse: {
-                name: call.name,
-                response: apiResult
-              }
+    try {
+      const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
+        const chat = ai.chats.create({
+          model: 'gemini-flash-lite-latest',
+          config: {
+            systemInstruction: SYSTEM_PROMPT(effectiveName),
+            tools: [{
+              functionDeclarations: [
+                log_pregnancy_vital_declaration,
+                update_pregnancy_progress_declaration,
+                schedule_pregnancy_appointment_declaration,
+                log_pregnancy_nutrition_declaration
+              ]
             }]
+          }
+        });
+
+        let response = await chat.sendMessage({ message: userContext });
+        let chartData: any = null;
+
+        if (response.functionCalls && response.functionCalls.length > 0) {
+          const call = response.functionCalls[0];
+          let apiResult: any;
+          try {
+            const outcome = await runTool(call.name || '', call.args || {}, owner);
+            apiResult = outcome?.apiResult ?? { error: `Unknown tool ${call.name}` };
+            chartData = outcome?.chartData ?? null;
+          } catch (toolErr) {
+            console.error('Function Execution Error in Pregnancy Chat:', toolErr);
+            apiResult = { error: 'Could not save right now. Providing gentle maternal guidance directly.' };
+          }
+          response = await chat.sendMessage({
+            message: [{ functionResponse: { name: call.name, response: apiResult } }]
           });
         }
-      } catch (toolErr) {
-        console.error("Function Execution Error in Pregnancy Chat:", toolErr);
-        response = await chat.sendMessage({
-          message: [{
-            functionResponse: {
-              name: call.name,
-              response: { error: "Could not update dashboard immediately. Providing gentle maternal guidance directly." }
-            }
-          }]
-        });
-      }
+        return { replyText: response.text, updatedChartData: chartData };
+      });
+      return NextResponse.json({ reply: replyText, updatedChartData });
+    } catch (geminiErr: any) {
+      console.warn('Gemini unavailable, using offline Sakhi (pregnancy):', geminiErr?.message || geminiErr);
+      const { reply, chartData } = await offlinePregnancyReply(message, owner, effectiveName);
+      return NextResponse.json({ reply, updatedChartData: chartData, offline: true });
     }
-
-      return {
-        replyText: response.text,
-        updatedChartData
-      };
-    });
-
-    return NextResponse.json({ 
-      reply: replyText,
-      updatedChartData 
-    });
-
   } catch (error: any) {
     console.error('Sakhi Pregnancy API Error:', error);
     return NextResponse.json(

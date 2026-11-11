@@ -87,5 +87,9 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/onboarding", // redirect to onboarding flow
   },
-  secret: process.env.NEXTAUTH_SECRET || "sakhi_secret_nextauth_998811",
+  // Never fall back to a known secret in production: anyone could forge session
+  // tokens with it. Without NEXTAUTH_SECRET, NextAuth refuses to run in production.
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    (process.env.NODE_ENV !== "production" ? "sakhi-dev-only-insecure-secret" : undefined),
 };

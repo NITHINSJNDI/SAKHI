@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ConsentGate from "@/components/ConsentGate";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
@@ -265,7 +266,7 @@ export default function Dashboard() {
       const res = await fetch("/api/dashboard-data");
       const data = await res.json();
       
-      if (data.profile) {
+      if (data.onboarded && data.profile) {
         // User exists and has a profile
         setProfile(data.profile);
         setLogs(data.logs || []);
@@ -357,6 +358,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+      <ConsentGate />
       
       {/* Sakhi Avatar Widget */}
       <SakhiAvatar aiState={aiState} />

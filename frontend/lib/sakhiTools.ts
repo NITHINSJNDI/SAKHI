@@ -1,0 +1,163 @@
+/**
+ * Side-effecting tools that Sakhi (Gemini function calling or the offline
+ * fallback) can invoke. They all persist through the unified store.
+ */
+import { Owner, patchDoc, readDoc, writeDoc } from '@/lib/store';
+import { mergePregnancyLog } from '@/lib/pregnancyLogs';
+import { runPrediction } from '@/lib/ml/client';
+
+export interface ToolOutcome {
+  apiResult: any;
+  chartData: any;
+}
+
+const toList = (v: any): string[] => (Array.isArray(v) ? v : v ? [v] : []).map(String);
+
+// ------------------------------------------------------------------ Her Mode
+
+export async function runHerTool(name: string, args: any, owner: Owner): Promise<ToolOutcome | null> {
+  if (name === 'log_health_entry') {
+    const logs = await readDoc<any[]>('daily_logs', [], owner);
+    const list = Array.isArray(logs) ? logs : [];
+    const todayIso = new Date().toISOString();
+    const dayStr = todayIso.split('T')[0];
+    const index = list.findIndex((l: any) => String(l?.log_date || '').split('T')[0] === dayStr);
+    const existing = index >= 0 ? list[index] : {};
+
+    const merged = Array.from(new Set([
+      ...(existing.symptoms || []).filter((s: string) => s && s !== 'None'),
+      ...toList(args.symptoms).filter(s => s && s !== 'None'),
+    ]));
+    const log = {
+      ...existing,
+      log_date: existing.log_date || todayIso,
+      flow_intensity: args.flow_intensity ?? existing.flow_intensity ?? 'None',
+      cramps_severity: args.cramps_severity !== undefined ? Number(args.cramps_severity) : existing.cramps_severity ?? 0,
+      symptoms: merged.length > 0 ? merged : existing.symptoms || ['None'],
+      mood: args.mood || existing.mood || 'Calm',
+      sleep_hours: args.sleep_hours !== undefined ? Number(args.sleep_hours) : existing.sleep_hours ?? 7.5,
+      ...(args.weight !== undefined ? { weight: Number(args.weight) } : {}),
+    };
+    if (index >= 0) list[index] = log;
+    else list.push(log);
+    await writeDoc('daily_logs', list, owner);
+    return {
+      apiResult: { success: true, message: 'Daily health log saved.', logged: log },
+      chartData: { type: 'daily_log', log },
+    };
+  }
+
+  if (name === 'update_period_info') {
+    const patch: Record<string, any> = {};
+    if (args.last_period_date) patch.last_period_start = args.last_period_date;
+    if (args.cycle_length_avg) patch.cycle_length = Number(args.cycle_length_avg);
+    if (args.period_duration) patch.period_duration = Number(args.period_duration);
+    const profile = await patchDoc('her_profile', patch, owner);
+
+    let cycleHistory: any[] | null = null;
+    if (Array.isArray(args.cycle_history) && args.cycle_history.length > 0) {
+      const stored = await readDoc<any[]>('cycle_history', [], owner);
+      const hist = Array.isArray(stored) ? stored : [];
+      for (const c of args.cycle_history) {
+        const i = hist.findIndex((h: any) => h.month === c.month);
+        const row = {
+          month: c.month,
+          cycleLength: c.cycleLength !== undefined ? Number(c.cycleLength) : (i >= 0 ? hist[i].cycleLength : profile.cycle_length || 28),
+          periodDuration: c.periodDuration !== undefined ? Number(c.periodDuration) : (i >= 0 ? hist[i].periodDuration : profile.period_duration || 5),
+        };
+        if (i >= 0) hist[i] = { ...hist[i], ...row };
+        else hist.push(row);
+      }
+      await writeDoc('cycle_history', hist, owner);
+      cycleHistory = hist;
+    }
+    return {
+      apiResult: { success: true, message: 'Cycle details updated.', profile, cycleHistory },
+      chartData: { type: cycleHistory ? 'cycle_history_update' : 'profile_update', profile, cycleHistory },
+    };
+  }
+
+  if (name === 'analyze_cycle') {
+    const data = await runPrediction('cycle', {
+      last_period_date: args.last_period_date,
+      cycle_length_avg: Number(args.cycle_length_avg) || 28,
+    });
+    return { apiResult: data, chartData: { type: 'cycle', data } };
+  }
+
+  if (name === 'analyze_pcos_risk') {
+    const data = await runPrediction('pcos', {
+      weight: Number(args.weight) || 60,
+      cycle_regularity: Number(args.cycle_regularity ?? 1),
+      acne_severity: Math.round(Number(args.acne_severity ?? 0)),
+    });
+    return { apiResult: data, chartData: { type: 'pcos', data } };
+  }
+
+  return null;
+}
+
+// ------------------------------------------------------------------ Mom Mode
+
+export async function runPregnancyTool(name: string, args: any, owner: Owner): Promise<ToolOutcome | null> {
+  if (name === 'log_pregnancy_vital_entry') {
+    const existing = await readDoc<any[]>('pregnancy_logs', [], owner);
+    const { entry, logs } = mergePregnancyLog(existing, args);
+    await writeDoc('pregnancy_logs', logs, owner);
+    return {
+      apiResult: { success: true, message: 'Maternal vitals saved.', log: entry },
+      chartData: { type: 'daily_log', log: entry, logs },
+    };
+  }
+
+  if (name === 'update_pregnancy_progress') {
+    const patch: Record<string, any> = {};
+    if (args.weeks_pregnant) patch.weeks_pregnant = Number(args.weeks_pregnant);
+    if (args.expected_due_date) patch.expected_due_date = args.expected_due_date;
+    const profile = await patchDoc('preg_profile', patch, owner);
+    return {
+      apiResult: { success: true, message: 'Pregnancy progress updated.', profile },
+      chartData: { type: 'profile_update', profile },
+    };
+  }
+
+  if (name === 'schedule_pregnancy_appointment') {
+    const stored = await readDoc<any[]>('pregnancy_appointments', [], owner);
+    const appointments = Array.isArray(stored) ? stored : [];
+    appointments.push({ name: String(args.name), date: String(args.date || 'Upcoming'), completed: Boolean(args.completed) });
+    await writeDoc('pregnancy_appointments', appointments, owner);
+    return {
+      apiResult: { success: true, message: 'Appointment saved.', appointments },
+      chartData: { type: 'appointment_update', appointments },
+    };
+  }
+
+  if (name === 'log_pregnancy_nutrition') {
+    const current = (await readDoc<any>('pregnancy_nutrition', null, owner)) || {};
+    const pick = (k: string) => (args[k] !== undefined ? Number(args[k]) : Number(current[k]) || 0);
+    const nutrition = { protein: pick('protein'), iron: pick('iron'), calcium: pick('calcium'), water: pick('water') };
+    await writeDoc('pregnancy_nutrition', nutrition, owner);
+    return {
+      apiResult: { success: true, message: 'Nutrition logged.', nutrition },
+      chartData: { type: 'nutrition_update', nutrition },
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Wrap a tool runner so a given call (same name + args) executes at most once per
+ * request. executeGeminiWithAutoSwitch retries the whole conversation on another
+ * API key, and without this a retry would save an appointment or log twice.
+ */
+export function onceper<TArgs extends any[]>(
+  runner: (name: string, args: any, ...rest: TArgs) => Promise<ToolOutcome | null>
+) {
+  const cache = new Map<string, Promise<ToolOutcome | null>>();
+  return (name: string, args: any, ...rest: TArgs) => {
+    const key = `${name}:${JSON.stringify(args ?? {})}`;
+    if (!cache.has(key)) cache.set(key, runner(name, args, ...rest));
+    return cache.get(key)!;
+  };
+}

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ConsentGate from "@/components/ConsentGate";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import {
   Bell, GearSix, Baby, Drop, Brain, WarningCircle, FilePdf, Heartbeat, ShieldCheck, SignOut,
-  Info, CaretDown, CaretUp, CheckCircle, ArrowLeft
-} from "@phosphor-icons/react";
+  Info, CaretDown, CaretUp, CheckCircle, ArrowLeft, FileText } from "@phosphor-icons/react";
 import PregnancyAvatar, { AIState } from "@/components/PregnancyAvatar";
 import {
   PregnancyWeekProgress,
@@ -134,24 +134,44 @@ const getPreeclampsiaExplainability = (
     });
   }
 
-  // 4. Clinical Health Consensus
-  const prob = preeclampsiaMl ? Math.round(preeclampsiaMl.probability * 100) : 0;
-  factors.push({
-    title: `Comprehensive Risk Assessment (${prob}%)`,
-    detail: `Evaluates current blood pressure (${systolic}/${diastolic} mmHg) and health profile against clinical maternal guidelines.`,
-    impact: preeclampsiaMl?.risk_level || "Calibrated",
-    type: prob >= 55 ? "negative" : prob >= 30 ? "neutral" : "positive",
-    source: "Health Analysis"
-  });
+  // 4. Model score + guideline flags
+  factors.push(...modelExplainFactors(preeclampsiaMl, "Preeclampsia / hypertensive"));
+  const level = preeclampsiaMl?.risk_level;
 
   return {
-    summary: prob >= 55 
+    summary: level === "High"
       ? "Blood pressure readings are elevated. Rest, minimize sodium, and discuss this reading with your doctor."
-      : prob >= 30
+      : level === "Moderate"
       ? "Blood pressure is slightly borderline. Continue regular daily check-ins to monitor trends."
       : "Blood pressure and vascular health are balanced and within normal ranges for your trimester.",
     factors
   };
+};
+
+// Turn the ML response (model card, per-factor log-odds impacts and guideline
+// flags) into explainability rows, so users see *why* the score is what it is.
+const modelExplainFactors = (ml: any, label: string): RiskExplainFactor[] => {
+  if (!ml) return [];
+  const rows: RiskExplainFactor[] = [];
+  const prob = Math.round((ml.probability || 0) * 100);
+  const drivers = (ml.explanation || [])
+    .filter((e: any) => e.provided && Math.abs(e.impact) >= 0.05)
+    .slice(0, 3)
+    .map((e: any) => `${e.label} ${e.value} ${e.unit} (${e.impact > 0 ? "raises" : "lowers"} risk)`);
+  rows.push({
+    title: `${label} model score (${prob}%)`,
+    detail: ml.model
+      ? `${ml.model.name}, trained on ${ml.model.dataset} (n=${ml.model.n}, cross-validated AUC ${ml.model.roc_auc}).` +
+        (drivers.length ? ` Main drivers: ${drivers.join("; ")}.` : "")
+      : `Evaluated against clinical maternal guidelines.`,
+    impact: ml.risk_level || "Calibrated",
+    type: ml.risk_level === "High" ? "negative" : ml.risk_level === "Moderate" ? "neutral" : "positive",
+    source: "Health Analysis"
+  });
+  for (const flag of ml.clinical_flags || []) {
+    rows.push({ title: flag, detail: "Clinical guideline threshold (ACOG / DIPSI).", impact: "Guideline", type: "negative", source: "Health Analysis" });
+  }
+  return rows;
 };
 
 const getGdmExplainability = (
@@ -234,22 +254,16 @@ const getGdmExplainability = (
     source: "Initial Setup"
   });
 
-  // 4. Clinical Health Consensus
-  const prob = gdmMl ? Math.round(gdmMl.probability * 100) : 0;
-  factors.push({
-    title: `Comprehensive Risk Assessment (${prob}%)`,
-    detail: `Evaluates current fasting glucose (${bloodSugar} mg/dL) and trimester history against clinical maternal guidelines.`,
-    impact: gdmMl?.risk_level || "Calibrated",
-    type: prob >= 55 ? "negative" : prob >= 30 ? "neutral" : "positive",
-    source: "Health Analysis"
-  });
+  // 4. Model score + guideline flags
+  factors.push(...modelExplainFactors(gdmMl, "Diabetes"));
+  const level = gdmMl?.risk_level;
 
   return {
-    summary: prob >= 55
-      ? "Fasting blood sugar is elevated. Discuss meal pacing and a glucose tolerance test with your doctor."
-      : prob >= 30
+    summary: level === "High"
+      ? "Blood sugar is elevated. Discuss meal pacing and a glucose tolerance test with your doctor."
+      : level === "Moderate"
       ? "Mild sugar elevation observed. Focus on balanced fiber-rich meals and regular daily activity."
-      : "Fasting blood sugar is optimal. Insulin regulation is healthy and balanced for this stage.",
+      : "Blood sugar is in a healthy range. Insulin regulation looks balanced for this stage.",
     factors
   };
 };
@@ -315,7 +329,10 @@ export default function PregnancyModePage() {
           body: JSON.stringify({
             systolic,
             diastolic,
-            hypertension_history: hasHypertensionHistory ? 1 : 0
+            hypertension_history: hasHypertensionHistory ? 1 : 0,
+            ...(latestSugarLog ? { blood_sugar: bloodSugar } : {}),
+            ...(prof?.age ? { age: Number(prof.age) } : {}),
+            symptoms: [...(logList || [])].slice(-3).flatMap((l: any) => l.symptoms || [])
           })
         }),
         fetch("/api/predict/gdm", {
@@ -323,7 +340,9 @@ export default function PregnancyModePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             blood_sugar: bloodSugar,
-            diabetes_history: hasDiabetesHistory ? 1 : 0
+            diabetes_history: hasDiabetesHistory ? 1 : 0,
+            ...(prof?.age ? { age: Number(prof.age) } : {}),
+            ...(prof?.bmi ? { bmi: Number(prof.bmi) } : {})
           })
         })
       ]);
@@ -544,6 +563,7 @@ export default function PregnancyModePage() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF8F5] selection:bg-[#2D1B36]/10 font-sans relative">
+      <ConsentGate />
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
           <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white/80 border-2 border-pink-300/60 shadow-[0_4px_16px_rgba(244,114,182,0.2)] shrink-0 flex items-center justify-center">
@@ -573,6 +593,14 @@ export default function PregnancyModePage() {
         </div>
         
         <div className="flex items-center gap-2 sm:gap-3 relative print:hidden shrink-0">
+          <a
+            href="/doctor-summary?mode=pregnancy"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"
+            title="Doctor visit summary (PDF)"
+            aria-label="Doctor visit summary"
+          >
+            <FileText weight="duotone" className="w-4 h-4 sm:w-5 sm:h-5" />
+          </a>
           <button 
             onClick={() => setIsSettingsOpen(true)}
             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#2D1B36]/60 hover:text-[#2D1B36] hover:bg-white/80 transition-all shadow-sm cursor-pointer"

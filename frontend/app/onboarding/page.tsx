@@ -11,11 +11,34 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [profileLoading, setProfileLoading] = useState(true);
+  const [demoLoading, setDemoLoading] = useState<"her" | "pregnancy" | null>(null);
+  const [demoError, setDemoError] = useState<string | null>(null);
+
+  // Guest demo: seeds a realistic sample account (no sign-in, no database needed)
+  const loadDemo = async (mode: "her" | "pregnancy") => {
+    setDemoLoading(mode);
+    setDemoError(null);
+    try {
+      const res = await fetch("/api/demo-seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not load demo");
+      localStorage.setItem("sakhi_active_mode", mode);
+      localStorage.setItem("sakhi_preferred_name", mode === "pregnancy" ? "Meera" : "Priya");
+      window.location.href = data.redirect;
+    } catch (e: any) {
+      setDemoError(e?.message || "Could not load demo");
+      setDemoLoading(null);
+    }
+  };
 
   // Check if they already have a profile cookie
   useEffect(() => {
     if (status === "authenticated") {
-      const checkProfile = () => {
+      const checkProfile = async () => {
         try {
           const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
           const isSwitch = urlParams?.get('switch') === 'true';
@@ -24,15 +47,14 @@ export default function OnboardingPage() {
             return;
           }
 
-          const email = session?.user?.email ? session.user.email.replace(/[^a-zA-Z0-9]/g, '_') : '';
-          if (!email) {
+          if (!session?.user?.email) {
             setProfileLoading(false);
             return;
           }
 
-          const cookies = document.cookie.split(";");
-          const hasMomProfile = cookies.some(c => c.trim().startsWith(`sakhi_preg_profile_${email}=`));
-          const hasHerProfile = cookies.some(c => c.trim().startsWith(`sakhi_her_profile_${email}=`));
+          const me = await fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+          const hasMomProfile = Boolean(me?.hasMomProfile);
+          const hasHerProfile = Boolean(me?.hasHerProfile);
           const activeMode = localStorage.getItem("sakhi_active_mode") || (document.cookie.split(";").find(c => c.trim().startsWith("sakhi_active_mode="))?.split("=")[1]?.trim());
 
           if (activeMode === "pregnancy" && hasMomProfile) {
@@ -103,6 +125,24 @@ export default function OnboardingPage() {
               </svg>
               <span>Continue with Google</span>
             </button>
+
+            <div className="flex items-center gap-3 pt-2 text-[11px] uppercase tracking-wider text-ink-faint">
+              <span className="h-px flex-1 bg-plum-900/10" /> or explore with sample data <span className="h-px flex-1 bg-plum-900/10" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {([["her", "Her Mode demo", "3 months of cycles"], ["pregnancy", "Mom Mode demo", "32 weeks pregnant"]] as const).map(([m, label, sub]) => (
+                <button
+                  key={m}
+                  disabled={demoLoading !== null}
+                  onClick={() => loadDemo(m)}
+                  className="rounded-2xl border border-plum-900/10 bg-white/60 hover:bg-white px-3 py-3 text-left transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <span className="block text-sm font-semibold text-plum-900">{demoLoading === m ? "Loading…" : label}</span>
+                  <span className="block text-[11px] text-ink-soft">{sub}</span>
+                </button>
+              ))}
+            </div>
+            {demoError && <p className="text-xs text-red-600">{demoError}</p>}
           </div>
 
           <p className="mt-6 text-[11px] text-ink-faint leading-normal">

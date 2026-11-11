@@ -1,32 +1,15 @@
 import { NextResponse } from 'next/server';
+import { runPrediction } from '@/lib/ml/client';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const mlUrl = process.env.NEXT_PUBLIC_ML_BACKEND_URL || 'http://127.0.0.1:8000';
-    
-    const response = await fetch(`${mlUrl}/predict/pcos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        weight: Number(body.weight) || 62.0,
-        cycle_regularity: Number(body.cycle_regularity ?? 1),
-        // FastAPI expects an int; round in case the client sends a float
-        acne_severity: Math.round(Number(body.acne_severity ?? 2))
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`FastAPI returned status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    const body = await req.json().catch(() => ({}));
+    // ?engine=local forces the in-process scorer (used by the parity check)
+    const forceLocal = new URL(req.url).searchParams.get('engine') === 'local';
+    return NextResponse.json(await runPrediction('pcos', body, { forceLocal }));
   } catch (error: any) {
-    console.error('PCOS ML Predict Route Error:', error.message);
-    return NextResponse.json({ 
-      error: 'ML microservice unreachable', 
-      details: error.message 
-    }, { status: 500 });
+    const status = error?.status === 400 ? 400 : 500;
+    console.error('pcos prediction error:', error?.message);
+    return NextResponse.json({ error: 'Prediction failed', details: error?.message }, { status });
   }
 }

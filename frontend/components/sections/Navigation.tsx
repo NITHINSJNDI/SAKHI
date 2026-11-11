@@ -33,40 +33,20 @@ export function Navigation() {
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
-    const resolveName = () => {
+    const resolveName = async () => {
       if (status !== "authenticated" || !session?.user?.email) {
         setUserName("");
         return;
       }
 
-      const email = session.user.email.replace(/[^a-zA-Z0-9]/g, "_");
-
-      // 1. Check cookies for this specific user
-      if (typeof document !== "undefined") {
-        const cookies = document.cookie.split(";");
-        const herCookie = cookies.find((c) => c.trim().startsWith(`sakhi_her_profile_${email}=`));
-        const pregCookie = cookies.find((c) => c.trim().startsWith(`sakhi_preg_profile_${email}=`));
-
-        if (pregCookie) {
-          try {
-            const parsed = JSON.parse(decodeURIComponent(pregCookie.split("=")[1] || "{}"));
-            if (parsed.preferred_name && parsed.preferred_name.trim()) {
-              setUserName(parsed.preferred_name.trim());
-              return;
-            }
-          } catch (e) {}
+      // 1. Name saved in the user's Sakhi profile (server-side store)
+      try {
+        const me = await fetch("/api/me", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null));
+        if (me?.name && String(me.name).trim()) {
+          setUserName(String(me.name).trim());
+          return;
         }
-
-        if (herCookie) {
-          try {
-            const parsed = JSON.parse(decodeURIComponent(herCookie.split("=")[1] || "{}"));
-            if (parsed.preferred_name && parsed.preferred_name.trim()) {
-              setUserName(parsed.preferred_name.trim());
-              return;
-            }
-          } catch (e) {}
-        }
-      }
+      } catch (e) {}
 
       // 2. Check localStorage
       if (typeof window !== "undefined") {
@@ -105,17 +85,17 @@ export function Navigation() {
     };
   }, [session]);
 
-  const goToMode = () => {
+  const goToMode = async () => {
     try {
       if (status !== "authenticated" || !session?.user?.email) {
         signIn("google", { callbackUrl: "/onboarding" });
         return;
       }
 
-      const email = session.user.email.replace(/[^a-zA-Z0-9]/g, "_");
+      const me = await fetch("/api/me", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      const hasMom = Boolean(me?.hasMomProfile);
+      const hasHer = Boolean(me?.hasHerProfile);
       const cookies = typeof document !== "undefined" ? document.cookie.split(";") : [];
-      const hasMom = cookies.some((c) => c.trim().startsWith(`sakhi_preg_profile_${email}=`));
-      const hasHer = cookies.some((c) => c.trim().startsWith(`sakhi_her_profile_${email}=`));
 
       const activeMode =
         (typeof window !== "undefined" ? localStorage.getItem("sakhi_active_mode") : null) ||

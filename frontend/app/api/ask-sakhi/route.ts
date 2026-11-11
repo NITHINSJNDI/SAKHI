@@ -1,24 +1,11 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from '@google/genai';
+import { Type } from '@google/genai';
 import { cookies } from 'next/headers';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { executeGeminiWithAutoSwitch } from '@/lib/gemini';
-
-// Persist chat-logged data for a year (previously these were session cookies
-// and disappeared when the browser closed, unlike the pregnancy-mode cookies).
-const COOKIE_OPTS = { path: '/', maxAge: 60 * 60 * 24 * 365 };
-
-// A corrupted cookie must not break every future chat-logging call.
-function safeParse<T>(raw: string | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return (Array.isArray(fallback) ? Array.isArray(parsed) : parsed && typeof parsed === 'object') ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
-}
+import { executeGeminiWithAutoSwitch, getGeminiKeyPool } from '@/lib/gemini';
+import { getOwner, readDoc } from '@/lib/store';
+import { clientKey, rateLimit } from '@/lib/rateLimit';
+import { onceper, runHerTool } from '@/lib/sakhiTools';
+import { offlineHerReply } from '@/lib/offlineChat';
 
 // 1. Tool to log user's daily symptoms, pain, bleeding flow, mood, and sleep
 const log_health_entry_declaration = {
@@ -135,38 +122,8 @@ const analyze_pcos_risk_declaration = {
   }
 };
 
-export async function POST(req: Request) {
-  try {
-    const { prompt, userName } = await req.json();
-
-    if (!prompt) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
-    }
-
-    const session = await getServerSession(authOptions);
-    const email = session?.user?.email ? session.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'guest';
-    const cookieStore = await cookies();
-
-    // Determine user's name
-    let effectiveName = userName || cookieStore.get('sakhi_preferred_name')?.value;
-    if (!effectiveName) {
-      const profileCookie = cookieStore.get(`sakhi_her_profile_${email}`)?.value;
-      if (profileCookie) {
-        try {
-          const parsed = JSON.parse(profileCookie);
-          if (parsed.preferred_name) effectiveName = parsed.preferred_name;
-        } catch {}
-      }
-    }
-
-    const personalizedPrompt = effectiveName ? `[The user's preferred name is ${effectiveName}. Please address ${effectiveName} naturally in your response.]\n${prompt}` : prompt;
-
-    const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
-      const chat = ai.chats.create({
-        model: 'gemini-flash-lite-latest',
-        config: {
-          systemInstruction: `You are Sakhi, an empathetic feminine AI health companion.
-The user's name is "${effectiveName || 'friend'}". Address them warmly and naturally by their name ("${effectiveName || 'friend'}") in your responses whenever suitable.
+const SYSTEM_PROMPT = (name: string) => `You are Sakhi, an empathetic feminine AI health companion.
+The user's name is "${name}". Address them warmly and naturally by their name ("${name}") in your responses whenever suitable.
 
 CRITICAL MEDICAL & COMMUNICATION RULES:
 1. STRICT MEDICAL SAFETY - NO PRESCRIPTIONS: You are an AI companion, NOT a licensed physician. You MUST NEVER give or suggest any medical prescriptions, drug names, dosage amounts, or pharmaceutical treatments. If the user asks for medications, drugs, or prescriptions, gently and clearly inform them that you cannot prescribe medications and advise them to consult their doctor or gynecologist.
@@ -176,200 +133,99 @@ CRITICAL MEDICAL & COMMUNICATION RULES:
 BACKGROUND DYNAMIC DASHBOARD ACTIONS:
 1. Whenever the user mentions physical sensations, symptoms (like acne, cramps, headache, fatigue, nausea, bloating), pain level, bleeding flow, mood, or sleep hours, call log_health_entry silently.
 2. Whenever the user says their period started today or gives a period start date, cycle length, or past cycle history, call update_period_info silently.
-3. If they ask about PCOS risk or cycle prediction, call analyze_pcos_risk or analyze_cycle.`,
-          tools: [{ 
-            functionDeclarations: [
-              log_health_entry_declaration, 
-              update_period_info_declaration, 
-              analyze_cycle_declaration, 
-              analyze_pcos_risk_declaration
-            ] 
-          }]
-        }
-      });
+3. If they ask about PCOS risk or cycle prediction, call analyze_pcos_risk or analyze_cycle.`;
 
-      let response = await chat.sendMessage({ message: personalizedPrompt });
-      let currentUpdatedChartData: any = null;
+export async function POST(req: Request) {
+  let body: any = {};
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+  const { prompt, userName } = body;
+  if (!prompt || typeof prompt !== 'string') {
+    return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+  }
+  const message = prompt.slice(0, 2000);
 
-    // Handle function calls
-    if (response.functionCalls && response.functionCalls.length > 0) {
-      const call = response.functionCalls[0];
-      let apiResult: any = null;
+  try {
+    const owner = await getOwner();
+    // 20 messages/minute per user+IP protects the shared Gemini key pool
+    const limit = rateLimit(`chat:${clientKey(req, owner.key)}`, 20, 60_000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: 'Too many messages', reply: "Let's take a short breath together. Please try again in a moment." },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
+      );
+    }
+    const cookieStore = await cookies();
+    const profile = await readDoc<any>('her_profile', null, owner);
+    const effectiveName: string = String(
+      userName || profile?.preferred_name || cookieStore.get('sakhi_preferred_name')?.value || owner.name?.split(' ')[0] || ''
+    ).slice(0, 60);
 
-      try {
-        if (call.name === "log_health_entry") {
-          const args = call.args as any;
-          const cookieName = `sakhi_daily_logs_${email}`;
-          const logsList: any[] = safeParse(cookieStore.get(cookieName)?.value, []);
-
-          const todayIso = new Date().toISOString();
-          const todayDateStr = todayIso.split('T')[0];
-
-          const newLog = {
-            log_date: todayIso,
-            flow_intensity: args.flow_intensity || 'None',
-            cramps_severity: args.cramps_severity !== undefined ? Number(args.cramps_severity) : 0,
-            symptoms: Array.isArray(args.symptoms) ? args.symptoms : (args.symptoms ? [args.symptoms] : []),
-            mood: args.mood || 'Calm',
-            sleep_hours: args.sleep_hours !== undefined ? Number(args.sleep_hours) : 7.5,
-            weight: args.weight !== undefined ? Number(args.weight) : undefined
-          };
-
-          const index = logsList.findIndex((l: any) => l.log_date?.split('T')[0] === todayDateStr);
-          const existingLog = index >= 0 ? logsList[index] : {};
-
-          // Non-destructive merge: preserve existing symptoms + append any newly mentioned
-          const newSymptoms = Array.isArray(args.symptoms) ? args.symptoms : (args.symptoms ? [args.symptoms] : []);
-          const mergedSymptoms = Array.from(new Set([
-            ...(existingLog.symptoms || []).filter((s: string) => s && s !== 'None'),
-            ...newSymptoms.filter((s: string) => s && s !== 'None')
-          ]));
-
-          const finalLog = {
-            log_date: existingLog.log_date || todayIso,
-            flow_intensity: args.flow_intensity !== undefined ? args.flow_intensity : (existingLog.flow_intensity || 'None'),
-            cramps_severity: args.cramps_severity !== undefined ? Number(args.cramps_severity) : (existingLog.cramps_severity !== undefined ? existingLog.cramps_severity : 0),
-            symptoms: mergedSymptoms.length > 0 ? mergedSymptoms : (existingLog.symptoms || ['None']),
-            mood: args.mood || existingLog.mood || 'Calm',
-            sleep_hours: args.sleep_hours !== undefined ? Number(args.sleep_hours) : (existingLog.sleep_hours !== undefined ? existingLog.sleep_hours : 7.5),
-            weight: args.weight !== undefined ? Number(args.weight) : existingLog.weight
-          };
-
-          if (index >= 0) {
-            logsList[index] = finalLog;
-          } else {
-            logsList.push(finalLog);
-          }
-
-          cookieStore.set(cookieName, JSON.stringify(logsList), COOKIE_OPTS);
-
-          apiResult = { 
-            success: true, 
-            message: "Daily health log successfully updated and saved to dashboard.", 
-            logged: finalLog 
-          };
-          currentUpdatedChartData = { type: "daily_log", log: finalLog };
-
-        } else if (call.name === "update_period_info") {
-          const args = call.args as any;
-          const profileCookieName = `sakhi_her_profile_${email}`;
-          const profile: any = safeParse(cookieStore.get(profileCookieName)?.value, {});
-
-          if (args.last_period_date) profile.last_period_start = args.last_period_date;
-          if (args.cycle_length_avg) profile.cycle_length = Number(args.cycle_length_avg);
-          if (args.period_duration) profile.period_duration = Number(args.period_duration);
-
-          cookieStore.set(profileCookieName, JSON.stringify(profile), COOKIE_OPTS);
-
-          let updatedHistory: any[] | null = null;
-          if (Array.isArray(args.cycle_history) && args.cycle_history.length > 0) {
-            const histCookieName = `sakhi_cycle_history_${email}`;
-            const existingHistStr = cookieStore.get(histCookieName)?.value;
-            let histList: any[] = [];
-            try { histList = existingHistStr ? JSON.parse(existingHistStr) : []; } catch { histList = []; }
-
-            args.cycle_history.forEach((newCycle: any) => {
-              const idx = histList.findIndex((h: any) => h.month === newCycle.month);
-              if (idx >= 0) {
-                histList[idx] = {
-                  ...histList[idx],
-                  month: newCycle.month,
-                  cycleLength: newCycle.cycleLength !== undefined ? Number(newCycle.cycleLength) : (histList[idx].cycleLength || 28),
-                  periodDuration: newCycle.periodDuration !== undefined ? Number(newCycle.periodDuration) : (histList[idx].periodDuration || 5)
-                };
-              } else {
-                histList.push({
-                  month: newCycle.month,
-                  cycleLength: newCycle.cycleLength !== undefined ? Number(newCycle.cycleLength) : (profile.cycle_length || 28),
-                  periodDuration: newCycle.periodDuration !== undefined ? Number(newCycle.periodDuration) : (profile.period_duration || 5)
-                });
-              }
-            });
-
-            cookieStore.set(histCookieName, JSON.stringify(histList), COOKIE_OPTS);
-            updatedHistory = histList;
-          }
-
-          apiResult = { 
-            success: true, 
-            message: "Cycle parameters and trends updated successfully.", 
-            profile,
-            cycleHistory: updatedHistory
-          };
-          currentUpdatedChartData = { 
-            type: updatedHistory ? "cycle_history_update" : "profile_update", 
-            profile, 
-            cycleHistory: updatedHistory 
-          };
-
-        } else if (call.name === "analyze_cycle") {
-          const args = call.args as any;
-          const backendUrl = process.env.NEXT_PUBLIC_ML_BACKEND_URL || "http://127.0.0.1:8000";
-          const res = await fetch(`${backendUrl}/predict/cycle`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              last_period_date: args.last_period_date,
-              cycle_length_avg: args.cycle_length_avg
-            })
-          });
-          apiResult = await res.json();
-          currentUpdatedChartData = { type: "cycle", data: apiResult };
-
-        } else if (call.name === "analyze_pcos_risk") {
-          const args = call.args as any;
-          const backendUrl = process.env.NEXT_PUBLIC_ML_BACKEND_URL || "http://127.0.0.1:8000";
-          const res = await fetch(`${backendUrl}/predict/pcos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              weight: args.weight,
-              cycle_regularity: args.cycle_regularity,
-              acne_severity: args.acne_severity
-            })
-          });
-          apiResult = await res.json();
-          currentUpdatedChartData = { type: "pcos", data: apiResult };
-        }
-
-        if (apiResult) {
-          // Send the result back to Gemini so it can incorporate it smoothly into the voice/text response
-          response = await chat.sendMessage({
-            message: [{
-              functionResponse: {
-                name: call.name,
-                response: apiResult
-              }
-            }]
-          });
-        }
-      } catch (backendErr) {
-        console.error("Function Execution Error:", backendErr);
-        response = await chat.sendMessage({
-          message: [{
-            functionResponse: {
-              name: call.name,
-              response: { error: "Service momentarily unavailable. Providing gentle guidance directly." }
-            }
-          }]
-        });
-      }
+    // No Gemini key configured: answer with the offline engine straight away
+    // Use the offline engine when no Gemini key is configured, or when the user
+    // opted out of AI processing in the consent screen.
+    const consent = await readDoc<any>('consent', null, owner);
+    if (getGeminiKeyPool().length === 0 || consent?.aiProcessing === false) {
+      const { reply, chartData } = await offlineHerReply(message, owner, effectiveName);
+      return NextResponse.json({ reply, updatedChartData: chartData, offline: true });
     }
 
-    return {
-      replyText: response.text,
-      updatedChartData: currentUpdatedChartData
-    };
-  });
+    const personalizedPrompt = effectiveName
+      ? `[The user's preferred name is ${effectiveName}. Please address ${effectiveName} naturally in your response.]\n${message}`
+      : message;
+    const runTool = onceper(runHerTool);
 
-  return NextResponse.json({
-    reply: replyText,
-    updatedChartData
-  });
+    try {
+      const { replyText, updatedChartData } = await executeGeminiWithAutoSwitch(async (ai) => {
+        const chat = ai.chats.create({
+          model: 'gemini-flash-lite-latest',
+          config: {
+            systemInstruction: SYSTEM_PROMPT(effectiveName || 'friend'),
+            tools: [{
+              functionDeclarations: [
+                log_health_entry_declaration,
+                update_period_info_declaration,
+                analyze_cycle_declaration,
+                analyze_pcos_risk_declaration
+              ]
+            }]
+          }
+        });
+
+        let response = await chat.sendMessage({ message: personalizedPrompt });
+        let chartData: any = null;
+
+        if (response.functionCalls && response.functionCalls.length > 0) {
+          const call = response.functionCalls[0];
+          let apiResult: any;
+          try {
+            const outcome = await runTool(call.name || '', call.args || {}, owner);
+            apiResult = outcome?.apiResult ?? { error: `Unknown tool ${call.name}` };
+            chartData = outcome?.chartData ?? null;
+          } catch (toolErr) {
+            console.error('Tool execution error:', toolErr);
+            apiResult = { error: 'Service momentarily unavailable. Providing gentle guidance directly.' };
+          }
+          response = await chat.sendMessage({
+            message: [{ functionResponse: { name: call.name, response: apiResult } }]
+          });
+        }
+        return { replyText: response.text, updatedChartData: chartData };
+      });
+      return NextResponse.json({ reply: replyText, updatedChartData });
+    } catch (geminiErr: any) {
+      // Every key failed (quota, network, outage): fall back to the offline engine
+      console.warn('Gemini unavailable, using offline Sakhi:', geminiErr?.message || geminiErr);
+      const { reply, chartData } = await offlineHerReply(message, owner, effectiveName);
+      return NextResponse.json({ reply, updatedChartData: chartData, offline: true });
+    }
   } catch (error: any) {
-    console.error("Ask Sakhi API Error:", error);
+    console.error('Ask Sakhi API Error:', error);
     return NextResponse.json(
-      { error: "Internal Server Error", reply: "I'm having a little trouble connecting right now. Please give me a moment and ask again gently." },
+      { error: 'Internal Server Error', reply: "I'm having a little trouble connecting right now. Please give me a moment and ask again gently." },
       { status: 500 }
     );
   }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight } from '@phosphor-icons/react';
+import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight, ShieldCheck, DownloadSimple, Trash } from '@phosphor-icons/react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -41,19 +41,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
       localStorage.setItem('sakhi_preferred_name', trimmedName);
       if (typeof document !== 'undefined') {
         document.cookie = `sakhi_preferred_name=${encodeURIComponent(trimmedName)}; path=/; max-age=31536000`;
-        const cookies = document.cookie.split(';');
-        for (const c of cookies) {
-          const trimmed = c.trim();
-          if (trimmed.startsWith('sakhi_preg_profile_') || trimmed.startsWith('sakhi_her_profile_')) {
-            const eqPos = trimmed.indexOf('=');
-            const cookieName = eqPos > -1 ? trimmed.substring(0, eqPos) : trimmed;
-            try {
-              const parsed = JSON.parse(decodeURIComponent(trimmed.substring(eqPos + 1)));
-              parsed.preferred_name = trimmedName;
-              document.cookie = `${cookieName}=${encodeURIComponent(JSON.stringify(parsed))}; path=/; max-age=31536000`;
-            } catch (err) {}
-          }
-        }
+        // The profile documents themselves are updated server-side by /api/update-profile
       }
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('sakhi-name-updated', { detail: { name: trimmedName } }));
@@ -82,16 +70,16 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
     }
   };
 
-  const handleRestartSetup = () => {
-    // Clear all profile cookies to force onboarding
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-      if (name.startsWith("sakhi_her_profile") || name.startsWith("sakhi_preg_profile")) {
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-      }
+  const handleRestartSetup = async () => {
+    // Forget both mode profiles server-side so onboarding runs again
+    try {
+      await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'restart' })
+      });
+    } catch (e) {
+      console.error(e);
     }
     router.push("/onboarding");
   };
@@ -205,6 +193,36 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                       {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
                     </span>
                   </button>
+                </div>
+
+                {/* Privacy & data controls */}
+                <div className="rounded-2xl border border-[#2D1B36]/10 bg-white/70 p-4 sm:p-5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <ShieldCheck weight="duotone" className="w-5 h-5 text-pink-500" />
+                    <h3 className="font-semibold text-[#2D1B36] text-sm sm:text-base">Privacy &amp; your data</h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#2D1B36]/60 mb-3">
+                    Download a copy of everything Sakhi stores about you, or permanently delete it.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <a
+                      href="/api/export-data"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-[#2D1B36]/15 py-2.5 text-sm font-medium text-[#2D1B36] hover:bg-[#2D1B36]/5"
+                    >
+                      <DownloadSimple weight="bold" className="w-4 h-4" /> Download my data
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Permanently delete all your Sakhi data (profiles, check-ins, pregnancy logs)? This cannot be undone.')) {
+                          window.location.href = '/reset';
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-red-200 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50 cursor-pointer"
+                    >
+                      <Trash weight="bold" className="w-4 h-4" /> Delete all my data
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
