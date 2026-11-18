@@ -41,7 +41,7 @@ Menstrual health in India is not only about getting pads. Girls and women face f
 
 ### Geography
 
-Phase 1 focuses on one district in a Tamil- or Telugu-speaking state, so the languages Sakhi already supports match the local ASHA network. **[TEAM TO FILL: chosen district]**
+Phase 1 focuses on one district in a Tamil- or Telugu-speaking state, so the languages Sakhi already supports match the local ASHA network. The district will be chosen after talking to partners. The shortlist is Tiruchirappalli or Pudukottai (with Gramalaya) and Villupuram (with Eco Femme / AVAG); see [RESEARCH.md](RESEARCH.md).
 
 ### Unmet needs
 
@@ -172,7 +172,7 @@ A working prototype at roughly technology readiness level 5–6: complete and ru
 These are planned, not finished:
 
 - **Usability pilot:** 20–50 women for 2–4 weeks, measuring how many keep using it, task completion, a usability score (SUS) and satisfaction. **[TEAM TO FILL]**
-- **Clinician review:** a gynaecologist checks the red-flag rules and the hygiene and health advice. **[TEAM TO FILL]**
+- **Clinician review:** a gynaecologist has agreed to review the red-flag rules and the hygiene and health advice, using [CLINICAL_REVIEW.md](CLINICAL_REVIEW.md). **[TEAM TO FILL: reviewer's name, role and date, and their comments once done]**
 - **Safety-check accuracy:** test 100+ written messages in 4 languages for missed emergencies and false alarms.
 - **Lab-reading accuracy:** test 30+ real lab reports.
 - **Indian data:** retrain and validate the risk models on Indian data with a hospital partner. The PCOS model needs more women under 25 (only 50 in the current data).
@@ -195,7 +195,7 @@ These are planned, not finished:
 | India femtech market | $1.49 billion (2025), projected $5.52 billion by 2034 | IMARC (paid-report teaser) |
 | India women's health apps | $277 million (2025); menstrual health is the largest segment at 46% | Grand View Research (paid-report teaser) |
 | Comparable reach | Kilkari: 53 million reached, 4.3 million active. Pinky Promise: 350,000 women, 40,000 paying | ARMMAN; YourStory |
-| First district (Phase 1) | [TEAM TO FILL] | District census figures |
+| First district (Phase 1) | Chosen after partner talks | District census figures |
 
 ### Stakeholders
 
@@ -298,16 +298,22 @@ flowchart LR
   C --> M[Impact<br/>less anaemia, fewer infections,<br/>fewer school days missed,<br/>safer pregnancies]
 ```
 
-### KPIs (targets for the first 12 months, [TEAM TO FILL] exact numbers)
+### KPIs (first 12 months)
 
-| Area | KPI |
-|---|---|
-| Reach | Women onboarded; monthly active users; ASHA workers trained |
-| Period care | Share using a hygienic method; share with enough supplies before their period; myth cards read |
-| Health | Red flags raised and acted on; anaemia flags followed by an Hb test; PCOS-pattern users who saw a doctor |
-| Behaviour | Tablets taken on time; antenatal visits attended; mood checks completed |
-| Education | Self-reported school or college days missed because of periods (before vs after) |
-| Experience | Satisfaction score; trust in the advice |
+The reach targets are set by the team. The others are **proposed** targets to confirm once the pilot partner and baseline survey are in place.
+
+| Area | KPI | 12-month target |
+|---|---|---|
+| Reach | Women onboarded | **1,000** |
+| Reach | ASHA workers trained | **50** |
+| Reach | Monthly active users | 40% of women onboarded (proposed) |
+| Period care | Women using a hygienic method (baseline vs 12 months) | +10 percentage points (proposed) |
+| Period care | Women with enough supplies before their period | 70% (proposed) |
+| Health | Red flags followed up by a doctor or ASHA visit | 80% (proposed) |
+| Health | Anaemia flags followed by an Hb test within 60 days | 50% (proposed) |
+| Behaviour | IFA tablets taken on time (pregnant users) | 70% of doses (proposed) |
+| Education | School or college days missed because of periods | Halved from baseline (proposed) |
+| Experience | Satisfaction score | 4 out of 5 or higher (proposed) |
 
 ### Environmental impact
 
