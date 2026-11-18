@@ -39,12 +39,61 @@ These features are never charged for. Putting safety behind a paywall would cost
 | **Pricing** | About ₹20–50 lakh a year per district programme. |
 | **Likely sponsors** | Pad and hygiene brands, pharma, banks, FMCG companies. |
 
-### 2.3 NGOs and hospitals: white-label licence
+### 2.3 Private clinics and hospitals: patient-tracking dashboard
 
-| | |
+The **main private revenue stream**: a dashboard that lets a clinic follow its own patients between visits. It mirrors the ASHA dashboard sold to government, but is aimed at private gynaecologists.
+
+**Why they would pay:** a hospital doesn't pay for "an app"; it pays for results.
+
+| Clinic's problem | What SAKHI gives them |
 |---|---|
-| **What we sell** | SAKHI with their logo, their helpline and their doctors in the referral list. |
-| **Pricing** | About ₹2–10 lakh a year, plus a per-user fee above an agreed number of users. |
+| Pregnant patients miss antenatal visits and deliver elsewhere | Visit reminders and follow-up, so patients stay with the clinic (one delivery is worth about ₹30,000–₹1.5 lakh to a private hospital) |
+| High-risk cases are spotted late | A daily list of patients with high BP, low Hb or reduced baby movement, between visits |
+| Doctors have little history at the first visit | The doctor summary: cycles, readings, labs, tablets, mood |
+| Patients forget iron and calcium tablets | Tablet-ledger adherence for each patient |
+| Women with PCOS or heavy periods don't return | Gentle reminders to come back |
+
+**Pitch:** "Fewer missed visits, fewer emergencies arriving late, more deliveries at your hospital."
+
+**Who to sell to:**
+
+| Customer | Fit | Why |
+|---|---|---|
+| **Private gynaecology clinics and nursing homes (10–50 beds)** | **Start here** | One doctor decides, they compete for deliveries, and they can start in weeks |
+| Mid-size maternity chains | Later | Bigger deals, but slow decisions; they will want it linked to their hospital software |
+| Government hospitals and PHCs | Through NHM (section 2.1), not direct sales | Most of their data already goes into the RCH portal and ANMOL |
+| NGO hospitals | White-label licence (below) | They want their own branding and helpline |
+
+**Pricing to test:**
+
+| Plan | Price |
+|---|---|
+| Clinic plan | ₹1,500–₹3,000 a month for up to 200 active patients |
+| Per pregnancy | ₹50–₹150 per pregnant patient, paid once for the whole pregnancy |
+| Hospital plan | ₹25,000–₹1 lakh a year, plus setup |
+| White-label (NGOs and hospitals) | About ₹2–10 lakh a year: their logo, helpline and doctors in the referral list, plus a per-user fee above an agreed number of users |
+
+The woman never pays.
+
+**Rough check:** 50 clinics × ₹2,000 a month is about ₹12 lakh a year, enough to run SAKHI. 200 clinics is about ₹48 lakh a year.
+
+**How it works in the app:**
+1. She scans the clinic's QR code and taps "Share my readings with Dr X's clinic". Sharing happens only with her consent, and she can stop it at any time.
+2. The clinic sees a **one-minute daily list**: who has red flags, who missed a visit, who isn't taking tablets.
+3. She gets clinic-branded reminders, such as "Your next visit at Sri Clinic is on 4 Dec."
+4. Most of this is already built on her side: risk tiles, MCP and ASHA readings, the tablet ledger and the doctor summary. **What's new is the clinic dashboard and the consent-to-share step.**
+
+**Rules and risks:**
+
+| Risk | How we handle it |
+|---|---|
+| Data protection (DPDP Act 2023) | Explicit consent per clinic. She can stop sharing at any time. Only the readings needed are shared. Access is logged. |
+| Medical device rules (CDSCO) | Present it as monitoring and reminders, with the doctor deciding. Get regulatory advice before charging. |
+| Her data stays hers | If she changes doctor, her record goes with her, not with the clinic. No clinic can see women who haven't joined it. |
+| Busy doctors | The dashboard must take one minute a day. |
+| Linking with hospital software | Plan ABHA (Ayushman Bharat health record) support later. It also helps with government sales. |
+
+**First test:** ask the reviewing gynaecologist: "Would your clinic use this dashboard, and would you pay ₹2,000 a month for it?" If yes, ask whether 3–5 of their patients could try it.
 
 ### 2.4 Optional extras for individual users
 
@@ -166,7 +215,8 @@ Training, support, content translation and the team are extra. To cover everythi
 | When | Step |
 |---|---|
 | Now | One CSR- or NGO-funded pilot in one district, with free sponsored pads picked up from ASHA workers through the Care Store |
-| 6–12 months | Take the pilot results to state NHM for a B2G contract. Add teleconsultation, lab referrals and paid Care Store options. |
+| 3–6 months | Clinic dashboard prototype; 3–5 private gynaecology clinics try it, starting with the reviewing gynaecologist |
+| 6–12 months | Take the pilot results to state NHM for a B2G contract. Start charging clinics (target 50). Add teleconsultation, lab referrals and paid Care Store options. |
 | 12–24 months | White-label licences, the family plan, home delivery, more states |
 | Later | Anonymised insights, only with consent and ethics approval |
 
@@ -174,7 +224,7 @@ Training, support, content translation and the team are extra. To cover everythi
 
 ## 6. Pitch line
 
-> "SAKHI is free for every woman. Governments, CSR partners and NGOs pay to deploy it, because it helps them meet the anaemia, menstrual hygiene and maternal health goals they are already funded for. The SAKHI Care Store turns a 'you're running low' reminder into free or low-cost pads from her ASHA worker or a sponsor, with free options always first."
+> "SAKHI is free for every woman. Governments, CSR partners and NGOs pay to deploy it, because it helps them meet the anaemia, menstrual hygiene and maternal health goals they are already funded for. Private clinics pay for a dashboard that keeps their pregnant patients safe and coming back between visits. The SAKHI Care Store turns a 'you're running low' reminder into free or low-cost pads from her ASHA worker or a sponsor, with free options always first."
 
 ---
 
@@ -184,3 +234,5 @@ Training, support, content translation and the team are extra. To cover everythi
 - Which CSR sponsor and which district for the pilot?
 - Does the target state already run a free-pad scheme that the Care Store can plug into?
 - How should ASHA workers be paid for handovers: through the sponsor, through NHM, or as a fee per handover?
+- Will clinics pay ₹1,500–₹3,000 a month? Ask the reviewing gynaecologist and 3–5 other clinics before fixing the price.
+- Do we need regulatory advice (CDSCO) before charging clinics for risk alerts?
