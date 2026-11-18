@@ -136,6 +136,15 @@ Sensitivity and specificity are at the 0.23 screening cut-off.
 **Main gap:** only 50 women in the data are under 25, and this is hospital data from Kerala. The next step is a survey of young women in Tamil Nadu, with consent, in the pilot.
 
 ### Next-period forecast
+- **Result on real cycles:** Marquette data, 135 women with at least 3 cycles, 1,358 walk-forward predictions:
+
+  | Method | Average error |
+  |---|---|
+  | **SAKHI forecast** | **2.13 days** |
+  | Average of her last 3 cycles | 2.30 days |
+  | Fixed 28-day calendar | 2.81 days |
+
+  The "80%" range held the real date **91%** of the time: safe, but wider than it needs to be. The card says "about 9 times in 10". The data is from US women using natural family planning, so cycles are more regular than in an Indian population with more PCOS. Repeat this on SAKHI pilot logs.
 - **Real data identified:** Marquette University "Menstrual Cycle Data" (Fehring, 2012; about 1,665 cycles from 159 women; anonymised; participants consented to reuse) at [epublications.marquette.edu/data_nfp/7](https://epublications.marquette.edu/data_nfp/7).
 - **Download blocked:** the site's bot check stops automated downloads, so it has to be downloaded in a browser. Save it as `ai-health-app/ml-service/data/FedCycleData071012.csv`, then run `npm test` in `frontend`. The test `tests/cycle-forecast-real.test.ts` runs automatically once the file is there.
 - **Current result:** on simulated cycles only, average error was 4.1 days, against 4.5 for a fixed 28 days, and the 80% range held 80% of outcomes.

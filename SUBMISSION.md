@@ -165,7 +165,7 @@ A working prototype at roughly technology readiness level 5–6: complete and ru
 | Python vs TypeScript model check | `python scripts/check_parity.py` confirms both copies give the same results |
 | PCOS symptom model (541 Indian women, Kerala) | ROC-AUC 0.88 (95% CI 0.85–0.91); 0.87 using only her answers. Sensitivity 0.86, specificity 0.76. Well calibrated |
 | Blood-loss score (PBAC) | Published, validated chart (Higham 1990), fed from pad logging |
-| Next-period forecast | Simulated cycles: 4.1 days average error vs 4.5 for a fixed 28 days. A test on real data (Marquette, 1,665 cycles) is ready to run once the dataset is downloaded |
+| Next-period forecast | **Real cycles** (Marquette University, 135 women, 1,358 predictions): 2.1 days average error vs 2.8 for a fixed 28-day calendar and 2.3 for the average of her last 3 cycles. The range held the next period 91% of the time |
 
 ### Not yet done
 

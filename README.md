@@ -205,7 +205,7 @@ Models are standardised logistic regressions trained on public datasets and stor
 | PCOS | Symptom-only logistic model on the Kerala PCOS dataset (541 women; no hormones or ultrasound), alongside the Rotterdam rule check (`train_pcos.py`) | ROC-AUC 0.88 (95% CI 0.85–0.91; 0.87 with her answers alone); sensitivity 0.86, specificity 0.76; well calibrated (`scripts/validate_pcos.py`) |
 | Thyroid | Symptom screen (rule-based) | — |
 | Cycle | Cycle statistics (21–35 day normal range, more than 9 days' variation flagged) | — |
-| Next period | Bayesian model of her own cycle lengths (population prior, outliers set aside) giving a likely day and an 80% range (`frontend/lib/ml/cycleForecast.ts`) | Synthetic cohort only: mean error 4.1 days vs 4.5 for a fixed 28 days; 80% range held 80% of outcomes |
+| Next period | Bayesian model of her own cycle lengths (population prior, outliers set aside) giving a likely day and an 80% range (`frontend/lib/ml/cycleForecast.ts`) | Real cycles (Marquette University, 135 women, 1,358 predictions): mean error 2.1 days vs 2.8 for a fixed 28 days and 2.3 for the last-3 median; range held 91% of outcomes (`tests/cycle-forecast-real.test.ts`) |
 | Heavy bleeding | PBAC blood-loss score (Higham 1990) from how soaked each pad was; over 100 suggests heavy bleeding | Published, validated scoring chart |
 
 - Retrain: `python train_models.py` (datasets and citations in `ai-health-app/ml-service/data/README.md`).
