@@ -19,7 +19,8 @@ Rules: copy the patient's result, never the reference range. Platelets in thousa
 urine_protein as nil, trace, 1+, 2+, 3+ or 4+. bp as "systolic/diastolic".
 A 2-hour or post-meal glucose, or a 75 g OGTT 2-hour value, is pp_sugar.
 report_date is the sample collection or report date as YYYY-MM-DD (dates are printed day first), or null.
-If the photo is not a lab report, return an empty tests list.
+The photo may instead be a Mother and Child Protection (MCP) card or antenatal card with handwritten rows per visit: then use the MOST RECENT visit row only (BP, Hb, urine albumin as urine_protein, blood sugar) and that visit's date as report_date.
+If the photo is neither a lab report nor an antenatal card, return an empty tests list.
 Reply with JSON only: {"report_date": string|null, "tests": [{"key": string, "value": number|string}]}`;
 
 export async function POST(req: Request) {

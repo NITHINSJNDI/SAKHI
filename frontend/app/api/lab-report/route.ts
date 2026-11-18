@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isMeasuredBy } from '@/lib/readings';
 import { getOwner, readDoc, writeDoc } from '@/lib/store';
 import { LAB_TESTS, cleanValue, type LabKey, type LabResult } from '@/lib/labs';
 
@@ -30,10 +31,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Please pick the date printed on the report.' }, { status: 400 });
     }
     const source = body?.source === 'photo' ? 'photo' : 'manual';
+    const measuredBy = isMeasuredBy(body?.measured_by) ? body.measured_by : undefined;
     const incoming: LabResult[] = [];
     for (const t of LAB_TESTS) {
       const v = cleanValue(t.key, body?.values?.[t.key]);
-      if (v !== null) incoming.push({ date, key: t.key as LabKey, value: v, source });
+      if (v !== null) incoming.push({ date, key: t.key as LabKey, value: v, source, ...(measuredBy ? { measured_by: measuredBy } : {}) });
     }
     if (!incoming.length) return NextResponse.json({ error: 'No readable values to save.' }, { status: 400 });
 
@@ -51,6 +53,7 @@ export async function POST(req: Request) {
         const list = Array.isArray(logs) ? logs.slice() : [];
         const i = list.findIndex(l => String(l?.log_date || '').slice(0, 10) === date);
         const entry: any = i >= 0 ? { ...list[i] } : { log_date: date, symptoms: ['None'], source: 'lab' };
+        if (measuredBy) entry.measured_by = measuredBy;
         if (sugar) entry.blood_sugar = Number(sugar.value);
         if (bp) {
           const [s, d] = String(bp.value).split('/').map(Number);

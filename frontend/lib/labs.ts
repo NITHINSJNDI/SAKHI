@@ -203,7 +203,7 @@ export const formatLab = (key: LabKey, value: number | string) => {
   return `${value}${t?.unit ? ' ' + t.unit : ''}`;
 };
 
-export interface LabResult { date: string; key: LabKey; value: number | string; source: 'photo' | 'manual' }
+export interface LabResult { date: string; key: LabKey; value: number | string; source: 'photo' | 'manual'; measured_by?: import('./readings').MeasuredBy }
 
 /** Latest result for each test. */
 export function latestLabs(results: LabResult[]): Partial<Record<LabKey, LabResult>> {

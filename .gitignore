@@ -42,3 +42,4 @@ next-env.d.ts
 # Kaggle PCOS dataset: check its licence before committing
 ai-health-app/ml-service/data/PCOS_*
 ai-health-app/ml-service/data/pcos_symptoms.csv
+ai-health-app/ml-service/data/FedCycleData*

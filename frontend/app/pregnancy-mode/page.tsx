@@ -37,7 +37,8 @@ import PregnancyNotificationCenter from "@/components/PregnancyNotificationCente
 import SettingsModal from "@/components/SettingsModal";
 import WeightTracker from "@/components/WeightTracker";
 import ContractionTimer from "@/components/ContractionTimer";
-import { LabResultsCard } from "@/components/LabReport";
+import { LabResultsCard, LabReportSheet } from "@/components/LabReport";
+import { daysSince, measuredByShort, staleNote, type MeasuredBy } from "@/lib/readings";
 import TabletsCard from "@/components/TabletsCard";
 import HospitalBagCard from "@/components/HospitalBagCard";
 import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
@@ -392,6 +393,9 @@ export default function PregnancyModePage() {
     /** date of the reading each score is based on; null = nothing logged, so not scored */
     bpDate: string | null;
     sugarDate: string | null;
+    /** who measured it: MCP card, ASHA, health centre, lab or her own machine */
+    bpBy?: MeasuredBy | null;
+    sugarBy?: MeasuredBy | null;
   }>({
     preeclampsia: null,
     gdm: null,
@@ -399,6 +403,7 @@ export default function PregnancyModePage() {
     bpDate: null,
     sugarDate: null,
   });
+  const [readingSheet, setReadingSheet] = useState<null | "mcp_card" | "asha">(null);
 
   // Initialize notification hook
   const { 
@@ -449,6 +454,8 @@ export default function PregnancyModePage() {
         isLoading: false,
         bpDate: latestBpLog ? String(latestBpLog.log_date).slice(0, 10) : null,
         sugarDate: latestSugarLog ? String(latestSugarLog.log_date).slice(0, 10) : null,
+        bpBy: latestBpLog?.measured_by ?? null,
+        sugarBy: latestSugarLog?.measured_by ?? null,
       });
     } catch (err) {
       console.warn("Failed to fetch ML risk assessments:", err);
@@ -857,8 +864,8 @@ export default function PregnancyModePage() {
             const levels = [pe?.risk_level, gd?.risk_level];
             const shortDate = (d: string | null) => d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";
             const levelCls = (l: string) => l === "High" ? "bg-rose-100 text-rose-700" : l === "Moderate" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
-            const RiskTile = ({ title, ml, reading, date, notes, missing }: {
-              title: string; ml: any; reading: string; date: string | null;
+            const RiskTile = ({ title, ml, reading, date, notes, missing, by, stale }: {
+              title: string; ml: any; reading: string; date: string | null; by?: string | null; stale?: string | null;
               notes: { High: string; Moderate: string; Low: string }; missing: string;
             }) => (
               <div className="flex-1 bg-white/80 p-4 rounded-2xl border border-plum-900/[0.07] flex flex-col justify-between min-w-0">
@@ -884,8 +891,9 @@ export default function PregnancyModePage() {
                 </div>
                 <div className="mt-3 pt-2.5 border-t border-plum-900/5 text-[11px] text-plum-900/50 flex items-center justify-between gap-2">
                   <span>Based on</span>
-                  <span className="font-medium text-plum-900/75 tabular-nums">{ml ? `${reading}${date ? ` · ${shortDate(date)}` : ""}` : "No reading yet"}</span>
+                  <span className="font-medium text-plum-900/75 tabular-nums">{ml ? `${reading}${date ? ` · ${shortDate(date)}` : ""}${by ? ` · ${by}` : ""}` : "No reading yet"}</span>
                 </div>
+                {ml && stale && <p className="mt-2 rounded-xl bg-amber-50 p-2 text-[11px] leading-relaxed text-amber-900">{stale}</p>}
               </div>
             );
             return (
@@ -899,7 +907,7 @@ export default function PregnancyModePage() {
               <div>
                 <h3 className="text-xl font-semibold tracking-tight text-plum-900">Pregnancy risk check</h3>
                 <p className="text-xs text-plum-900/60 mt-0.5">
-                  {mlPredictions.isLoading ? "Checking your latest readings…" : "From your own logged readings · a screening guide, not a diagnosis"}
+                  {mlPredictions.isLoading ? "Checking your latest readings…" : "From readings you logged, your MCP card or your ASHA worker · a screening guide, not a diagnosis"}
                 </p>
               </div>
             </div>
@@ -914,26 +922,48 @@ export default function PregnancyModePage() {
                 ml={pe}
                 reading={pe?.factors ? `${pe.factors.systolic}/${pe.factors.diastolic} mmHg` : ""}
                 date={mlPredictions.bpDate}
+                by={measuredByShort(mlPredictions.bpBy)}
+                stale={staleNote("bp", daysSince(mlPredictions.bpDate), weeks)}
                 notes={{
                   High: "Your blood pressure reading is high. Please contact your doctor today.",
                   Moderate: "A little above the ideal range. Recheck in a day or two and keep logging.",
                   Low: "Your latest reading is in a healthy range. Keep checking at each visit.",
                 }}
-                missing='Log a blood pressure reading in your check-in, or tell Sakhi "BP 118 over 76", to see this.'
+                missing='No BP machine? Add the reading from your MCP card after a check-up, or one your ASHA worker took. Or tell Sakhi "BP 118 over 76".'
               />
               <RiskTile
                 title="Blood sugar"
                 ml={gd}
                 reading={gd?.factors ? `${gd.factors.blood_sugar} mg/dL` : ""}
                 date={mlPredictions.sugarDate}
+                by={measuredByShort(mlPredictions.sugarBy)}
+                stale={staleNote("sugar", daysSince(mlPredictions.sugarDate), weeks)}
                 notes={{
                   High: "Your sugar reading is high. Mention it to your doctor and ask about a glucose test (OGTT).",
                   Moderate: "Slightly above the fasting target. Balanced, fibre-rich meals and a short walk after eating help.",
                   Low: "Your latest reading is within the fasting target.",
                 }}
-                missing='Log a fasting sugar reading, or tell Sakhi "fasting sugar 88", to see this.'
+                missing='Add a sugar result from your lab report or MCP card, or tell Sakhi "fasting sugar 88".'
               />
             </div>
+            {/* No machine at home: readings from check-ups count too */}
+            <div className="mt-3 rounded-2xl bg-lavender-50 p-3">
+              <p className="text-xs font-semibold text-plum-900">No BP machine or sugar meter? That&apos;s fine.</p>
+              <p className="mt-0.5 text-[11px] text-plum-900/65">Your BP, Hb and urine are checked at every antenatal visit and written on your MCP card. Your ASHA worker can check BP too.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button type="button" onClick={() => setReadingSheet("mcp_card")} className="rounded-full bg-plum-900 px-3 py-1.5 text-xs font-semibold text-cream hover:bg-plum-900/90 cursor-pointer">Add from MCP card</button>
+                <button type="button" onClick={() => setReadingSheet("asha")} className="rounded-full border border-plum-900/15 bg-white px-3 py-1.5 text-xs font-semibold text-plum-900 hover:bg-lavender-50 cursor-pointer">Reading from ASHA / ANM</button>
+              </div>
+            </div>
+            <LabReportSheet
+              open={readingSheet !== null}
+              onClose={() => setReadingSheet(null)}
+              mode="pregnancy"
+              pregnant={!born}
+              initialMeasuredBy={readingSheet ?? undefined}
+              title={readingSheet === "asha" ? "Add a reading your ASHA / ANM took" : "Add readings from your MCP card"}
+              onSaved={() => fetchDashboardData()}
+            />
             <p className="mt-3 text-[11px] leading-relaxed text-plum-900/50">
               The blood sugar estimate comes from a general diabetes model (trained on women who were not pregnant), so treat it as a guide.
               Gestational diabetes is diagnosed with the glucose tolerance test around weeks 24 to 28.

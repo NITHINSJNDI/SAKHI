@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MEASURED_BY, type MeasuredBy } from "@/lib/readings";
 import { AnimatePresence, motion } from "framer-motion";
 import { Camera, FileText, X, Plus, Trash, CircleNotch, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
 import {
@@ -61,8 +62,10 @@ async function readOnDevice(canvas: HTMLCanvasElement, onProgress: (p: number) =
 type Row = { key: LabKey; value: string };
 type Step = "pick" | "reading" | "review" | "done";
 
-export function LabReportSheet({ open, onClose, mode, pregnant, onSaved }: {
+export function LabReportSheet({ open, onClose, mode, pregnant, onSaved, initialMeasuredBy, title }: {
   open: boolean;
+  initialMeasuredBy?: MeasuredBy;
+  title?: string;
   onClose: () => void;
   mode: "her" | "pregnancy";
   pregnant: boolean;
@@ -77,12 +80,13 @@ export function LabReportSheet({ open, onClose, mode, pregnant, onSaved }: {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<LabResult[]>([]);
+  const [measuredBy, setMeasuredBy] = useState<MeasuredBy>(initialMeasuredBy || "lab");
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
   const reset = useCallback(() => {
-    setStep("pick"); setPreview(null); setProgress(0); setRows([]); setDate(today()); setError(null); setSaved([]); setReader("manual");
-  }, []);
+    setStep("pick"); setPreview(null); setProgress(0); setRows([]); setDate(today()); setError(null); setSaved([]); setReader("manual"); setMeasuredBy(initialMeasuredBy || "lab");
+  }, [initialMeasuredBy]);
 
   useEffect(() => { if (open) reset(); }, [open, reset]);
   useEffect(() => {
@@ -139,7 +143,7 @@ export function LabReportSheet({ open, onClose, mode, pregnant, onSaved }: {
       const res = await fetch("/api/lab-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, values, source: reader === "manual" ? "manual" : "photo", mode }),
+        body: JSON.stringify({ date, values, source: reader === "manual" ? "manual" : "photo", mode, measured_by: measuredBy }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not save.");
@@ -173,7 +177,7 @@ export function LabReportSheet({ open, onClose, mode, pregnant, onSaved }: {
           >
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-cream/95 backdrop-blur px-5 sm:px-7 pt-5 pb-3 border-b border-plum-900/[0.06]">
               <div>
-                <h2 id="lab-title" className="text-lg font-semibold text-plum-900">Add a lab report</h2>
+                <h2 id="lab-title" className="text-lg font-semibold text-plum-900">{title || "Add a lab report"}</h2>
                 <p className="text-xs text-ink-soft">Snap your report. You check every value before it&apos;s saved.</p>
               </div>
               <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-plum-900/60 hover:bg-plum-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 cursor-pointer">
@@ -229,8 +233,21 @@ export function LabReportSheet({ open, onClose, mode, pregnant, onSaved }: {
                       Found {rows.length} {rows.length === 1 ? "value" : "values"}. <span className="text-ink-soft">Please check each one against your report.</span>
                     </p>
                   )}
+                  {mode === "pregnancy" && (
+                    <div>
+                      <p className="text-xs font-semibold text-plum-900/70">Who measured this?</p>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5" role="group" aria-label="Who measured this">
+                        {MEASURED_BY.map(m => (
+                          <button key={m.key} type="button" aria-pressed={measuredBy === m.key} onClick={() => setMeasuredBy(m.key)}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-medium cursor-pointer ${measuredBy === m.key ? "border-plum-900 bg-plum-900 text-cream" : "border-plum-900/15 bg-white text-plum-900 hover:bg-lavender-50"}`}>
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div>
-                    <label htmlFor="lab-date" className="text-xs font-semibold text-plum-900/70">Report date</label>
+                    <label htmlFor="lab-date" className="text-xs font-semibold text-plum-900/70">{measuredBy === "lab" ? "Report date" : "Date it was checked"}</label>
                     <input id="lab-date" type="date" value={date} max={today()} onChange={e => setDate(e.target.value)}
                       className="mt-1 block w-full rounded-xl border border-plum-900/10 bg-white px-3 py-2.5 text-sm text-plum-900 focus:outline-none focus:ring-2 focus:ring-lavender-400" />
                   </div>

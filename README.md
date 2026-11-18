@@ -44,7 +44,7 @@ Sakhi ("friend" in Hindi) turns everyday logs, lab reports and a friendly chat i
 | Area | What it does |
 |---|---|
 | Week by week | Trimester, baby size, due-date countdown and growth timeline. |
-| Vitals | Blood pressure, fasting sugar, weight gain against her BMI band, and fetal kick counts. |
+| Vitals | Blood pressure, fasting sugar, weight gain against her BMI band, and fetal kick counts. No home machine needed: readings from her MCP card, ASHA worker, health centre or lab count, each labelled with who measured it, and Sakhi asks for a fresh check when a reading gets old. |
 | Risk screening | Blood pressure and blood sugar screens (a general pregnancy-risk model and a diabetes-tendency model, with clinical thresholds) that score **only readings she actually logged**, with plain-language explanations. |
 | Late pregnancy | Contraction timer with *go to hospital now* rules, and a hospital bag checklist from 28 weeks. |
 | Government schemes | Short questionnaire that shows which of PMMVY, JSY, JSSK and PMSMA apply to her, with the steps to claim each. |
@@ -202,7 +202,7 @@ Models are standardised logistic regressions trained on public datasets and stor
 |---|---|---|
 | General pregnancy risk (BP, sugar, heart rate) | UCI Maternal Health Risk (452 unique rows; labels are clinicians' overall risk levels from Bangladesh, not preeclampsia diagnoses) plus ACOG blood-pressure thresholds | ROC-AUC 0.84, sensitivity 0.87 at the screening cut-off |
 | Diabetes tendency | Pima Indians Diabetes (768 rows; outcome is type 2 diabetes in Native American women, not gestational diabetes) plus the DIPSI ≥140 mg/dL rule | ROC-AUC 0.83, sensitivity 0.85 at the screening cut-off |
-| PCOS | Symptom-only logistic model on the Kerala PCOS dataset (541 women; no hormones or ultrasound), alongside the Rotterdam rule check (`train_pcos.py`) | ROC-AUC 0.88; sensitivity 0.85, specificity 0.76 at the screening cut-off |
+| PCOS | Symptom-only logistic model on the Kerala PCOS dataset (541 women; no hormones or ultrasound), alongside the Rotterdam rule check (`train_pcos.py`) | ROC-AUC 0.88 (95% CI 0.85–0.91; 0.87 with her answers alone); sensitivity 0.86, specificity 0.76; well calibrated (`scripts/validate_pcos.py`) |
 | Thyroid | Symptom screen (rule-based) | — |
 | Cycle | Cycle statistics (21–35 day normal range, more than 9 days' variation flagged) | — |
 | Next period | Bayesian model of her own cycle lengths (population prior, outliers set aside) giving a likely day and an 80% range (`frontend/lib/ml/cycleForecast.ts`) | Synthetic cohort only: mean error 4.1 days vs 4.5 for a fixed 28 days; 80% range held 80% of outcomes |
@@ -269,6 +269,8 @@ The repository is set up for Vercel with two services (see `vercel.json`): the N
 - [ARCHITECTURE.md](ARCHITECTURE.md): system design, data flows and component hierarchy
 - [DEMO.md](DEMO.md): a two-minute walkthrough for presentations
 - [SUBMISSION.md](SUBMISSION.md): draft answers for the seven evaluation criteria
+- [RESEARCH.md](RESEARCH.md): checked figures, Indian competitors, market and partners, with sources
+- [BUSINESS.md](BUSINESS.md): business model and the Care Store
 - [ai-health-app/ml-service/data/README.md](ai-health-app/ml-service/data/README.md): datasets and citations
 
 ---

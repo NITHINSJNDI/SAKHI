@@ -20,16 +20,16 @@ Menstrual health in India is not only about getting pads. Girls and women face f
 3. **Hidden illness.** Heavy or irregular periods are often a sign of anaemia, PCOS or thyroid problems. Without a record of her cycles, these are found late.
 4. **No continuity.** When she becomes pregnant, her history is lost. Paper records, separate apps and short clinic visits mean doctors see little of her history.
 
-### Key figures (all [VERIFY] against the original reports)
+### Key figures (checked November 2026; sources in [RESEARCH.md](RESEARCH.md))
 
 | Figure | Source |
 |---|---|
-| About 57% of women aged 15–49 are anaemic | NFHS-5 (2019–21), India Fact Sheet |
-| About 77% of women aged 15–24 use a hygienic method of period protection. It is lower in rural areas (about 73%) than in cities (about 89%), so around 1 in 4 still don't | NFHS-5 (2019–21) |
-| About half of women aged 15–24 use cloth, often alongside other methods | NFHS-5 (2019–21) |
-| PCOS prevalence in India is estimated at about 4% to 22%, depending on the criteria used | Ganie et al., *Indian J Med Res*, 2019 |
-| About 10 lakh ASHA workers are the first point of contact for women's health in villages | MoHFW / NHM |
-| Jan Aushadhi Suvidha pads are sold at about ₹1 a pad through more than 10,000 Janaushadhi Kendras | PMBI (Pradhan Mantri Bhartiya Janaushadhi Pariyojana) |
+| 57.0% of women aged 15–49 are anaemic (the latest national figure; NFHS-6's first fact sheet leaves anaemia out) | NFHS-5 (2019–21) |
+| 79.2% of women aged 15–24 use a hygienic method of period protection, up from 77.6%. About 1 in 5 still don't, and rural use is far lower than urban (about 73% vs 90% in NFHS-5) | NFHS-6 (2023–24, provisional); NFHS-5 |
+| About 10% of Indian women have PCOS (Rotterdam criteria) | Bharali et al., *Cureus*, 2022 (meta-analysis) |
+| About 10.4 lakh ASHA workers are the first point of contact for women's health in villages | Government figure, via news reports |
+| Jan Aushadhi Suvidha pads cost ₹1 a pad. More than 18,000 Kendras sell them, and 100 crore pads were sold by January 2026 | PIB, March 2026 |
+| Tamil Nadu's free napkin programme reaches 1.21 crore girls and women a year, yet only about 63% of rural girls had good hygiene practice in one study | DT Next; TN study |
 
 ### Who we serve
 
@@ -131,7 +131,16 @@ Follow the steps in [DEMO.md](DEMO.md). **[TEAM TO FILL: link to a 2-minute scre
 | Social | Discreet mode for shared phones. Built to work through ASHA workers. Government scheme matching. Family alert. |
 | India-specific | 1-0-1 tablet patterns tied to her meal times. UIP vaccine schedule. DIPSI and WHO reference ranges. Jan Aushadhi links. |
 
-The full comparison table against paper records, global period apps and government programmes is in [SAKHI_NOVELTY_AND_RESEARCH_COMPARISON.txt](SAKHI_NOVELTY_AND_RESEARCH_COMPARISON.txt).
+### Why India needs SAKHI: competitors in India
+
+| Competitor | Gap |
+|---|---|
+| Kilkari (MoHFW and ARMMAN; 53 million reached, 4.3 million active) | One-way voice calls, pregnancy only, **no Tamil** |
+| Government pad schemes (RKSK; Tamil Nadu reaches 1.21 crore a year) | Supply only: nothing for hygiene practice, tracking or referral |
+| Maya, Flo, Clue | Generic period tracking; Maya was criticised for sharing data |
+| Veera Health, Pinky Promise, Proactive For Her | Paid, for urban women, need a doctor consultation |
+
+SAKHI is the free link between the public supply chain (pads, ASHA workers, PHCs) and the woman's own health record. It works in Tamil without a BP machine. Details and sources are in [RESEARCH.md](RESEARCH.md). The comparison with global apps and research is in [SAKHI_NOVELTY_AND_RESEARCH_COMPARISON.txt](SAKHI_NOVELTY_AND_RESEARCH_COMPARISON.txt).
 
 **IP status:** none filed yet. Next steps:
 - Register the SAKHI name and logo as a trademark.
@@ -149,11 +158,14 @@ A working prototype at roughly technology readiness level 5–6: complete and ru
 
 | Evidence | Result |
 |---|---|
-| Automated tests (`cd frontend && npm test`) | 36 tests passing. They cover period care (change timer, supplies, content), the safety check, the cycle engine, the tablet schedule, the anaemia watch and the hygiene chat answers. |
+| Automated tests (`cd frontend && npm test`) | 60 tests passing. They cover period care, the blood-loss score, the safety check, the cycle engine and forecast, the PCOS model (matching the Python copy), readings from check-ups, the tablet schedule, the anaemia watch and the hygiene chat answers. |
 | Type check (`npx tsc --noEmit`) | Clean |
 | Preeclampsia model, 5-fold cross-validation | ROC-AUC 0.84, sensitivity 0.87 at the screening cut-off |
 | Gestational diabetes model, 5-fold cross-validation | ROC-AUC 0.83, sensitivity 0.85 at the screening cut-off |
 | Python vs TypeScript model check | `python scripts/check_parity.py` confirms both copies give the same results |
+| PCOS symptom model (541 Indian women, Kerala) | ROC-AUC 0.88 (95% CI 0.85–0.91); 0.87 using only her answers. Sensitivity 0.86, specificity 0.76. Well calibrated |
+| Blood-loss score (PBAC) | Published, validated chart (Higham 1990), fed from pad logging |
+| Next-period forecast | Simulated cycles: 4.1 days average error vs 4.5 for a fixed 28 days. A test on real data (Marquette, 1,665 cycles) is ready to run once the dataset is downloaded |
 
 ### Not yet done
 
@@ -163,7 +175,8 @@ These are planned, not finished:
 - **Clinician review:** a gynaecologist checks the red-flag rules and the hygiene and health advice. **[TEAM TO FILL]**
 - **Safety-check accuracy:** test 100+ written messages in 4 languages for missed emergencies and false alarms.
 - **Lab-reading accuracy:** test 30+ real lab reports.
-- **Indian data:** retrain and validate the risk models on Indian data with a hospital partner.
+- **Indian data:** retrain and validate the risk models on Indian data with a hospital partner. The PCOS model needs more women under 25 (only 50 in the current data).
+- **Device-free readings:** done. Pregnancy risk now accepts readings from her MCP card, her ASHA worker or ANM, or a health centre, and asks for a fresh check when a reading is old.
 
 ### Changes made from testing
 
@@ -177,8 +190,11 @@ These are planned, not finished:
 
 | Level | Estimate | Basis |
 |---|---|---|
-| Women aged 15–49 in India | about 35–37 crore | Census population projections |
+| Women aged 15–49 in India | about 35–37 crore | Census population projections [VERIFY] |
 | …who own or share a smartphone | [VERIFY] | GSMA Mobile Gender Gap Report; NFHS-5 mobile phone use |
+| India femtech market | $1.49 billion (2025), projected $5.52 billion by 2034 | IMARC (paid-report teaser) |
+| India women's health apps | $277 million (2025); menstrual health is the largest segment at 46% | Grand View Research (paid-report teaser) |
+| Comparable reach | Kilkari: 53 million reached, 4.3 million active. Pinky Promise: 350,000 women, 40,000 paying | ARMMAN; YourStory |
 | First district (Phase 1) | [TEAM TO FILL] | District census figures |
 
 ### Stakeholders
@@ -188,6 +204,11 @@ These are planned, not finished:
 - **Clinical partners:** PHCs, district hospitals, medical colleges.
 - **Funders and adopters:** state NHM, CSR teams.
 - **Programmes it fits with:** Jan Aushadhi, menstrual hygiene schemes, Tele-MANAS, PMSMA.
+
+**Partners to approach** (details in [RESEARCH.md](RESEARCH.md)):
+- **Tamil Nadu:** Gramalaya, Eco Femme / AVAG, TNCDW (self-help groups), NHM Tamil Nadu (free napkin programme), Gandhigram Trust, and IFMR LEAD (evaluation).
+- **India:** ARMMAN, Myna Mahila Foundation, Jhpiego, SEWA.
+- **Funding:** BIRAC BIG (up to ₹50 lakh), menstrual hygiene CSR programmes (Union Bank, Amrutanjan, Aditya Birla Group).
 
 ### How women will hear about it
 

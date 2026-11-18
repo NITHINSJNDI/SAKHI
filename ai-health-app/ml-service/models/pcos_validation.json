@@ -1,0 +1,105 @@
+{
+  "n": 541,
+  "positive_rate": 0.327,
+  "repeats": 10,
+  "scenarios": {
+    "all_answers": {
+      "unknown_at_prediction": [],
+      "roc_auc": 0.88,
+      "roc_auc_95ci": [
+        0.847,
+        0.912
+      ],
+      "brier": 0.118,
+      "sensitivity_at_0.23": 0.859,
+      "specificity_at_0.23": 0.764
+    },
+    "no_bmi_or_age": {
+      "unknown_at_prediction": [
+        "bmi",
+        "age"
+      ],
+      "roc_auc": 0.874,
+      "roc_auc_95ci": [
+        0.839,
+        0.905
+      ],
+      "brier": 0.121,
+      "sensitivity_at_0.23": 0.864,
+      "specificity_at_0.23": 0.734
+    },
+    "answers_only": {
+      "unknown_at_prediction": [
+        "bmi",
+        "age",
+        "period_days"
+      ],
+      "roc_auc": 0.866,
+      "roc_auc_95ci": [
+        0.83,
+        0.901
+      ],
+      "brier": 0.121,
+      "sensitivity_at_0.23": 0.881,
+      "specificity_at_0.23": 0.723
+    }
+  },
+  "calibration": [
+    {
+      "band": "0.00-0.10",
+      "n": 205,
+      "mean_predicted": 0.05,
+      "observed_rate": 0.083
+    },
+    {
+      "band": "0.10-0.25",
+      "n": 107,
+      "mean_predicted": 0.157,
+      "observed_rate": 0.103
+    },
+    {
+      "band": "0.25-0.50",
+      "n": 69,
+      "mean_predicted": 0.365,
+      "observed_rate": 0.304
+    },
+    {
+      "band": "0.50-0.75",
+      "n": 67,
+      "mean_predicted": 0.636,
+      "observed_rate": 0.687
+    },
+    {
+      "band": "0.75-1.00",
+      "n": 93,
+      "mean_predicted": 0.881,
+      "observed_rate": 0.882
+    }
+  ],
+  "subgroups": {
+    "age_under_25": {
+      "n": 50,
+      "roc_auc": 0.979,
+      "sensitivity_at_0.23": 1.0,
+      "specificity_at_0.23": 0.667
+    },
+    "age_25_plus": {
+      "n": 491,
+      "roc_auc": 0.867,
+      "sensitivity_at_0.23": 0.834,
+      "specificity_at_0.23": 0.771
+    },
+    "bmi_under_25": {
+      "n": 313,
+      "roc_auc": 0.847,
+      "sensitivity_at_0.23": 0.795,
+      "specificity_at_0.23": 0.83
+    },
+    "bmi_25_plus": {
+      "n": 228,
+      "roc_auc": 0.909,
+      "sensitivity_at_0.23": 0.915,
+      "specificity_at_0.23": 0.649
+    }
+  }
+}
