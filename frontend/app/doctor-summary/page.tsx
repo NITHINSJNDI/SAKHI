@@ -130,7 +130,7 @@ export default function DoctorSummaryPage() {
               <span className="text-xs font-semibold">Sakhi · Doctor visit summary</span>
             </div>
             <h1 className="text-2xl font-semibold mt-1">
-              {mode === "pregnancy" ? "Antenatal" : "Menstrual & hormonal"} health summary
+              {mode === "pregnancy" ? (data?.postnatal ? "Postnatal" : "Antenatal") : "Menstrual & hormonal"} health summary
             </h1>
             {data && (
               <p className="text-sm text-plum-900/60">
@@ -219,6 +219,23 @@ export default function DoctorSummaryPage() {
 
         {data?.kind === "pregnancy" && (
           <>
+            {data.postnatal ? (
+            <Section title="After the birth">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <Stat label="Baby" value={[data.postnatal.babyName, data.postnatal.sex].filter(Boolean).join(", ") || "Baby"} />
+                <Stat label="Born" value={`${fmtDate(data.postnatal.birthDate)} (${data.postnatal.age})`} />
+                <Stat label="Delivery" value={data.postnatal.delivery} />
+                <Stat label="Birth weight" value={data.postnatal.birthWeight ? `${data.postnatal.birthWeight} kg` : null} />
+                <Stat label="Latest weight" value={data.postnatal.latestWeight ? `${data.postnatal.latestWeight.weight} kg (${fmtDate(data.postnatal.latestWeight.date)})` : null} />
+                <Stat label="Weight for age" value={data.postnatal.latestWeight?.band || null} />
+                <Stat label="Vaccine visits done" value={`${data.postnatal.vaccines.done} of ${data.postnatal.vaccines.total}`} />
+                <Stat label="Next vaccines" value={data.postnatal.vaccines.next ? `${data.postnatal.vaccines.next.name}, ${fmtDate(data.postnatal.vaccines.next.date)}${data.postnatal.vaccines.next.overdue ? " (overdue)" : ""}` : "All done"} />
+              </div>
+              <p className="text-xs text-plum-900/70 mt-2">
+                {data.postnatal.corrected ? `${data.postnatal.corrected}. ` : ""}Recovery check-ins in the last 2 weeks: {data.postnatal.recoveryChecks}. Known conditions: {data.patient.conditions.length ? data.patient.conditions.join(", ") : "none"}
+              </p>
+            </Section>
+            ) : (
             <Section title="Pregnancy">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <Stat label="Gestation" value={data.patient.weeksPregnant ? `${data.patient.weeksPregnant} weeks` : null} />
@@ -230,6 +247,7 @@ export default function DoctorSummaryPage() {
                 {data.patient.experience || ""}{data.patient.experience ? " · " : ""}Known conditions: {data.patient.conditions.length ? data.patient.conditions.join(", ") : "none"}
               </p>
             </Section>
+            )}
 
             <Section title="Blood pressure & glucose readings">
               {data.vitals.bp.length === 0 && data.vitals.sugar.length === 0 ? (
@@ -264,12 +282,14 @@ export default function DoctorSummaryPage() {
               <List items={data.stats.symptoms} />
             </Section>
 
+            {!data.postnatal && (
             <Section title="Screening results">
               <div className="grid sm:grid-cols-2 gap-2">
                 <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} />
                 <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." />
               </div>
             </Section>
+            )}
 
             {data.appointments.length > 0 && (
               <Section title="Appointments this month">

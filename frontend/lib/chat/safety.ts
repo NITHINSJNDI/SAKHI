@@ -20,7 +20,7 @@ function mentions(t: string, re: RegExp): boolean {
 
 const CRISIS = /\b(suicid\w*|kill (?:myself|me)|end (?:my|it all)|want to die|self[- ]?harm|hurt myself|no reason to live)\b/i;
 
-export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: string): SafetyHit | null {
+export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: string, opts: { afterBirth?: boolean } = {}): SafetyHit | null {
   const t = message.toLowerCase();
   // Gentle opening, but the action always comes right after it
   const who = `Dear ${name || (mode === 'pregnancy' ? 'mama' : 'friend')}`;
@@ -32,6 +32,8 @@ export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: st
       reply: `${who}, I'm really glad you told me, and I'm sorry you're carrying this. You deserve support right now. Please call Tele-MANAS on 14416 (free, 24/7) or emergency services on 112, or reach out to someone you trust and stay with them. Would you like to tell me what's been happening?`,
     };
   }
+
+  if (mode === 'pregnancy' && opts.afterBirth) return postnatal(t, who);
 
   if (mode === 'pregnancy') {
     const bp = t.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
@@ -73,6 +75,47 @@ export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: st
   }
   if (mentions(t, /\b(fever|chills)\b/) && mentions(t, /\b(pelvic pain|lower (?:belly|abdominal) pain|unusual discharge|smelly discharge)\b/)) {
     return { level: 'urgent', reason: 'infection-signs', reply: `${who}, fever with pelvic pain or unusual discharge can be an infection that needs treatment. Please see a doctor today.` };
+  }
+  return null;
+}
+
+/**
+ * After the birth: the mother's postnatal danger signs and the newborn's
+ * (WHO / IMNCI). Ordinary bleeding is normal now (lochia), so only heavy
+ * bleeding is an emergency.
+ */
+function postnatal(t: string, who: string): SafetyHit | null {
+  // The baby first: "baby has fever", "baby not feeding", "baby breathing fast"
+  const baby = /\b(baby|newborn|infant|child|son|daughter|he|she)\b/.test(t);
+  if (baby && (
+    mentions(t, /\b(not (?:feeding|sucking|drinking)|won'?t (?:feed|suck|drink)|stopped feeding|refus\w+ (?:to )?feed)\b/)
+    || mentions(t, /\b(fits?|seizures?|convulsions?|jerking|fitting)\b/)
+    || mentions(t, /\b(breathing (?:very )?fast|fast breathing|can'?t breathe|grunting|chest (?:is )?(?:sinking|pulling in)|turning blue|blue lips)\b/)
+    || mentions(t, /\b(fever|very hot|feels? (?:very )?cold|cold to touch)\b/)
+    || mentions(t, /\b(floppy|limp|very sleepy|won'?t wake|not waking|unconscious|not moving)\b/)
+    || mentions(t, /\b(yellow (?:palms|soles|hands|feet)|blood in (?:stool|poo)|vomit\w* (?:green|everything))\b/)
+  )) {
+    return { level: 'emergency', reason: 'newborn-danger', reply: `${who}, that can be a danger sign in a young baby. Please take your baby to the nearest hospital now, or call 108 or 102 for a free ambulance. Keep baby warm against your skin on the way and keep offering breast milk.` };
+  }
+
+  const bp = t.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+  const sys = bp ? Number(bp[1]) : 0;
+  const dia = bp ? Number(bp[2]) : 0;
+  const plausible = sys >= 70 && sys <= 250 && dia >= 40 && dia <= 160 && sys > dia;
+  if (plausible && (sys >= 160 || dia >= 110)) {
+    return { level: 'emergency', reason: 'severe-bp', reply: `${who}, ${sys}/${dia} is dangerously high. BP can rise in the weeks after birth too. Please go to the hospital or call 112 now, especially with a headache or blurred vision.` };
+  }
+  if (mentions(t, /\b(soak(?:ing|ed)? (?:through )?(?:a |my )?pads? (?:in|every|each) (?:an |one )?(?:hour|hr)|bleeding (?:very )?heavily|heavy bleeding|gush(?:ing)? (?:of )?blood|(?:big|large|huge) clots?|clots? (?:as big as|bigger than))\b/)) {
+    return { level: 'emergency', reason: 'heavy-bleeding', reply: `${who}, bleeding that heavy after birth needs a doctor now. Please go to the hospital or call 108 straight away, and lie down while you wait.` };
+  }
+  if (mentions(t, /\b(seizure|convulsions?|(?:had|having) a fit)\b/) || mentions(t, /\b(blurr?y vision|blurr?ed vision|seeing spots|flashing lights|vision (?:changes?|problems?)|worst headache|severe headache)\b/)) {
+    return { level: 'emergency', reason: 'preeclampsia-signs', reply: `${who}, a bad headache, vision changes or a fit after birth can be dangerously high BP. Please call 112 or go to the hospital now.` };
+  }
+  if (mentions(t, /\b(chest pain|can'?t breathe|struggling to breathe|short of breath|(?:one|my) (?:leg|calf) (?:is )?(?:swollen|painful|red))\b/)) {
+    return { level: 'emergency', reason: 'clot-signs', reply: `${who}, chest pain, trouble breathing or one painful swollen leg can be a blood clot, which is more likely after birth. Please call 112 or go to the hospital now.` };
+  }
+  if (mentions(t, /\b(fever|chills)\b/) && mentions(t, /\b(smell\w*|pus|discharge|stitches|wound|breast)\b/)) {
+    return { level: 'urgent', reason: 'infection-signs', reply: `${who}, fever with a bad-smelling discharge, a sore wound or a painful breast can be an infection after birth. Please see a doctor today.` };
   }
   return null;
 }

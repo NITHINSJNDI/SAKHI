@@ -36,7 +36,13 @@ const DEFAULT_PREFS: NotificationPreferences = {
   sugar: true,
 };
 
-export function usePregnancyNotifications(profile: any, logs: any[], appointments: any[]) {
+/** After the birth: what the reminders should be about instead of the pregnancy. */
+export interface AfterBirth { babyName?: string | null; daysOld: number }
+
+/** Pregnancy-only reminders that must stop once the baby is born. */
+const PREGNANCY_ONLY: ReminderCategory[] = ['progress', 'development', 'movement', 'sugar', 'hospital_bag', 'due_date', 'ultrasound', 'appointment'];
+
+export function usePregnancyNotifications(profile: any, logs: any[], appointments: any[], afterBirth: AfterBirth | null = null) {
   const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFS);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -76,6 +82,22 @@ export function usePregnancyNotifications(profile: any, logs: any[], appointment
         newReminders.push({ id: `${id}_${new Date().toDateString()}`, title, message, category, scheduledTime, status: 'upcoming' });
       }
     };
+
+    if (afterBirth) {
+      const baby = afterBirth.babyName || 'baby';
+      addDaily('health_check', 'How are you both?', `How are you and ${baby} today? Sakhi is here if anything worries you.`, 'health_check', 20);
+      if (preferences.water) addDaily('water_1', 'Drink water', '💧 Breastfeeding needs extra water. Keep a glass near you while you feed.', 'water', 14);
+      if (preferences.meal) addDaily('meal_1', 'Eat well', '🥗 Eat a proper meal, even if baby keeps you busy. You need more food while breastfeeding.', 'meal', 13);
+      if (preferences.vitamins) addDaily('vitamins_1', 'Your tablets', '💊 Keep taking your iron and calcium tablets for 6 months after birth.', 'vitamins', 9);
+      // BP can rise after birth too, mostly in the first 6 weeks
+      if (preferences.bp && afterBirth.daysOld <= 42) addDaily('bp_1', 'Blood pressure', '❤️ Check your BP today, especially if you have a headache or blurred vision.', 'bp', 10);
+      setReminders(prev => {
+        const merged = prev.filter(r => !(r.status === 'upcoming' && PREGNANCY_ONLY.includes(r.category)));
+        newReminders.forEach(nr => { if (!merged.find(r => r.id === nr.id)) merged.push(nr); });
+        return merged.sort((a, b) => a.scheduledTime - b.scheduledTime);
+      });
+      return;
+    }
 
     // 1. Progress & 2. Development (Weekly)
     newReminders.push({
@@ -165,7 +187,7 @@ export function usePregnancyNotifications(profile: any, logs: any[], appointment
       // Clear upcoming when disabled
       setReminders(prev => prev.filter(r => r.status !== 'upcoming'));
     }
-  }, [profile, logs, appointments, preferences]);
+  }, [profile, logs, appointments, preferences, afterBirth?.daysOld, afterBirth?.babyName]);
 
   // Background Checker Interval
   useEffect(() => {

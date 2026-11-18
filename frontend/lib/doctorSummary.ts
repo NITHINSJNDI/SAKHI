@@ -10,6 +10,10 @@ import { checkLab, formatLab, labTest, latestLabs, type LabResult } from '@/lib/
 import { EMPTY_TABLETS, FOOD_LABEL, SLOT_LABEL, ledger, normalise, patternOf, type TabletsDoc } from '@/lib/tablets';
 import { localNow } from '@/lib/tabletChat';
 import { detectPeriodStarts } from '@/lib/cyclePhase';
+import { VACCINES, ageDays, babyAge, checkRecovery, effectiveAgeStart, nextVaccine, type PostpartumDoc } from '@/lib/postpartum';
+import { BAND_TEXT, checkGrowth } from '@/lib/babyGrowth';
+import { milestoneView } from '@/lib/milestones';
+import { monthsOld } from '@/lib/babyGrowth';
 
 const DAY = 86400000;
 const iso = (d: Date) => d.toISOString().split('T')[0];
@@ -228,14 +232,19 @@ export async function buildHerSummary(owner: Owner, days = 90) {
 }
 
 export async function buildPregnancySummary(owner: Owner, days = 90) {
-  const [savedProfile, allLogs, appointments, nutrition] = await Promise.all([
+  const [savedProfile, allLogs, appointments, nutrition, ppDoc] = await Promise.all([
     readDoc<any>('preg_profile', null, owner),
     readDoc<any[]>('pregnancy_logs', [], owner),
     readDoc<any[]>('pregnancy_appointments', [], owner),
     readDoc<any>('pregnancy_nutrition', null, owner),
+    readDoc<PostpartumDoc | null>('postpartum', null, owner),
   ]);
+  // After the birth this becomes a postnatal summary: no pregnancy risk scores or kick counts
+  const postnatal = ppDoc?.birth_date ? postnatalSection(ppDoc, savedProfile?.expected_due_date) : null;
   const profile = withCurrentWeek(savedProfile);
   const logs = windowOf(Array.isArray(allLogs) ? allLogs : [], days)
+    // A postnatal summary is about the time since the birth
+    .filter(l => !postnatal || dayOf(l.log_date) >= postnatal.birthDate)
     .sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
 
   const bp = logs
@@ -255,7 +264,7 @@ export async function buildPregnancySummary(owner: Owner, days = 90) {
   // Only score readings she logged; with none, the report says "not scored"
   // rather than printing a risk level built on stand-in normal values.
   const notScored = (reason: string) => ({ not_scored: true, reason });
-  const [preeclampsia, gdm] = await Promise.all([
+  const [preeclampsia, gdm] = postnatal ? [null, null] : await Promise.all([
     latestBp
       ? runPrediction('preeclampsia', {
           systolic: latestBp.systolic,
@@ -278,7 +287,7 @@ export async function buildPregnancySummary(owner: Owner, days = 90) {
   const flags: string[] = [];
   if (highBp.length) flags.push(`${highBp.length} BP reading(s) at or above 140/90 (highest ${Math.max(...highBp.map(b => b.systolic))}/${Math.max(...highBp.map(b => b.diastolic))})`);
   if (highSugar.length) flags.push(`${highSugar.length} glucose reading(s) at or above 140 mg/dL`);
-  if (kicks.length && Math.min(...kicks) < 10 && Number(profile?.weeks_pregnant) >= 28) flags.push('Some days with fewer than 10 recorded movements');
+  if (!postnatal && kicks.length && Math.min(...kicks) < 10 && Number(profile?.weeks_pregnant) >= 28) flags.push('Some days with fewer than 10 recorded movements');
   for (const s of ['Swelling', 'Headache', 'Blurred Vision', 'Dizziness']) {
     const hit = symptoms.find(x => x.label === s);
     if (hit) flags.push(`${s} reported on ${hit.count} day(s)`);
@@ -286,11 +295,19 @@ export async function buildPregnancySummary(owner: Owner, days = 90) {
   for (const f of [...(preeclampsia?.clinical_flags || []), ...(gdm?.clinical_flags || [])]) if (!flags.includes(f)) flags.push(f);
 
   const questions: string[] = [];
+  if (postnatal) {
+    flags.push(...postnatal.flags);
+    if (highBp.length) questions.push('My BP has been high since the birth. Do I need treatment or closer checks?');
+    if (diabetesHistory || highSugar.length) questions.push('When should I have my sugar test after the birth?');
+    questions.push('Is my recovery on track, and which family planning method suits me while breastfeeding?');
+    questions.push(`Is ${postnatal.babyName || 'baby'} growing and feeding well?`);
+  } else {
   if (highBp.length || (preeclampsia?.risk_level && preeclampsia.risk_level !== 'Low')) questions.push('Do my blood pressure readings need closer monitoring or a urine protein test?');
   if (highSugar.length || (gdm?.risk_level && gdm.risk_level !== 'Low')) questions.push('When should I do my glucose tolerance test (OGTT)?');
   if (flags.some(f => /movements/.test(f))) questions.push("What should I do if my baby's movements feel reduced?");
   questions.push('Which scans and blood tests are due before my next visit?');
-  const [momLabs, momTablets, momMood] = await Promise.all([labSection(owner, true), tabletSection(owner), moodFlag(owner)]);
+  }
+  const [momLabs, momTablets, momMood] = await Promise.all([labSection(owner, !postnatal), tabletSection(owner), moodFlag(owner)]);
   if (momMood) flags.push(momMood);
   for (const l of momLabs) if (l.status === 'attention' || l.status === 'urgent') flags.push(`${l.label} ${l.value} (${fmtShort(l.date)}): ${l.note}`);
   if (momTablets && momTablets.takenRate !== null && momTablets.takenRate < 80) questions.push('I sometimes miss my tablets. Is there an easier schedule, or anything to help with side effects?');
@@ -301,7 +318,7 @@ export async function buildPregnancySummary(owner: Owner, days = 90) {
     period: { days, from: logs[0] ? dayOf(logs[0].log_date) : null, to: logs.length ? dayOf(logs[logs.length - 1].log_date) : null },
     patient: {
       name: profile?.preferred_name || owner.name || 'Patient',
-      weeksPregnant: Number(profile?.weeks_pregnant) || null,
+      weeksPregnant: postnatal ? null : Number(profile?.weeks_pregnant) || null,
       dueDate: profile?.expected_due_date ? dayOf(profile.expected_due_date) : null,
       experience: profile?.pregnancy_experience || null,
       conditions,
@@ -311,18 +328,55 @@ export async function buildPregnancySummary(owner: Owner, days = 90) {
       sugar,
       weights,
       weightChange: weights.length >= 2 ? r1(weights[weights.length - 1].value - weights[0].value) : null,
-      avgKicks: r1(mean(kicks)),
-      minKicks: kicks.length ? Math.min(...kicks) : null,
+      avgKicks: postnatal ? null : r1(mean(kicks)),
+      minKicks: postnatal || !kicks.length ? null : Math.min(...kicks),
     },
     stats: { checkIns: logs.length, symptoms },
     screens: { preeclampsia, gdm },
     labs: momLabs,
     tablets: momTablets,
     nutrition,
-    appointments: Array.isArray(appointments) ? appointments : [],
+    appointments: postnatal ? [] : Array.isArray(appointments) ? appointments : [],
+    postnatal,
     flags,
     questions,
   };
 }
 
 export const todayIso = () => iso(new Date());
+
+/** Mother's recovery and the baby's growth, vaccines and milestones, for the doctor. */
+function postnatalSection(pp: PostpartumDoc, dueDate?: string | null) {
+  const today = localNow().day;
+  const birth = pp.birth_date!;
+  const days = ageDays(birth, today);
+  const growth = [...(pp.growth || [])].sort((a, b) => a.date.localeCompare(b.date));
+  const age = effectiveAgeStart(birth, dueDate);
+  const g = checkGrowth(pp.sex, birth, growth, today);
+  const last = growth[growth.length - 1] || null;
+  const band = pp.sex && last && !(age.corrected && last.date < age.from) ? checkGrowth(pp.sex, age.from, growth, today).band : null;
+  const next = nextVaccine({ ...pp, vaccines_done: pp.vaccines_done || [] }, today);
+  const late = milestoneView(monthsOld(age.from, today), pp.milestones || {}).filter(m => m.state === 'late').map(m => m.text);
+  const recent = (pp.recovery || []).filter(r => ageDays(r.date, today) <= 14);
+  const recoveryFlags = Array.from(new Set(recent.flatMap(r => checkRecovery(r, pp.delivery).reasons)));
+  const flags: string[] = [];
+  for (const r of recoveryFlags) flags.push(`Mother, last 2 weeks: ${r}`);
+  for (const n of g.notes) if (n.level === 'doctor') flags.push(`Baby: ${n.text}`);
+  if (band === 'red' || band === 'yellow') flags.push(`Baby: weight ${last!.weight} kg is in the ${band} zone (${BAND_TEXT[band].label.toLowerCase()})`);
+  if (next?.overdue) flags.push(`Baby: ${next.due} vaccines overdue since ${next.date}`);
+  for (const m of late) flags.push(`Baby milestone not yet seen: ${m}`);
+  return {
+    birthDate: birth,
+    babyName: pp.baby_name || null,
+    sex: pp.sex || null,
+    delivery: pp.delivery === 'csection' ? 'C-section' : pp.delivery === 'normal' ? 'Normal delivery' : null,
+    age: babyAge(birth, today),
+    daysSinceBirth: days,
+    corrected: age.corrected ? `${age.weeksEarly} weeks early; growth and milestones use corrected age` : null,
+    birthWeight: growth.find(e => e.date === birth)?.weight ?? null,
+    latestWeight: last ? { ...last, band: band ? BAND_TEXT[band].label : null } : null,
+    vaccines: { done: (pp.vaccines_done || []).length, total: VACCINES.length, next: next ? { name: next.due, date: next.date, overdue: next.overdue } : null },
+    recoveryChecks: recent.length,
+    flags,
+  };
+}

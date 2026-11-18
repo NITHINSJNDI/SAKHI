@@ -25,8 +25,48 @@ export interface PostpartumDoc {
   diapers: Diaper[];
   recovery: Recovery[];
   vaccines_done: string[];
+  /** girl or boy: the WHO growth lines differ */
+  sex?: 'girl' | 'boy';
+  /** weighings in kg; the first one on the birth date is the birth weight */
+  growth: { date: string; weight: number }[];
+  /** milestone id → date she first saw it */
+  milestones: Record<string, string>;
+  /** postnatal / home visits already done */
+  visits_done?: string[];
 }
-export const EMPTY_POSTPARTUM: PostpartumDoc = { feeds: [], diapers: [], recovery: [], vaccines_done: [] };
+
+/**
+ * Check-ups after the birth (MoHFW): ASHA home visits under Home Based Newborn
+ * Care on days 3, 7, 14, 21, 28 and 42, the mother's 6-week check-up, then Home
+ * Based Young Child care visits at 3, 6, 9, 12 and 15 months.
+ */
+export const VISITS: { id: string; days: number; title: string; what: string }[] = [
+  { id: 'd3', days: 3, title: 'Day 3: ASHA home visit', what: 'Baby weighed and checked for feeding, warmth, cord and jaundice; your bleeding and BP checked.' },
+  { id: 'd7', days: 7, title: 'Day 7: ASHA home visit', what: 'Baby should be back near birth weight by now; feeding and cord checked.' },
+  { id: 'd14', days: 14, title: 'Day 14: ASHA home visit', what: 'Baby back to birth weight? Breastfeeding and your recovery checked.' },
+  { id: 'd21', days: 21, title: 'Day 21: ASHA home visit', what: 'Weight, feeding and danger signs checked.' },
+  { id: 'd28', days: 28, title: 'Day 28: ASHA home visit', what: 'Weight and feeding checked; low-weight babies get extra visits.' },
+  { id: 'd42', days: 42, title: 'Day 42: your 6-week check-up', what: "At the health centre: your BP, stitches, bleeding, mood and family planning; baby's 6-week vaccines on the same trip." },
+  { id: 'm3', days: 91, title: '3 months: ASHA child visit', what: 'Weight on the MCP card, breastfeeding and development.' },
+  { id: 'm6', days: 183, title: '6 months: ASHA child visit', what: 'Starting solid food (complementary feeding), weight and iron syrup.' },
+  { id: 'm9', days: 274, title: '9 months: ASHA child visit', what: 'Weight, food 3 to 4 times a day, and the 9-month vaccines.' },
+  { id: 'm12', days: 365, title: '12 months: ASHA child visit', what: 'Weight, development and family food.' },
+  { id: 'm15', days: 456, title: '15 months: ASHA child visit', what: 'Weight, development and the next vaccines.' },
+];
+export const EMPTY_POSTPARTUM: PostpartumDoc = { feeds: [], diapers: [], recovery: [], vaccines_done: [], growth: [], milestones: {} };
+
+/**
+ * Age to use for growth and milestones: for a baby born 3+ weeks early, WHO and
+ * IAP count from the due date until age 2 ("corrected age").
+ */
+export function effectiveAgeStart(birth: string, dueDate?: string | null): { from: string; corrected: boolean; weeksEarly: number } {
+  const due = String(dueDate || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(due)) return { from: birth, corrected: false, weeksEarly: 0 };
+  const early = Math.round((Date.parse(due) - Date.parse(birth)) / DAY);
+  // 3 to 16 weeks early is a preterm birth; anything else is likely a stale due date
+  if (early < 21 || early > 112) return { from: birth, corrected: false, weeksEarly: 0 };
+  return { from: due, corrected: true, weeksEarly: Math.round(early / 7) };
+}
 
 /** UIP schedule (MoHFW), by age in weeks from birth. */
 export const VACCINES: { id: string; due: string; weeks: number; items: string }[] = [

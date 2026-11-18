@@ -17,6 +17,7 @@ import { computePhase, dayNum, todayNum } from '@/lib/cyclePhase';
 import { pmsForecast } from '@/lib/herInsights';
 import { extractHer, extractMom, isQuestion, normalize } from '@/lib/chat/offline/extract';
 import { HER_TOPICS, MOM_TOPICS, findTopics, pick, sizeFor, type HerCtx, type MomCtx } from '@/lib/chat/offline/knowledge';
+import { POSTNATAL_TOPICS, babyAgeText, type PostnatalCtx } from '@/lib/chat/offline/postnatal';
 
 // Reporting one of these ("I feel bloated") also gets the matching advice
 const HER_ADVICE_ON_REPORT = new Set(['bloating', 'headache', 'cravings', 'acne']);
@@ -32,6 +33,7 @@ const ASK = {
   mood: 'And how are you feeling in yourself today?',
   kicks: 'Have you felt baby moving today?',
   momMood: 'How are you feeling today, in body and mind?',
+  afterBirth: 'How are you feeling today, and how is baby feeding?',
 };
 const OFFER: Record<string, string> = {
   tired: 'Would you like a few ideas for your energy?',
@@ -285,6 +287,10 @@ export async function offlinePregnancyReply(message: string, owner: Owner, name:
   const last = lastAssistant(history);
   let t = normalize(message);
 
+  // After the birth: no kicks, weeks or baby-size talk; recovery, feeding and the newborn instead
+  const pp = await readDoc<any>('postpartum', null, owner);
+  if (pp?.birth_date) return postnatalReply(t, owner, who, pet, last, history, pp);
+
   const offered = Object.entries(OFFER).find(([, q]) => last.endsWith(q))?.[0];
   if (offered && t.split(' ').length <= 4) {
     if (NO.test(t)) return { reply: `Of course, ${pet}. I'm right here whenever you need me.`, chartData: null };
@@ -380,5 +386,71 @@ export async function offlinePregnancyReply(message: string, owner: Owner, name:
     const follow = candidates.find(q => !askedRecently(history, q));
     if (follow) parts.push(follow);
   }
+  return { reply: parts.join('\n\n'), chartData };
+}
+
+// ------------------------------------------------------------------ After the birth
+
+async function postnatalReply(t: string, owner: Owner, who: string, pet: string, last: string, history: Turn[], pp: any) {
+  const daysOld = Math.max(0, Math.round((Date.parse(new Date().toISOString().slice(0, 10)) - Date.parse(pp.birth_date)) / 86_400_000));
+  const baby = pp.baby_name || 'baby';
+  t = expandShortAnswer(t, last) ?? t;
+  const { vitals, unclear } = extractMom(t);
+  // Kicks and pregnancy weeks don't apply any more
+  delete (vitals as any).baby_movement;
+  // "Is that normal?" is a question, not a mood to save
+  if (isQuestion(t) && Object.keys(vitals).every(k => k === 'mood' || k === 'symptoms')) {
+    delete (vitals as any).mood;
+    delete (vitals as any).symptoms;
+  }
+  let chartData: any = null;
+  if (Object.keys(vitals).length > 0) chartData = (await runPregnancyTool('log_pregnancy_vital_entry', vitals, owner))?.chartData ?? null;
+  const logs = await readDoc<any[]>('pregnancy_logs', [], owner);
+  const bpLog = [...(Array.isArray(logs) ? logs : [])].reverse().find(l => l?.blood_pressure_systolic);
+  const ctx: PostnatalCtx = {
+    who, pet, baby, daysOld, delivery: pp.delivery === 'csection' ? 'csection' : pp.delivery === 'normal' ? 'normal' : null,
+    lastBp: bpLog ? { s: Number(bpLog.blood_pressure_systolic), d: Number(bpLog.blood_pressure_diastolic) } : null,
+  };
+
+  if (unclear.length && Object.keys(vitals).length === 0) {
+    return { reply: `${who}, I want to get this right: ${listJoin(unclear)} doesn't look like a usual reading, so I haven't saved it. Could you check the number and tell me again?`, chartData };
+  }
+  const logged = Object.keys(vitals).length > 0;
+  if (!logged) {
+    if (GREETING.test(t) && t.split(' ').length <= 5) return { reply: `${pick(['Hi', 'Hello', 'Hey'])} ${who}, ${pet}! ${baby === 'baby' ? 'Your baby' : baby} is ${babyAgeText(daysOld)} now. ${ASK.afterBirth}`, chartData };
+    if (HOW_ARE_YOU.test(t)) return { reply: `I'm so happy you're here, ${who}! How are you and ${baby} doing today?`, chartData };
+    if (THANKS.test(t) && t.split(' ').length <= 6) return { reply: pick([`Always, ${pet}. 💗`, `You're so welcome, ${who}. Take care of you both.`]), chartData };
+    if (BYE.test(t)) return { reply: pick([`Rest well, ${pet}. Sleep when ${baby} sleeps. 🌙`, `Take care, ${who}. Message me anytime.`]), chartData };
+    if (ABOUT.test(t)) return { reply: `I'm Sakhi, here for you and ${baby}, ${pet}. Tell me your BP, weight or how you feel, and ask me about breastfeeding, stitches, bleeding, jaundice, the cord, crying, sleep, vaccines or family planning.`, chartData };
+  }
+
+  const parts: string[] = [];
+  const sys = vitals.blood_pressure_systolic ?? 0, dia = vitals.blood_pressure_diastolic ?? 0;
+  if (sys >= 140 || dia >= 90) {
+    parts.push(`${who}, ${sys}/${dia} is high, ${pet}. BP can rise in the weeks after birth. Please rest, recheck in 15 minutes, and contact your doctor today, sooner if you get a headache or blurred vision.`);
+  } else if (logged) {
+    const bits: string[] = [];
+    if (sys) bits.push(`blood pressure ${sys}/${dia}`);
+    if (vitals.blood_sugar !== undefined) bits.push(`sugar ${vitals.blood_sugar} mg/dL`);
+    if (vitals.weight !== undefined) bits.push(`${vitals.weight} kg`);
+    if (vitals.sleep_hours !== undefined) bits.push(`${vitals.sleep_hours} hours of sleep`);
+    if (vitals.symptoms?.length) bits.push(vitals.symptoms.join(', ').toLowerCase());
+    if (vitals.mood) bits.push(`feeling ${moodWord(vitals.mood)}`);
+    parts.push(`${pick([`Thank you, ${who}.`, `Got it, ${who}.`])} I've noted ${listJoin(bits)}.`);
+    if (sys && sys < 140 && dia < 90) parts.push(`Your BP looks good, ${pet}.`);
+  }
+
+  const topics = findTopics(POSTNATAL_TOPICS, t, 2);
+  const asking = isQuestion(t) || /\b(tips?|advice|help|ideas?|suggest)\b/.test(t);
+  for (const topic of topics) if (asking || !logged) parts.push(topic.answer(ctx));
+
+  if (!parts.length) {
+    const fallback = () => pick([
+      `I want to understand you properly, ${pet}. Ask me about breastfeeding, your stitches or bleeding, ${baby}'s cord, jaundice, crying or sleep, or tell me your BP (like 118/76).`,
+      `I didn't quite catch that, ${who}. You can tell me how you or ${baby} are, your BP or weight, or ask about feeding, recovery or vaccines.`,
+    ]);
+    return { reply: avoidRepeat(fallback(), last, fallback), chartData };
+  }
+  if (!asking && logged && vitals.mood === undefined && !askedRecently(history, ASK.afterBirth)) parts.push(ASK.afterBirth);
   return { reply: parts.join('\n\n'), chartData };
 }

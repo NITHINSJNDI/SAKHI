@@ -42,11 +42,13 @@ import TabletsCard from "@/components/TabletsCard";
 import HospitalBagCard from "@/components/HospitalBagCard";
 import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
 import MoodCheckCard from "@/components/MoodCheckCard";
-import { BabyArrivedCard, BabyHeader, BackToHerCard, NewbornCard, RecoveryCard, VaccineCard } from "@/components/Postpartum";
+import { BabyArrivedCard, BabyHeader, BackToHerCard, NewbornCard, PostnatalVisitsCard, RecoveryCard, VaccineCard } from "@/components/Postpartum";
 import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
 import { sendOrQueue } from "@/lib/outbox";
 import SchemesCard from "@/components/SchemesCard";
 import MealsCard from "@/components/MealsCard";
+import BabyGrowthCard from "@/components/BabyGrowthCard";
+import MilestonesCard from "@/components/MilestonesCard";
 import { stageFor } from "@/lib/meals";
 import NearbyHelpCard from "@/components/NearbyHelpCard";
 import { EMPTY_POSTPARTUM, ageDays, babyAge, stageOf, type PostpartumDoc } from "@/lib/postpartum";
@@ -318,7 +320,7 @@ const innerCardClass = "bg-cream/70 rounded-xl sm:rounded-2xl border border-plum
 const iconWrapClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-plum-900/5 flex items-center justify-center text-plum-900 mb-3 sm:mb-4";
 
 /** Today tab: the most recent reading of each vital, colour-coded against common pregnancy thresholds. */
-function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: () => void }) {
+function LatestVitalsCard({ logs, onOpenVitals, afterBirth = false }: { logs: any[]; onOpenVitals: () => void; afterBirth?: boolean }) {
   const sorted = [...(logs || [])].sort((a, b) => String(b.log_date).localeCompare(String(a.log_date)));
   const latest = (key: string) => sorted.find(l => l[key] !== undefined && l[key] !== null && Number(l[key]) > 0);
   const bp = latest("blood_pressure_systolic");
@@ -340,14 +342,14 @@ function LatestVitalsCard({ logs, onOpenVitals }: { logs: any[]; onOpenVitals: (
     { label: "Baby kicks", value: kicks ? `${kicks.baby_movement}` : "—", unit: "counted", level: "none" as const, log: kicks,
       note: "Call your doctor if movements slow down or change" },
     { label: "Weight", value: weight ? `${weight.weight}` : "—", unit: "kg", level: "none" as const, log: weight, note: weight ? "Latest check-in" : "Not logged yet" },
-  ];
+  ].filter(i => !(afterBirth && i.label === "Baby kicks"));
   return (
     <section className={`${cardClass} md:col-span-12 order-2`}>
       <div className="flex items-center justify-between gap-3 mb-4">
         <h2 className="text-xl font-semibold tracking-tight text-plum-900">Latest readings</h2>
         <button onClick={onOpenVitals} className="text-sm font-medium text-pink-600 hover:text-pink-700 cursor-pointer">See trends →</button>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className={`grid grid-cols-2 gap-3 ${items.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
         {items.map(i => (
           <div key={i.label} className={`rounded-2xl border p-4 ${tone(i.level as any)}`}>
             <p className="text-xs font-semibold opacity-75">{i.label}</p>
@@ -402,7 +404,8 @@ export default function PregnancyModePage() {
   const { 
     preferences, reminders, toggleMaster, updatePreference, 
     markCompleted, snoozeReminder, deleteReminder 
-  } = usePregnancyNotifications(profile, logs, appointments);
+  } = usePregnancyNotifications(profile, logs, appointments,
+    born ? { babyName: pp.doc.baby_name, daysOld: ageDays(pp.doc.birth_date!, dayKey()) } : null);
 
   const runMlRiskAssessment = async (prof: any, logList: any[]) => {
     setMlPredictions(prev => ({ ...prev, isLoading: true }));
@@ -502,7 +505,10 @@ export default function PregnancyModePage() {
   }, []);
 
   useEffect(() => {
-    if (!isCheckingData) {
+    // Wait until we know whether the baby has arrived: the pregnancy check-in
+    // (kicks, BP, sugar) is never shown after the birth
+    if (!isCheckingData && pp.loaded) {
+      if (born) { setShowCheckIn(false); return; }
       const todayStr = new Date().toISOString().split("T")[0];
       const lastCheckIn = localStorage.getItem("sakhi_last_checkin_mom");
       const hasTodayLog = (logs || []).some((l: any) => l.source !== 'lab' && (l.log_date || '').split('T')[0] === todayStr);
@@ -511,7 +517,7 @@ export default function PregnancyModePage() {
         setAiState("talking");
       }
     }
-  }, [isCheckingData, logs]);
+  }, [isCheckingData, logs, pp.loaded, born]);
 
   const handleCheckInComplete = async (data: any) => {
     if (data.isEmergency) {
@@ -660,7 +666,8 @@ export default function PregnancyModePage() {
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4">
         <RedFlagBanner mode="pregnancy" />
 
-        <DashboardTabs tabs={MOM_TABS} active={tab} onChange={setTab} />
+        {/* After the birth the Plan tab becomes the baby's tab: growth, milestones, vaccines */}
+        <DashboardTabs tabs={born ? MOM_TABS.map(t => (t.id === "plan" ? { ...t, label: "Baby", icon: Baby } : t)) : MOM_TABS} active={tab} onChange={setTab} />
 
         {/* VISUAL DASHBOARD */}
         <motion.div
@@ -671,7 +678,7 @@ export default function PregnancyModePage() {
         >
           {/* Avatar Section */}
           {/* Chat stays mounted on every tab so a conversation is never lost */}
-          <div className={tab === "today" ? `md:col-span-12 print:hidden no-print ${showCheckIn ? "order-first" : "order-3"}` : "hidden"}>
+          <div className={tab === "today" ? `md:col-span-12 print:hidden no-print ${showCheckIn && !born ? "order-first" : "order-3"}` : "hidden"}>
             <PregnancyAvatar 
               aiState={aiState} 
               onChartUpdate={handleChartUpdate} 
@@ -681,6 +688,8 @@ export default function PregnancyModePage() {
               profileName={displayName}
               isCheckInCompleted={isTodayCheckedIn}
               onToggleCheckInMode={() => setShowCheckIn(prev => !prev)}
+              afterBirth={born}
+              babyName={pp.doc.baby_name}
             />
           </div>
 
@@ -726,7 +735,7 @@ export default function PregnancyModePage() {
             </div>
           </div>}
 
-          <LatestVitalsCard logs={logs} onOpenVitals={() => setTab("vitals")} />
+          <LatestVitalsCard logs={logs} afterBirth={born} onOpenVitals={() => setTab("vitals")} />
           <TabletsCard mode="pregnancy" weeks={weeks} className="md:col-span-12 order-5" />
           </>)}
 
@@ -737,7 +746,7 @@ export default function PregnancyModePage() {
               <Heartbeat className="text-red-400 w-5 h-5" />
               <h3 className="text-xl font-semibold tracking-tight text-plum-900">Blood Pressure</h3>
             </div>
-            <p className="text-xs text-plum-900/50 mb-6">Monitoring for Preeclampsia Risk</p>
+            <p className="text-xs text-plum-900/50 mb-6">{born ? "BP can still rise in the first 6 weeks after birth. Check it if you get a headache or blurred vision." : "Monitoring for Preeclampsia Risk"}</p>
             <BloodPressureChart data={logs} />
           </div>
           
@@ -746,25 +755,35 @@ export default function PregnancyModePage() {
               <Drop className="text-amber-500 w-5 h-5" weight="fill" />
               <h3 className="text-xl font-semibold tracking-tight text-plum-900">Fasting Blood Sugar</h3>
             </div>
-            <p className="text-xs text-plum-900/50 mb-6">Monitoring for Gestational Diabetes</p>
+            <p className="text-xs text-plum-900/50 mb-6">{born ? "If you had diabetes in pregnancy, get a sugar test 6 to 12 weeks after birth." : "Monitoring for Gestational Diabetes"}</p>
             <BloodSugarChart data={logs} />
           </div>
 
           {/* Growth & Movement Row */}
           <div className={`${cardClass} md:col-span-12`}>
             <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Weight</h3>
-            <WeightTracker mode="pregnancy" logs={logs} weeks={weeks} />
+            {/* Pregnancy gain bands stop making sense after the birth */}
+            {born ? <WeightTracker mode="her" logs={logs} /> : <WeightTracker mode="pregnancy" logs={logs} weeks={weeks} />}
           </div>
 
+          {!born && (
           <div className={`${cardClass} md:col-span-12`}>
             <h3 className="text-xl font-semibold tracking-tight text-plum-900 mb-4">Fetal Movement Count</h3>
             <BabyMovementChart data={logs} />
           </div>
+          )}
 
           </>)}
 
           {tab === "plan" && (<>
-          {/* Appointments & Nutrition Row */}
+          {born && (<>
+            <BabyGrowthCard pp={pp} dueDate={profile?.expected_due_date} className="md:col-span-7" />
+            <MilestonesCard pp={pp} dueDate={profile?.expected_due_date} className="md:col-span-5" />
+            <VaccineCard pp={pp} className="md:col-span-12" />
+          </>)}
+          {/* Appointments & Nutrition Row: antenatal visits before the birth, check-ups after */}
+          {born && <PostnatalVisitsCard pp={pp} className="md:col-span-12" />}
+          {!born && (
           <div className={`${cardClass} md:col-span-12`}>
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -789,11 +808,12 @@ export default function PregnancyModePage() {
               onToggleAppointment={handleToggleAppointment} 
             />
           </div>
+          )}
 
           {/* Built from what she ate, not typed-in totals */}
           <MealsCard stage={stageFor(born ? null : weeks, ppStage === "recovery" || ppStage === "infant")} className="md:col-span-12" />
 
-          {born ? <VaccineCard pp={pp} className="md:col-span-12" /> : (<>
+          {!born && (<>
             {weeks >= 28 && <HospitalBagCard weeks={weeks} className="md:col-span-12" />}
             {/* From 22 weeks, so an early (preterm) birth can still be recorded */}
             {pp.loaded && weeks >= 22 && <BabyArrivedCard pp={pp} compact className="md:col-span-12" />}
@@ -818,10 +838,10 @@ export default function PregnancyModePage() {
           </>)}
 
           {tab === "care" && (<>
-          <MoodCheckCard pregnant className="md:col-span-6" />
+          <MoodCheckCard pregnant={!born} className="md:col-span-6" />
           <FamilyContactsCard className="md:col-span-6" />
           <NearbyHelpCard mode="pregnancy" className="md:col-span-12" />
-          <LabResultsCard mode="pregnancy" pregnant className="md:col-span-12" onChanged={fetchDashboardData} />
+          <LabResultsCard mode="pregnancy" pregnant={!born} className="md:col-span-12" onChanged={fetchDashboardData} />
           {!born && weeks < 28 && (
           <div className={`${cardClass} md:col-span-12`}>
             <div className="flex items-center gap-2 mb-1">
@@ -831,8 +851,8 @@ export default function PregnancyModePage() {
             <ContractionTimer weeks={weeks} />
           </div>
           )}
-          {/* Machine Learning Maternal Risk Assessment: scores only readings she logged */}
-          {(() => {
+          {/* Machine Learning Maternal Risk Assessment: scores only readings she logged (pregnancy only) */}
+          {!born && (() => {
             const pe = mlPredictions.preeclampsia, gd = mlPredictions.gdm;
             const levels = [pe?.risk_level, gd?.risk_level];
             const shortDate = (d: string | null) => d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";

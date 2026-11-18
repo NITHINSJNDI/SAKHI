@@ -39,8 +39,8 @@ export async function POST(req: Request) {
         // dashboard starts in pregnancy view, not the old baby view
         const pp = await readDoc<any>('postpartum', null, owner);
         if (pp?.birth_date) {
-          const previous = [...(Array.isArray(pp.previous) ? pp.previous : []), { birth_date: pp.birth_date, baby_name: pp.baby_name, delivery: pp.delivery, vaccines_done: pp.vaccines_done || [] }].slice(-5);
-          await writeDoc('postpartum', { feeds: [], diapers: [], recovery: [], vaccines_done: [], previous }, owner);
+          const previous = [...(Array.isArray(pp.previous) ? pp.previous : []), { birth_date: pp.birth_date, baby_name: pp.baby_name, delivery: pp.delivery, sex: pp.sex, vaccines_done: pp.vaccines_done || [], growth: pp.growth || [], milestones: pp.milestones || {} }].slice(-5);
+          await writeDoc('postpartum', { feeds: [], diapers: [], recovery: [], vaccines_done: [], growth: [], milestones: {}, previous }, owner);
         }
       } else {
         await patchDoc('preg_profile', profile, owner);

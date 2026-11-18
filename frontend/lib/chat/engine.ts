@@ -179,11 +179,14 @@ export async function runSakhiChat(input: {
 
   const result = await (async (): Promise<ChatResult> => {
     // 1. Safety first: still save whatever she reported, but answer with fixed guidance
-    const hit = checkSafety(message, mode, name);
+    // After the birth the safety rules change: lochia is normal, the newborn's danger signs are not
+    const pp = mode === 'pregnancy' ? await readDoc<any>('postpartum', null, owner).catch(() => null) : null;
+    const afterBirth = Boolean(pp?.birth_date);
+    const hit = checkSafety(message, mode, name, { afterBirth });
     if (hit) {
       const saved = await offline(message, owner, name).catch(() => null);
       const chartUpdates = saved?.chartData ? [saved.chartData] : [];
-      if (hit.level === 'emergency' || hit.level === 'crisis') chartUpdates.push({ type: 'emergency', data: true, reason: hit.reason, level: hit.level });
+      if (hit.level === 'emergency' || hit.level === 'crisis') chartUpdates.push({ type: 'emergency', data: true, reason: hit.reason, level: hit.level, after_birth: afterBirth });
       return { reply: hit.reply, chartUpdates, engine: 'safety' };
     }
 

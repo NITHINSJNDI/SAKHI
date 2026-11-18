@@ -18,6 +18,9 @@ interface PregnancyAvatarProps {
   profileName?: string;
   isCheckInCompleted?: boolean;
   onToggleCheckInMode?: () => void;
+  /** after the birth: postnatal shortcuts and greeting, no pregnancy check-in */
+  babyName?: string | null;
+  afterBirth?: boolean;
 }
 
 const MOM_QUICK: QuickReply[] = [
@@ -25,6 +28,12 @@ const MOM_QUICK: QuickReply[] = [
   { label: "Baby's kicks", text: "I counted  kicks today" },
   { label: "What to eat this week?", text: "What should I eat this week?", send: true },
   { label: "Is this normal?", text: "Is it normal to feel " },
+];
+const POSTNATAL_QUICK: QuickReply[] = [
+  { label: "Log my BP", text: "My BP today is " },
+  { label: "Breastfeeding help", text: "I need help with breastfeeding: ", },
+  { label: "Is this normal for baby?", text: "Is it normal for my baby to " },
+  { label: "What should I eat?", text: "What should I eat while breastfeeding?", send: true },
 ];
 
 const storedName = () => { try { return localStorage.getItem("sakhi_preferred_name"); } catch { return null; } };
@@ -38,6 +47,8 @@ export default function PregnancyAvatar({
   profileName,
   isCheckInCompleted = false,
   onToggleCheckInMode,
+  babyName,
+  afterBirth = false,
 }: PregnancyAvatarProps) {
   const [name, setName] = useState(profileName || pregnancyContext?.profile?.preferred_name || "Mama");
   const [isCompletedToday, setIsCompletedToday] = useState(false);
@@ -80,7 +91,7 @@ export default function PregnancyAvatar({
       <SakhiDoll mouthOpen={chat.mouthOpen || flap} talking={talking} status={status} />
 
       <div className="w-full md:w-2/3 flex flex-col h-[400px] sm:h-[420px] bg-white/70 rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 overflow-hidden min-w-0">
-        {checkInMode ? (
+        {checkInMode && !afterBirth ? (
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 w-full flex flex-col">
             <PregnancyDailyCheckIn
               onComplete={(data: any) => {
@@ -93,9 +104,9 @@ export default function PregnancyAvatar({
         ) : (
           <SakhiChatPanel
             chat={chat}
-            quickReplies={MOM_QUICK}
+            quickReplies={afterBirth ? POSTNATAL_QUICK : MOM_QUICK}
             headerText="Ask Sakhi anything about your baby or health"
-            headerAction={!isCompletedToday && onToggleCheckInMode ? (
+            headerAction={!afterBirth && !isCompletedToday && onToggleCheckInMode ? (
               <button
                 type="button"
                 onClick={onToggleCheckInMode}
@@ -106,7 +117,9 @@ export default function PregnancyAvatar({
             ) : undefined}
             emptyState={
               <div className="max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border border-white/40 bg-white/90 text-plum-900 self-start rounded-tl-sm">
-                Hi {name} 👋! I&apos;m here to support you and your baby. How are you feeling today?
+                {afterBirth
+                  ? <>Hi {name} 👋! How are you and {babyName || "baby"} doing today? Ask me about feeding, sleep, your recovery, or anything that worries you.</>
+                  : <>Hi {name} 👋! I&apos;m here to support you and your baby. How are you feeling today?</>}
               </div>
             }
           />

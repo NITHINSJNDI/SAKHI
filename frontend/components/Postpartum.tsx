@@ -6,7 +6,7 @@ import { Baby, Drop, FirstAid, Syringe, Check, ArrowCounterClockwise, Flower } f
 import { panelCard } from "@/components/her/HerPanels";
 import { dayKey } from "@/hooks/useUserDoc";
 import {
-  UNDO_DAYS, VACCINES, ageDays, babyAge, babyToday, checkRecovery, dueDate, nextVaccine, stageOf,
+  UNDO_DAYS, VACCINES, VISITS, ageDays, babyAge, babyToday, checkRecovery, dueDate, nextVaccine, stageOf,
   type PostpartumDoc, type Recovery,
 } from "@/lib/postpartum";
 
@@ -23,11 +23,23 @@ export function BabyArrivedCard({ pp, compact = false, className = "" }: { pp: P
   const [date, setDate] = useState(dayKey());
   const [name, setName] = useState("");
   const [delivery, setDelivery] = useState<"normal" | "csection">("normal");
+  const [sex, setSex] = useState<"girl" | "boy" | null>(null);
+  const [kg, setKg] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const today = dayKey();
 
   const submit = () => {
     if (!date || date > today) return;
-    pp.save(d => ({ ...d, birth_date: date, baby_name: name.trim().slice(0, 40) || undefined, delivery, vaccines_done: d.vaccines_done || [] }));
+    const w = kg.trim() ? Number(kg.replace(",", ".")) : null;
+    if (w !== null && !(w >= 0.5 && w <= 6)) return setError("Birth weight looks wrong. Enter it in kg, like 2.9.");
+    setError(null);
+    pp.save(d => ({
+      ...d, birth_date: date, baby_name: name.trim().slice(0, 40) || undefined, delivery, sex: sex || undefined,
+      vaccines_done: d.vaccines_done || [],
+      // The birth weight is the first point on baby's growth chart
+      growth: w !== null ? [{ date, weight: Math.round(w * 100) / 100 }] : [],
+      milestones: {},
+    }));
   };
 
   return (
@@ -63,6 +75,22 @@ export function BabyArrivedCard({ pp, compact = false, className = "" }: { pp: P
               ))}
             </div>
           </fieldset>
+          <fieldset className="text-sm text-plum-900">
+            <legend className="mb-1 font-medium">Baby is a <span className="font-normal text-ink-faint">(for the growth chart)</span></legend>
+            <div className="flex gap-2">
+              {(["girl", "boy"] as const).map(k => (
+                <button key={k} type="button" aria-pressed={sex === k} onClick={() => setSex(sex === k ? null : k)} className={chip(sex === k)}>
+                  {k === "girl" ? "Girl" : "Boy"}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <label className="text-sm text-plum-900">
+            <span className="mb-1 block font-medium">Birth weight <span className="font-normal text-ink-faint">(kg, optional)</span></span>
+            <input inputMode="decimal" value={kg} onChange={e => setKg(e.target.value)} placeholder="e.g. 2.9"
+              className="w-full rounded-xl border border-plum-900/12 bg-cream/60 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500" />
+          </label>
+          {error && <p role="alert" className="sm:col-span-3 text-sm text-rose-700">{error}</p>}
           <div className="sm:col-span-3 flex flex-wrap items-center gap-3">
             <button type="submit" className="rounded-full bg-plum-900 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">
               Switch to after-birth care
@@ -373,6 +401,55 @@ export function BackToHerCard({ pp, name, className = "" }: { pp: PP; name: stri
           That&apos;s normal, especially while breastfeeding. You can get pregnant again <span className="font-semibold">before</span> your first period returns, so talk to your ASHA or doctor about spacing. Copper-T (PPIUCD), Antara injections and Chhaya pills are free at government health centres.
         </p>
       )}
+    </section>
+  );
+}
+
+/** After-birth check-ups in place of the pregnancy appointments. */
+export function PostnatalVisitsCard({ pp, className = "" }: { pp: PP; className?: string }) {
+  const { doc, save } = pp;
+  if (!doc.birth_date) return null;
+  const today = dayKey();
+  const birth = doc.birth_date;
+  const days = ageDays(birth, today);
+  const done = doc.visits_done || [];
+  // Show what's overdue, the next few, and keep the rest tucked away
+  const list = VISITS.map(v => ({ ...v, date: dueDate(birth, v.days / 7), done: done.includes(v.id) }))
+    .filter(v => v.days <= days + 120 || v.done);
+  const toggle = (id: string) => save(d => {
+    const cur = d.visits_done || [];
+    return { ...d, visits_done: cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id] };
+  });
+
+  return (
+    <section className={`${panelCard} ${className}`} aria-labelledby="visits-title">
+      <div className="flex items-center gap-2 mb-1">
+        <FirstAid weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
+        <h3 id="visits-title" className="text-xl font-semibold tracking-tight text-plum-900">Check-ups after the birth</h3>
+      </div>
+      <p className="text-xs text-ink-soft mb-4">Your ASHA visits you and baby at home on these days, for free. If she hasn&apos;t come, call her or the sub-centre.</p>
+      <ol className="space-y-2">
+        {list.map(v => {
+          const overdue = !v.done && v.date < today;
+          return (
+            <li key={v.id}>
+              <button type="button" onClick={() => toggle(v.id)} aria-pressed={v.done}
+                className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors hover:bg-lavender-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 ${overdue ? "border-amber-300 bg-amber-50/60" : "border-plum-900/[0.07] bg-white/80"}`}>
+                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${v.done ? "border-emerald-500 bg-emerald-500 text-white" : "border-plum-900/25"}`}>
+                  {v.done && <Check weight="bold" className="h-3 w-3" aria-hidden="true" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap justify-between gap-x-3 text-sm font-semibold text-plum-900">
+                    <span>{v.title}</span>
+                    <span className={`font-normal tabular-nums ${overdue ? "text-amber-800" : "text-ink-soft"}`}>{shortDate(v.date)}{overdue ? " · due" : ""}</span>
+                  </span>
+                  <span className={`block text-xs ${v.done ? "text-ink-faint" : "text-ink-soft"}`}>{v.what}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }

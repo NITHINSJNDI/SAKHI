@@ -24,6 +24,7 @@ const REASON: Record<string, string> = {
   "possible-ectopic": "sharp pain on one side",
   "infection-signs": "fever with pain",
   "clot-signs": "pain and swelling in one leg, or trouble breathing",
+  "newborn-danger": "danger signs in our baby",
 };
 
 const digits = (p: string) => p.replace(/[^\d]/g, "");
