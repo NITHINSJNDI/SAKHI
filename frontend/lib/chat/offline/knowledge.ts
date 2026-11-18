@@ -156,6 +156,31 @@ export const HER_TOPICS: Topic<HerCtx>[] = [
     answer: ({ pet }) => `A period may be too heavy if you change a pad every 1–2 hours, pass clots bigger than a ₹5 coin, bleed for more than 7 days, or feel dizzy and breathless, ${pet}. If any of that sounds familiar, please see a doctor; they may check your iron levels too. Iron-rich foods help in the meantime.`,
   },
   {
+    id: 'hygiene_change',
+    match: /\b(how (often|many times|long)|when).*\b(change|changing|wear|keep)\b.*\b(pad|napkin|cloth|tampon|cup)s?\b|\b(pad|napkin|tampon|cup)s?\b.*\bhow (often|long)\b/,
+    answer: ({ pet }) => `Change a pad or cloth every 4 to 6 hours, ${pet}, sooner on heavy days, even if it doesn't look full. A tampon needs changing within 8 hours and a menstrual cup emptying within 12. Wash your hands before and after. The **Period care** card on your Care tab has a change timer.`,
+  },
+  {
+    id: 'hygiene_cloth',
+    match: /\b(cloth|kapda|reusable pad)\b.*\b(wash|clean|dry|use|safe|reuse)\b|\b(wash|clean|dry)\b.*\bcloth\b/,
+    answer: ({ pet }) => `Cloth is safe if it's kept clean, ${pet}. Use soft cotton, soak it in cold water, wash with soap, and dry it fully in **direct sunlight**, not hidden indoors: sunlight kills germs. Store dry cloths in a clean bag and replace them every few months.`,
+  },
+  {
+    id: 'hygiene_disposal',
+    match: /\b(throw|dispose|disposal|get rid of|flush)\b.*\b(pad|napkin|tampon)s?\b|\b(pad|napkin|tampon)s?\b.*\b(throw|dispose|disposal|flush)\b/,
+    answer: ({ pet }) => `Wrap a used pad or tampon in its cover or old newspaper and put it in a closed dustbin, ${pet}. Please don't flush it or throw it in an open drain or pond: it blocks pipes and spreads infection.`,
+  },
+  {
+    id: 'hygiene_cost',
+    match: /\b(cheap|free|low.?cost|afford|price|cost)\b.*\b(pads?|napkins?|sanitary)\b|\b(pads?|napkins?|sanitary)\b.*\b(cheap|free|afford|expensive)\b|\bjan aushadhi\b/,
+    answer: ({ pet }) => `Jan Aushadhi Kendras sell low-cost **Suvidha** sanitary pads, ${pet}, and many states give free or cheap pads through ASHA workers, health centres and schools. Ask your ASHA worker what your state offers. The **Period care** card on your Care tab can find the nearest kendra.`,
+  },
+  {
+    id: 'hygiene_bath',
+    match: /\b(bath|bathe|wash (my )?hair|head bath|shower)\b.*\b(period|periods|menses|chums)\b|\b(period|periods)\b.*\b(bath|bathe|head bath)\b/,
+    answer: ({ pet }) => `Yes, ${pet}, bathing every day during your period is safe, including washing your hair. Warm water can even ease cramps. Wash the outer area with plain water from front to back; soap inside isn't needed.`,
+  },
+  {
     id: 'irregular',
     match: /\b(irregular|late again|periods? (are|is) (not regular|irregular)|missed (my )?period|skipped (a|my) period)\b/,
     answer: ({ pet, phase: p }) => `Cycles can vary by a few days, ${pet}, and stress, travel, illness, weight changes, thyroid issues or hormone conditions like PCOS can all shift them. ${p?.variability && p.variability > 8 ? `Your recent cycles have varied by ${p.variability} days, so keep logging, and ` : 'Keep logging, and '}see a doctor if your periods stay irregular for a few months, stop for 3 months, or you could be pregnant.`,

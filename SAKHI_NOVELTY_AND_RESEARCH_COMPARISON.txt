@@ -1,305 +1,200 @@
 ================================================================================
                                 SAKHI (सखी)
-       RESEARCH NOVELTY, INNOVATION & COMPARATIVE SCIENTIFIC ANALYSIS
-   What Makes Sakhi Truly Unique Compared to Existing Patents & Research Papers
+            INNOVATION, DIFFERENTIATION AND COMPARISON WITH PRIOR WORK
 ================================================================================
 
-1. EXECUTIVE SUMMARY OF NOVELTY
+Revised November 2026. Every claim here describes what the code actually does
+today. Where a feature is rule-based rather than machine learning, it says so.
+Citations marked [VERIFY] have not been checked yet. Confirm them on Google
+Scholar or Google Patents before putting them in a submission.
+
+
+1. SUMMARY
 --------------------------------------------------------------------------------
-Existing research and commercial tools in women's digital health (FemTech) are 
-deeply fragmented:
-  • Menstrual cycle apps (e.g., Flo, Clue, Premom) focus primarily on calendar 
-    dates, fertility planning, and ads, lacking clinical disease screening.
-  • Pregnancy apps (e.g., Ovia, BabyCenter, What to Expect) are completely 
-    separate silos, forcing mothers to start over and losing all pre-pregnancy 
-    hormonal and cycle history.
-  • Academic medical papers typically publish "single-disease, black-box" models 
-    that require expensive hospital tests (ultrasound scans, invasive blood work, 
-    or uterine Doppler exams) that are unavailable for daily at-home use.
+Women's health tools in India are split up. Period trackers, pregnancy apps,
+government programmes (Kilkari, ANMOL, PMSMA) and menstrual hygiene campaigns
+each cover one piece. Most consumer apps are built for English-speaking,
+single-phone, always-online users.
 
-SAKHI introduces a groundbreaking, unified paradigm:
-An empathetic, voice-enabled AI companion that spans the complete female health 
-continuum (Menstruation, Hormonal Balance, Conception, Pregnancy, and Postpartum), 
-combining daily at-home non-invasive vitals with Explainable Machine Learning 
-(XAI) to screen for four major conditions (PCOS, Thyroid Imbalance, Preeclampsia, 
-and Gestational Diabetes) while actively safeguarding maternal-fetal health.
+Sakhi puts menstrual health first and follows the same woman from her
+periods into pregnancy and after birth. It is built for Indian conditions:
+Indian languages and voice, shared phones, patchy networks, government schemes
+and ASHA workers. It is careful about safety: a rule-based safety check runs
+before any AI, and risk scores only use readings she actually entered.
 
 
-2. TOP 8 NOVEL CONTRIBUTIONS OF SAKHI
---------------------------------------------------------------------------------
-
-[NOVELTY 1] LIFECYCLE CONTINUUM (HER MODE <-> MOM MODE)
---------------------------------------------------------------------------------
-• Prior State (Patents / Apps):
-  Commercial apps (e.g., Flo - US Patent US10860797B2; Clue - BioWink GmbH) 
-  treat menstruation and pregnancy as distinct, disconnected products. When a 
-  woman conceives, her cycle history is paused or discarded, and she is directed 
-  to install a different pregnancy app.
-• Sakhi's Innovation:
-  Sakhi creates an unbroken health continuum. Pre-pregnancy cycle regularity, 
-  bleeding variance, baseline blood pressure, and metabolic markers are carried 
-  directly into pregnancy risk algorithms. A woman can transition from cycle 
-  tracking ("Her Mode") to pregnancy care ("Mom Mode") and back postpartum with 
-  one click, preserving clinical baseline continuity.
-
-[NOVELTY 2] MULTI-CONDITION CLINICAL ENSEMBLE SCREENING (NON-INVASIVE)
---------------------------------------------------------------------------------
-• Prior State (Research Papers):
-  Published studies in literature focus exclusively on isolated conditions:
-    - Denny et al. & Mehrotra et al. (PCOS detection using hospital ultrasound).
-    - Nicolaides et al. / Fetal Medicine Foundation (Preeclampsia prediction via 
-      uterine artery Doppler and expensive PlGF blood serum biomarkers).
-    - Academic GDM papers relying strictly on in-clinic 75g oral glucose tolerance 
-      lab tests (OGTT).
-• Sakhi's Innovation:
-  Sakhi is the first platform to combine a multi-disease risk engine running 
-  simultaneously from simple, at-home patient-reported logs:
-    1. Polycystic Ovary Syndrome (PCOS) Risk
-    2. Thyroid Dysfunction Risk
-    3. Preeclampsia (Pregnancy High Blood Pressure) Risk
-    4. Gestational Diabetes Mellitus (GDM) Risk
-  It requires zero expensive lab equipment for initial screening, making early 
-  detection accessible to millions of underserved and rural women.
-
-[NOVELTY 3] FULLY EXPLAINABLE AI (XAI) VS. "BLACK-BOX" PROBABILITIES
---------------------------------------------------------------------------------
-• Prior State (Research Papers):
-  Most clinical AI papers use complex neural networks or gradient boosting that 
-  simply output a raw probability (e.g., "78% risk"). Neither the patient nor 
-  her primary doctor can see which specific factors triggered the alert.
-• Sakhi's Innovation:
-  Sakhi utilizes transparent Explainable AI (XAI). Every score is accompanied by 
-  a granular clinical factor breakdown:
-    - Explicit Positive Factors (e.g., "Optimal systolic BP <120 mmHg reduces risk")
-    - Explicit Negative Factors (e.g., "Bleeding >7 days adds +25% risk indicator")
-    - Baseline Population Anchors (e.g., "10% general baseline prevalence")
-  This demystifies AI, eliminates medical anxiety, and gives doctors actionable 
-  reasons behind every flagged warning.
-
-[NOVELTY 4] DYNAMIC LIP-SYNCED, VOICE-FIRST MULTIMODAL COMPANION
---------------------------------------------------------------------------------
-• Prior State (Patents / Apps):
-  Existing platforms rely on silent text chatbots, static FAQ databases, or 
-  tedious multi-page dropdown forms.
-• Sakhi's Innovation:
-  Sakhi integrates a compassionate, animated 3D/2D visual avatar with real-time 
-  lip-sync animation, voice input (speech-to-text), and voice output (speech 
-  synthesis). This overcomes literacy and tech barriers, allowing women of all 
-  backgrounds to comfortably speak about sensitive personal health concerns in 
-  their own voice.
-
-[NOVELTY 5] REAL-TIME MATERNAL EMERGENCY TRIAGE & RED-FLAG DETECTOR
---------------------------------------------------------------------------------
-• Prior State (Apps):
-  Standard apps passively store data into graphs. If a pregnant mother logs a 
-  dangerously high blood pressure reading (e.g., 160/110 mmHg) or acute symptoms, 
-  most apps simply store the datapoint without immediate clinical intervention.
-• Sakhi's Innovation:
-  Sakhi incorporates an active real-time clinical triage engine. The moment a 
-  critical combination of symptoms is logged (e.g., severe headache + visual 
-  disturbances + high BP, or sharp pelvic pain), the UI shifts into an urgent 
-  Red-Flag Warning state, providing emergency instructions and advising immediate 
-  hospital or OB/GYN visitation.
-
-[NOVELTY 6] ADAPTIVE DYNAMIC CYCLE MODELING (NON-GAUSSIAN 28-DAY TEMPLATES)
---------------------------------------------------------------------------------
-• Prior State (Patents / Apps):
-  Standard calendar apps (Naegele's rule variants) force women into rigid 28-day 
-  mathematical templates, leading to false ovulation dates and inaccurate alerts 
-  for women with irregular cycles, PCOS, or stress-induced delays.
-• Sakhi's Innovation:
-  Sakhi's cycle engine dynamically computes moving averages, cycle variances, and 
-  symptom-correlated phase shifts. It adjusts ovulation and fertile window bounds 
-  in real-time as new check-ins are logged, catering specifically to irregular 
-  and fluctuating cycles.
-
-[NOVELTY 7] 1-CLICK CLINICAL ANTENATAL & GYNECOLOGICAL SUMMARY (DOCTOR-READY PDF)
---------------------------------------------------------------------------------
-• Prior State (Apps):
-  During brief 10-minute clinic visits, patients struggle to remember exact dates, 
-  pain episodes, or kick counts from preceding weeks.
-• Sakhi's Innovation:
-  Sakhi features an automated, doctor-formatted summary engine. With one click, it 
-  transforms daily subjective logs into a structured medical printout formatted 
-  according to standard Antenatal Care (ANC) and clinical triage guidelines, 
-  enabling physicians to review weeks of vitals in under 30 seconds.
-
-[NOVELTY 8] ETHICAL PRIVACY-FIRST REPRODUCTIVE DATA ARCHITECTURE
---------------------------------------------------------------------------------
-• Prior State (Commercial Apps):
-  Major commercial apps have faced international scrutiny and FTC sanctions for 
-  sharing sensitive reproductive, fertility, and mood data with third-party ad 
-  brokers.
-• Sakhi's Innovation:
-  Sakhi is built with a zero-ad, privacy-first architectural foundation using 
-  encrypted user isolation in PostgreSQL. Reproductive health data is strictly 
-  treated as sensitive medical telemetry and is never shared or monetized.
-
-
-3. DIRECT COMPARISON TABLE: SAKHI VS. EXISTING SYSTEMS
+2. WHAT IS NEW, BY TYPE
 --------------------------------------------------------------------------------
 
-Feature / Capability     | Traditional Research Papers | Commercial Apps (Flo/Clue) | SAKHI (Our Platform)
--------------------------|----------------------------|----------------------------|-----------------------
-Menstrual Cycle Tracking | Isolated academic studies  | Yes (Basic templates)      | Yes (Adaptive Dynamic)
-Pregnancy Week & Kicks   | Separate perinatal papers  | Requires separate app/mode | Yes (Seamless Transition)
-PCOS Early Screening     | Requires Ultrasound/Blood  | Questionnaire / Paywall    | Yes (At-Home Explainable ML)
-Thyroid Risk Assessment  | Lab TSH blood tests only   | No                         | Yes (Non-invasive Symptom ML)
-Preeclampsia Monitoring  | Hospital Doppler/Biomarkers| Basic BP log (no ML)       | Yes (Live Risk Prediction)
-Gestational Diabetes     | Lab OGTT blood test only   | Basic sugar log            | Yes (Continuous Trend ML)
-Explainable AI (XAI)     | Rare / Black-box models    | No (Static rules)          | Yes (Granular Factor Breakdown)
-Voice & Lip-sync Avatar  | No                         | No (Text chatbots only)    | Yes (Multimodal Animated Doll)
-Emergency Active Triage  | Post-hoc hospital EHR only | Passive storage only       | Yes (Real-time Red Flag Alerts)
-Doctor-Ready PDF Export  | No                         | Paid subscription tier     | Yes (Built-in 1-Click ANC Report)
-Data Privacy & Ethics    | Institutional IRB data only| Ad-network data sharing    | Yes (Encrypted, Zero-Ad Storage)
+A. TECHNICAL INNOVATION
+
+[1] Safety check before any AI
+    Every chat message goes through a rule-based red-flag check
+    (lib/chat/safety.ts) before Gemini or any other model sees it. Danger signs
+    get the same urgent guidance every time: heavy bleeding, severe headache
+    with vision changes, reduced fetal movement, waters breaking, self-harm
+    language. A model can never talk her out of going to hospital.
+    Covered by automated tests (frontend/tests/safety.test.ts).
+
+[2] Keeps working without AI, the ML service or a connection
+    - No Gemini key: the offline chat engine answers common questions and
+      still logs vitals, symptoms and tablets.
+    - No Python service: the TypeScript copy of the same risk models runs
+      instead. A parity script checks the two copies agree.
+    - No signal: logs wait on the phone and are sent when the connection
+      returns.
+    Few consumer health apps are designed to keep working when each of these
+    is missing.
+
+[3] No made-up readings
+    Risk models score only values she entered. A missing input is shown as
+    "not scored"; it is never filled with a default value.
+
+[4] Explainable screening
+    - Preeclampsia and gestational diabetes use logistic regression trained on
+      public datasets (5-fold ROC-AUC 0.84 and 0.83). Each result shows its
+      main contributing factors and the clinical rules that fired.
+    - PCOS, thyroid and cycle screens are RULE-BASED (Rotterdam-style
+      patterns, symptom screens, cycle statistics), not machine learning.
+      None of these is a diagnosis.
+
+[5] Lab report reading with a review step
+    She photographs a lab report and Sakhi reads Hb, sugars, HbA1c, TSH,
+    ferritin and other values. Gemini vision reads it, with on-device OCR
+    (tesseract.js) as a fallback. Every value is shown to her before saving and
+    checked against WHO, IADPSG/DIPSI and ATA ranges.
+
+[6] Cycle engine that learns her own cycle
+    Uses her own cycle and period lengths, keeps a long bleed as one period,
+    handles late and very late periods, and shows a confidence level instead
+    of assuming 28 days. This is in line with Bull et al. (2019), which found
+    that most cycles are not 28 days long.
+
+B. MENSTRUAL HEALTH AND HYGIENE
+
+[7] Period care module (new)
+    Built into Her Mode (frontend/lib/hygiene.ts, components/her/HygieneCard.tsx):
+    - Guidance for pads, cloth, menstrual cups, tampons and period underwear:
+      how to use each safely, including washing and sun-drying cloth.
+    - A change timer that reminds her when a change is due (6 hours for pads
+      and cloth, 8 for tampons, 12 for cups) and warns if she is changing
+      very often.
+    - A supply check: estimates how many pads her next period needs from her
+      own period length and flow, and warns before she runs out.
+    - Safe disposal advice for each product.
+    - Low-cost access: Jan Aushadhi Suvidha pads and free supplies through
+      ASHA workers and health centres, with a map search for the nearest one.
+    - Warning signs of infection and toxic shock.
+    - A daily myth-busting card (bathing, food, "impurity", exercise).
+    - The offline chat answers hygiene questions without AI.
+
+[8] Anaemia watch linked to periods
+    Combines heavy-flow days, long periods, tiredness, dizziness and Hb or
+    ferritin results into a clear / watch / check signal, with iron-rich
+    Indian foods.
+
+C. SOCIAL INNOVATION
+
+[9] Designed for shared phones
+    Discreet mode: PIN lock, a neutral tab title and notifications, and a
+    quick-hide button.
+
+[10] Links to the public health system
+    Checks eligibility for government schemes (PMMVY, JSY, JSSK, PMSMA).
+    Includes a vaccine schedule on India's Universal Immunisation Programme,
+    helpline numbers (108, 102, 104, 181, Tele-MANAS 14416), and map search
+    for government hospitals, PHCs and Jan Aushadhi Kendras.
+
+[11] Family alert
+    Sends a ready-written WhatsApp or SMS to up to three contacts when a red
+    flag appears, with her location only if she chooses to include it.
+
+D. INDIA-SPECIFIC DESIGN
+
+[12] Tablet ledger the Indian way
+    Morning, afternoon, evening and night slots, before or after food, and
+    1-0-1 patterns. Due times are worked out from her own meal times.
+
+[13] Languages and voice
+    Replies in English, Hindi, Tamil and Telugu. Voice in and out through the
+    Web Speech API. An animated avatar's mouth moves while Sakhi speaks.
+
+[14] One record from periods to pregnancy to after birth
+    One account and one data store from periods, through pregnancy, to after
+    birth: she does not need a new app at each stage. (The pregnancy risk
+    models do not yet use her cycle history as an input. That is on the
+    roadmap.)
 
 
-4. EXACT RESEARCH PAPERS & PATENTS COMPARISON
+3. COMPARISON WITH EXISTING OPTIONS
 --------------------------------------------------------------------------------
-Below is the definitive academic literature and patent registry directly 
-addressing the clinical domains of Sakhi, detailing what existing papers 
-achieved and how Sakhi advances beyond their limitations:
+Yes = built in. Partly = some of it. No = not built in. "?" = not checked yet.
+Recheck the columns for other products against their current versions before
+submitting: features change often.
 
-A. PCOS (POLYCYSTIC OVARY SYNDROME) SCREENING
+Capability                     | Paper records | Global period apps | Govt programmes  | SAKHI
+                               | / no app      | (e.g. Flo, Clue)   | (Kilkari, ANMOL) |
+-------------------------------|---------------|--------------------|------------------|-------------------
+Cycle tracking, learns her own | No            | Yes                | No               | Yes
+Menstrual hygiene guidance     | No            | Partly (articles)  | Partly (campaign)| Yes (by product, timer, supplies, disposal)
+Low-cost pad access in India   | No            | No                 | Partly           | Yes (Jan Aushadhi, ASHA, map)
+Periods to pregnancy, one app  | No            | Partly             | No               | Yes
+Indian languages + voice       | -             | Partly             | Yes (Kilkari)    | Yes (4 languages)
+Works offline / without AI     | Yes           | Partly             | -                | Yes
+Safety check before AI         | -             | ?                  | -                | Yes
+Risk screening from her own    | No            | No                 | No               | Yes (PE and GDM ML;
+readings                       |               |                    |                  | PCOS rule-based)
+Government scheme matching     | No            | No                 | Partly           | Yes
+Indian tablet schedule (1-0-1) | No            | No                 | No               | Yes
+Discreet mode for shared phone | -             | Partly             | No               | Yes
+Doctor summary                 | No            | Partly             | ANMOL (by ANM)   | Yes (printable)
+Ad-free, no data selling       | Yes           | Varies             | Yes              | Yes
+
+
+4. HONEST LIMITS
 --------------------------------------------------------------------------------
-1. Paper: "Automated Screening of Polycystic Ovary Syndrome Using Machine Learning Techniques"
-   • Authors: Mehrotra, P., Chatterjee, J., Sharma, C., & Khilnani, A.
-   • Journal / Year: Computer Methods and Programs in Biomedicine, Vol. 197, 2021.
-   • Their Method: Evaluated SVM, Random Forest, and Bayesian Classifiers using 
-     40 clinical features, predominantly relying on invasive clinical blood panels 
-     (LH/FSH ratio, serum testosterone) and pelvic ultrasound folliculometry.
-   • Sakhi's Novelty: Eliminates hospital ultrasound dependency for preliminary triage. 
-     Sakhi correlates self-reported cycle frequency variance, bleeding length, 
-     hyperandrogenism signs (acne, hirsutism), and cramp severity to provide zero-cost, 
-     at-home preliminary risk stratification.
-
-2. Paper: "Prediction of Polycystic Ovary Syndrome (PCOS) Using Machine Learning Techniques"
-   • Authors: Denny, A., Raj, A., Ashok, A., Ram, C. M., & George, R.
-   • Conference / Year: IEEE International Conference on Smart Systems and Inventive Technology (ICSSIT), 2019.
-   • Their Method: Classified PCOS from patient questionnaires and laboratory 
-     blood markers, achieving ~89% accuracy but without patient-facing explainability.
-   • Sakhi's Novelty: Translates the prediction into an Explainable AI (XAI) factor 
-     breakdown with transparent indicators that the patient can review and discuss 
-     with her physician.
-
-3. Paper: "Diagnosis of Polycystic Ovary Syndrome Using Machine Learning Algorithms"
-   • Authors: Bharati, S., Podder, P., & Mondal, M. R. H.
-   • Journal / Year: IEEE Access, Vol. 8, pp. 206411-206422, 2020.
-   • Their Method: Applied gradient boosting (XGBoost, CatBoost) to clinical dataset; 
-     relied heavily on BMI and clinical blood test variables.
-   • Sakhi's Novelty: Deploys continuous time-series logging rather than static one-time 
-     questionnaires, capturing menstrual variability over multiple months.
+- Not clinically validated on Indian women. The risk models are trained on
+  small public datasets (UCI Maternal Health Risk, 452 unique rows; Pima Indians
+  Diabetes, 768 rows).
+- No user pilot yet. All evidence so far comes from development and automated
+  tests.
+- Needs a smartphone and a browser. Women without their own phone are reached
+  only through a shared phone or a future ASHA-assisted mode.
+- Data is protected by per-user isolation, row-level security in PostgreSQL,
+  httpOnly cookies and consent controls. Data at rest is not separately
+  encrypted at the application level.
 
 
-B. PREECLAMPSIA & MATERNAL CARDIOVASCULAR HEALTH
+5. RELATED RESEARCH
 --------------------------------------------------------------------------------
-4. Paper: "The International Federation of Gynecology and Obstetrics (FIGO) Initiative on Pre-eclampsia: A Pragmatic Guide for First-Trimester Screening and Prevention"
-   • Authors: Poon, L. C., Shennan, A., Hyett, J. A., et al.
-   • Journal / Year: International Journal of Gynecology & Obstetrics, Vol. 145(S1), pp. 1-33, 2019.
-   • Their Method: Established the global clinical gold standard using maternal risk 
-     factors combined with Mean Arterial Pressure (MAP), Uterine Artery Pulsatility 
-     Index (UtAPI via transvaginal Doppler), and serum Placental Growth Factor (PlGF).
-   • Sakhi's Novelty: While FIGO's method is definitive in hospital environments, Doppler 
-     ultrasound and PlGF testing are unavailable in home or rural healthcare settings. 
-     Sakhi brings FIGO's maternal risk principles into daily home monitoring via 
-     continuous systolic/diastolic trend analysis and immediate hypertensive alert triggers.
+- Bull, J. R. et al. (2019). Real-world menstrual cycle characteristics of more
+  than 600,000 menstrual cycles. npj Digital Medicine, 2, 83.
+  -> Supports learning each woman's own cycle instead of assuming 28 days.
+- Poon, L. C. et al. (2019). The FIGO initiative on pre-eclampsia: a pragmatic
+  guide for first-trimester screening and prevention. Int J Gynecol Obstet,
+  145(S1).
+  -> The hospital standard uses Doppler and PlGF tests, which aren't
+  available at home. Sakhi only does home blood-pressure monitoring and
+  escalation; it does not replace FIGO screening.
+- Marić, I. et al. (2020). Early prediction of preeclampsia via machine
+  learning. AJOG MFM, 2(2), 100100.
+  -> Blood pressure is a strong signal; Sakhi brings BP threshold alerts home.
+- Artzi, N. S. et al. (2020). Prediction of gestational diabetes based on
+  nationwide electronic health records. Nature Medicine, 26, 71-76.
+  -> Uses hospital-record data; Sakhi uses sugar readings she logs herself.
+- Miner, A. S. et al. (2016). Smartphone-based conversational agents and
+  responses to questions about mental health, interpersonal violence, and
+  physical health. JAMA Internal Medicine, 176(5), 619-625.
+  -> General voice assistants respond poorly to health crises; Sakhi's safety
+  check gives a fixed, tested response.
+- PCOS machine-learning studies (for example Denny et al., 2019, ICSSIT) use
+  hospital blood tests and ultrasound. Sakhi's PCOS screen is a rule-based
+  pattern check on self-reported cycles and symptoms. [VERIFY exact citations]
 
-5. Paper: "Competing Risks Model in Screening for Preeclampsia by Maternal Characteristics and Medical History"
-   • Authors: Wright, D., Tan, M. Y., O'Gorman, N., Poon, L. C., Syngelaki, A., & Nicolaides, K. H.
-   • Journal / Year: American Journal of Obstetrics and Gynecology, Vol. 223(5), pp. 742.e1-742.e15, 2020.
-   • Their Method: Developed parametric survival-time models for delivery with preeclampsia 
-     based on pre-existing maternal hypertension and historical gestations.
-   • Sakhi's Novelty: Integrates prior maternal hypertension baseline history directly 
-     from initial setup into live daily blood pressure readings, dynamically adjusting 
-     risk as pregnancy advances through trimesters.
-
-6. Paper: "Early Prediction of Preeclampsia via Machine Learning"
-   • Authors: Marić, I., Tsur, A., Aghaeepour, N., Montanari, A., Stevenson, D. K., & Winn, V. D.
-   • Journal / Year: American Journal of Obstetrics & Gynecology MFM, Vol. 2(2), 100100, 2020.
-   • Their Method: Evaluated elastic net and gradient boosted trees on electronic health 
-     records (EHR), identifying elevated BP as the single strongest longitudinal signal.
-   • Sakhi's Novelty: Delivers active real-time at-home warning notifications when BP trends 
-     breach clinical thresholds (>140 mmHg systolic or >90 mmHg diastolic) instead of 
-     retrospective hospital EHR extraction.
-
-
-C. GESTATIONAL DIABETES MELLITUS (GDM)
---------------------------------------------------------------------------------
-7. Paper: "Prediction of Gestational Diabetes Based on Nationwide Electronic Health Records"
-   • Authors: Artzi, N. S., Shilo, S., Hadar, E., Rossman, H., Barbash-Hazan, S., Ben-Haroush, A., Balicer, R. D., Feldman, B., & Segal, E.
-   • Journal / Year: Nature Medicine, Vol. 26(1), pp. 71-76, 2020.
-   • Their Method: Analyzed ~547,000 pregnancies in Israel using GBDT algorithms on medical 
-     records to predict GDM early in pregnancy.
-   • Sakhi's Novelty: Adapts GDM screening into an everyday patient-friendly mobile 
-     workflow where mothers track fasting sugar readings alongside daily dietary 
-     nutrition indicators (Protein, Iron, Calcium, Hydration).
-
-8. Paper: "Machine Learning for Predicting Gestational Diabetes Mellitus from Early Pregnancy Electronic Health Records"
-   • Authors: Wu, Y. T., Zhang, C. J., Mol, B. W., Kawai, A., Li, C., Chen, L., ... & Sheng, J. Z.
-   • Journal / Year: Frontiers in Endocrinology, Vol. 12, 696500, 2021.
-   • Their Method: Retrospective machine learning comparing early pregnancy maternal age, 
-     fasting glucose, and family history.
-   • Sakhi's Novelty: Couples predictive sugar screening with immediate trimester-specific 
-     dietary guidance and emergency alerts if blood glucose spikes excessively.
-
-
-D. MENSTRUAL CYCLE CHARACTERISTICS & COMMERCIAL PATENTS
---------------------------------------------------------------------------------
-9. Patent: US Patent 10,860,797 B2 (Granted Dec 8, 2020)
-   • Title: "System and Method for Predicting a Phase of a Menstrual Cycle"
-   • Assignee / Inventors: Flo Health, Inc. (Gurski, R., et al.)
-   • Prior Art Scope: Uses neural networks to predict future cycle onset and fertile 
-     windows based on user logs in an isolated menstrual tracker.
-   • Sakhi's Novelty: Flo's patent covers isolated cycle tracking. Sakhi introduces 
-     a Dual-Mode Continuum where cycle telemetry is bridged seamlessly into pregnancy 
-     wellness and clinical screening (PCOS, Thyroid, Preeclampsia, GDM).
-
-10. Patent: US Patent 11,380,443 B2 (Granted July 5, 2022)
-    • Title: "Systems and Methods for Dynamic Menstrual Cycle and Ovulation Window Prediction"
-    • Assignee: BioWink GmbH (Clue App)
-    • Prior Art Scope: Focuses on calendar algorithms and statistical cycle distribution.
-    • Sakhi's Novelty: Unlike Clue's calendar-centric approach, Sakhi incorporates an 
-      empathetic multimodal conversational doll avatar with speech recognition and 
-      real-time clinical triage for emergency medical symptoms.
-
-11. Paper: "Real-World Menstrual Cycle Characteristics of More Than 600,000 Menstrual Cycles"
-    • Authors: Bull, J. R., Rowland, S. P., Scherwitzl, E. B., Scherwitzl, R., Danielsson, K. G., & Harper, J.
-    • Journal / Year: npj Digital Medicine (Nature Partner Journals), Vol. 2(1), 83, 2019.
-    • Key Finding: Proven that only 13% of women have a 28-day cycle; variation across 
-      populations is vastly higher than traditional medical textbooks assumed.
-    • Sakhi's Implementation: Implements Bull et al.'s findings by discarding rigid 
-      28-day templates in favor of dynamic cycle interval calculations tailored for 
-      irregular rhythms and hormonal shifts.
-
-
-E. CONVERSATIONAL AI & EMPATHIC CLINICAL TRIAGE
---------------------------------------------------------------------------------
-12. Paper: "Smartphone-Based Conversational Agents and Responses to Questions About Mental Health, Interpersonal Violence, and Physical Health"
-    • Authors: Miner, A. S., Milstein, A., Schueller, S., Hegde, R., Mangurian, C., & Linos, E.
-    • Journal / Year: JAMA Internal Medicine, Vol. 176(5), pp. 619-625, 2016.
-    • Key Finding: Standard AI voice assistants (Siri, Google Assistant, Cortana) failed 
-      substantially in responding to medical concerns and women's crisis questions.
-    • Sakhi's Novelty: Purpose-built conversational architecture with specialized 
-      reproductive and maternal intelligence. Sakhi recognizes distress, provides 
-      compassionate emotional validation, and escalates to clinical hospital care.
-
-13. Paper: "Operationalizing Artificial Intelligence in Medical Triage and Conversational Health Assistants"
-    • Authors: Sezgin, E., Huang, Y., Ramtekkar, U., & Lin, S.
-    • Journal / Year: Journal of Medical Internet Research, Vol. 22(8), e19890, 2020.
-    • Key Finding: Conversational agents must combine conversational freedom with strict 
-      rule-based clinical safety guardrails.
-    • Sakhi's Novelty: Blends generative natural language dialogue (Google Gemini) with 
-      deterministic clinical safety protocols (detecting red-flag emergency symptoms 
-      and generating 1-click Antenatal Care summary reports for doctors).
-
-
-5. CONCLUSION: THE SAKHI ADVANTAGE
---------------------------------------------------------------------------------
-Sakhi is not just a digital diary or another period tracker; it is an intelligent, 
-compassionate, and continuous preventative health layer for womanhood. By 
-bridging clinical research and accessible everyday technology, Sakhi empowers 
-women to understand their bodies, detect hidden health risks early, and 
-communicate confidently with healthcare providers.
+Patents: Flo Health and BioWink (Clue) hold patents on cycle prediction.
+Earlier versions of this document quoted specific patent numbers that have not
+been checked, so they were removed. Search Google Patents for the assignee
+names before citing any.
 
 ================================================================================
                                End of Document

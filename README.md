@@ -1,6 +1,6 @@
 # Sakhi
 
-**A women's health companion built for India: period and hormone care in Her Mode, pregnancy and after-birth care in Mom Mode.**
+**A menstrual health companion built for India: period care, hygiene and hormone health in Her Mode, continuing into pregnancy and after-birth care in Mom Mode.**
 
 Sakhi ("friend" in Hindi) turns everyday logs, lab reports and a friendly chat into clear guidance. It tells a woman what is normal, what to watch, and when to see a doctor. It is designed for low-cost phones, patchy networks, Indian languages and the public health system: ASHA workers, government hospitals and national schemes.
 
@@ -32,6 +32,7 @@ Sakhi ("friend" in Hindi) turns everyday logs, lab reports and a friendly chat i
 
 | Area | What it does |
 |---|---|
+| Period care | Hygiene guidance for pads, cloth, cups, tampons and period underwear; a change timer; a supply check that warns before she runs out; safe disposal; low-cost access (Jan Aushadhi Suvidha pads, ASHA workers); infection warning signs; and a daily myth-busting card. |
 | Cycle tracking | Phase engine that learns her own cycle and period length, handles long periods, late and very late periods, and shows a confidence level. |
 | Goals | Switch between *just tracking*, *trying for a baby* (fertile window, folic acid, when to see a doctor) and *nearing menopause* (hot flashes, sleep, mood, bone health). |
 | Pain relief | Severity-aware relief toolkit that opens automatically after a painful check-in. |
@@ -244,6 +245,10 @@ npx tsc --noEmit
 ```
 
 ```bash
+npm test
+```
+
+```bash
 npm run build
 ```
 
@@ -261,6 +266,7 @@ The repository is set up for Vercel with two services (see `vercel.json`): the N
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): system design, data flows and component hierarchy
 - [DEMO.md](DEMO.md): a two-minute walkthrough for presentations
+- [SUBMISSION.md](SUBMISSION.md): draft answers for the seven evaluation criteria
 - [ai-health-app/ml-service/data/README.md](ai-health-app/ml-service/data/README.md): datasets and citations
 
 ---

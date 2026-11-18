@@ -25,6 +25,7 @@ import AnaemiaCard from "@/components/her/AnaemiaCard";
 import GoalCard from "@/components/her/GoalCard";
 import FertilityCalendar from "@/components/her/FertilityCalendar";
 import PregnancyTestCard from "@/components/her/PregnancyTestCard";
+import HygieneCard, { type HygieneCycle } from "@/components/her/HygieneCard";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
@@ -168,6 +169,13 @@ export default function HerModePage() {
   const highlights = useMemo(() => phaseHighlights(stats), [stats]);
   const forecast = useMemo(() => pmsForecast(profile, logs, phase.daysUntilPeriod), [profile, logs, phase.daysUntilPeriod]);
   const patterns = useMemo(() => patternsWorthMentioning(profile, logs, cycleHistory), [profile, logs, cycleHistory]);
+  const hygieneCycle: HygieneCycle = useMemo(() => ({
+    bleeding: phase.bleedingDay !== null,
+    daysUntilPeriod: phase.late ? 0 : phase.daysUntilPeriod,
+    periodLength: phase.usualPeriodLength,
+    heavyFlow: logs.some(l => dayNum(l.log_date) >= todayNum() - 120 && /heavy/i.test(String(l.flow_intensity || ""))),
+  }), [phase.bleedingDay, phase.late, phase.daysUntilPeriod, phase.usualPeriodLength, logs]);
+  const periodNear = hygieneCycle.bleeding || hygieneCycle.daysUntilPeriod <= 3;
 
   const openRelief = (severity: number | null = null) => setRelief({ open: true, severity });
   const closeRelief = () => { setRelief({ open: false, severity: null }); loadFavourites(); };
@@ -320,6 +328,8 @@ export default function HerModePage() {
               {(phase.late || (goal.doc.goal === "ttc" && phase.cycleDay >= phase.cycleLength + 1)) && (
                 <PregnancyTestCard lastStart={phase.lastStart} daysLate={phase.daysLate} name={displayName} className="md:col-span-12 order-first" />
               )}
+              {/* On her period or about to start: period care comes up on Today */}
+              {periodNear && <HygieneCard cycle={hygieneCycle} className="md:col-span-12" />}
               <PmsForecastCard forecast={forecast} />
               <GoalCard className="md:col-span-12" goal={goal} cycle={{
                 phase, profile, logs, cycleHistory,
@@ -355,6 +365,7 @@ export default function HerModePage() {
             <>
               <PatternsCard patterns={patterns} logCount={logs.length} />
               <CareLinksCard onOpenRelief={() => openRelief()} onOpenSettings={() => setIsSettingsOpen(true)} favourites={favourites} />
+              <HygieneCard cycle={hygieneCycle} className="md:col-span-12" />
               <AnaemiaCard logs={logs} className="md:col-span-5" />
               <TabletsCard mode="her" className="md:col-span-7" />
               <LabResultsCard mode="her" pregnant={false} className="md:col-span-12" />

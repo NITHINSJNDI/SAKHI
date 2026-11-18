@@ -4,7 +4,17 @@
    Direct Paper-by-Paper Comparison: What Prior Works Did vs. Sakhi's Innovation
 ================================================================================
 
-This document details every major academic research paper and commercial patent 
+*** NOTE (November 2026): THIS IS AN OLDER DRAFT. DO NOT SUBMIT IT AS IT IS. ***
+It contains claims that do not match the code:
+  - PCOS and thyroid screening are rule-based, not machine learning.
+  - Pregnancy risk models do not use cycle history as an input.
+  - Data is not encrypted at the application level.
+  - The patent numbers below (US 10,860,797 and US 11,380,443) have not been
+    checked and may be wrong.
+  - The "lip-sync" is a simple mouth animation.
+Use SAKHI_NOVELTY_AND_RESEARCH_COMPARISON.txt (revised) and SUBMISSION.md instead.
+
+This document details every major academic research paper and commercial patent
 in women's digital health, contrasted point-by-point against SAKHI. It explains 
 the precise limitations of each prior study and specifies SAKHI's unique, 
 patentable scientific breakthroughs.
