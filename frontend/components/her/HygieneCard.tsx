@@ -8,8 +8,8 @@ import { useUserDoc } from "@/hooks/useUserDoc";
 import { todayNum } from "@/lib/cyclePhase";
 import {
   EMPTY_HYGIENE, LOW_COST, PRODUCTS, PRODUCT_ORDER, WARNING_SIGNS,
-  addChange, changeState, changesToday, hoursSinceChange, mythForDay, supplyCheck,
-  type ChangeState, type HygieneDoc, type Product, type SupplyLevel,
+  addChange, addPad, changeState, changesToday, hoursSinceChange, mythForDay, pbacScore, supplyCheck,
+  PBAC_HEAVY, type ChangeState, type HygieneDoc, type Product, type Soak, type SupplyLevel,
 } from "@/lib/hygiene";
 
 const CHANGE_CHIP: Record<ChangeState, { text: string; cls: string }> = {
@@ -41,6 +41,8 @@ export interface HygieneCycle {
   daysUntilPeriod: number;
   periodLength: number;
   heavyFlow: boolean;
+  /** ISO date her current or last period started */
+  periodStart: string | null;
 }
 
 /** Period care: product guidance, change timer, supplies, disposal, low-cost access and myths. */
@@ -48,6 +50,8 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
   const { doc, save } = useUserDoc<HygieneDoc>("hygiene", EMPTY_HYGIENE);
   const [now, setNow] = useState(() => new Date());
   const [open, setOpen] = useState<"care" | "access" | "signs" | null>(null);
+  const [askSoak, setAskSoak] = useState<string | null>(null);
+  const [clots, setClots] = useState(false);
 
   useEffect(() => { const id = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(id); }, []);
 
@@ -60,6 +64,8 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
     [doc, cycle.periodLength, cycle.heavyFlow, cycle.daysUntilPeriod, cycle.bleeding],
   );
   const myth = mythForDay(todayNum());
+  const pbac = useMemo(() => pbacScore(doc.pads, cycle.periodStart, doc.product), [doc.pads, cycle.periodStart, doc.product]);
+  const scoresSoak = doc.product !== null && doc.product !== "cup" && doc.product !== "period_underwear";
 
   const setProduct = (p: Product) => save(prev => ({ ...prev, product: p }));
   const markChanged = () => {
@@ -68,7 +74,12 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
     return save(prev => {
       const used = prev.product && PRODUCTS[prev.product].disposable && typeof prev.stock === "number" ? Math.max(0, prev.stock - 1) : prev.stock;
       return { ...prev, changes: addChange(prev.changes, at), stock: used };
-    });
+    }).then(() => { if (scoresSoak) { setAskSoak(at.toISOString()); setClots(false); } });
+  };
+  const recordSoak = (soak: Soak) => {
+    const at = askSoak || new Date().toISOString();
+    setAskSoak(null);
+    return save(prev => ({ ...prev, pads: addPad(prev.pads, { at, soak, clots, product: prev.product || undefined }) }));
   };
   const setStock = (n: number | null) => save(prev => ({ ...prev, stock: n === null ? null : Math.max(0, Math.min(200, n)) }));
 
@@ -115,6 +126,32 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
                 </button>
                 {todayCount > 0 && <span className="text-xs text-ink-faint">{todayCount} change{todayCount === 1 ? "" : "s"} today</span>}
               </div>
+              {askSoak && (
+                <div className="mt-3 rounded-xl bg-lavender-50 p-3" role="group" aria-label="How full was it">
+                  <p className="text-xs font-semibold text-plum-900">How full was the one you took off?</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {([["light", "A little"], ["half", "Half"], ["full", "Fully soaked"]] as [Soak, string][]).map(([k, label]) => (
+                      <button key={k} type="button" onClick={() => recordSoak(k)} className={pill(false)}>{label}</button>
+                    ))}
+                    <button type="button" onClick={() => setAskSoak(null)} className="px-2 text-xs text-ink-faint underline cursor-pointer">Skip</button>
+                  </div>
+                  <label className="mt-2 flex items-center gap-2 text-xs text-ink-soft">
+                    <input type="checkbox" checked={clots} onChange={e => setClots(e.target.checked)} /> Passed a clot bigger than a ₹5 coin
+                  </label>
+                </div>
+              )}
+              {scoresSoak && cycle.periodStart && (
+                <div className={`mt-3 rounded-xl p-2.5 text-xs ${pbac.heavy ? "bg-rose-50 text-rose-800" : "bg-white text-ink-soft border border-plum-900/[0.07]"}`}>
+                  <p className="font-semibold text-plum-900">Blood-loss score{pbac.items ? `: ${pbac.score} / ${PBAC_HEAVY}` : ""}</p>
+                  {pbac.items > 0 && (
+                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-plum-900/10" aria-hidden="true">
+                      <div className={`h-full rounded-full ${pbac.heavy ? "bg-rose-600" : pbac.score > 75 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${Math.min(100, (pbac.score / PBAC_HEAVY) * 100)}%` }} />
+                    </div>
+                  )}
+                  <p className="mt-1.5">{pbac.message}</p>
+                  {pbac.validFor === "rough" && pbac.items > 0 && <p className="mt-1 text-ink-faint">With cloth this is a rough guide.</p>}
+                </div>
+              )}
               {cycle.bleeding && todayCount >= 8 && guide.disposable && (
                 <p className="mt-2 text-xs text-rose-700">That is a lot of changes for one day. If you are soaking a pad every hour, see a doctor.</p>
               )}

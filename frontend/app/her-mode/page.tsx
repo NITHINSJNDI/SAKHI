@@ -26,6 +26,7 @@ import GoalCard from "@/components/her/GoalCard";
 import FertilityCalendar from "@/components/her/FertilityCalendar";
 import PregnancyTestCard from "@/components/her/PregnancyTestCard";
 import HygieneCard, { type HygieneCycle } from "@/components/her/HygieneCard";
+import NextPeriodCard from "@/components/her/NextPeriodCard";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
@@ -38,7 +39,7 @@ import {
 } from "@/components/her/HerPanels";
 import { useHerNotifications } from "@/hooks/useHerNotifications";
 import HerNotificationCenter from "@/components/HerNotificationCenter";
-import { computePhase, dayNum, todayNum } from "@/lib/cyclePhase";
+import { computePhase, dayNum, dayToIso, todayNum } from "@/lib/cyclePhase";
 import WeightTracker from "@/components/WeightTracker";
 import { contextFromLog, tipsForToday } from "@/lib/phaseTips";
 import { patternsWorthMentioning, phaseHighlights, phaseStats, pmsForecast } from "@/lib/herInsights";
@@ -174,7 +175,8 @@ export default function HerModePage() {
     daysUntilPeriod: phase.late ? 0 : phase.daysUntilPeriod,
     periodLength: phase.usualPeriodLength,
     heavyFlow: logs.some(l => dayNum(l.log_date) >= todayNum() - 120 && /heavy/i.test(String(l.flow_intensity || ""))),
-  }), [phase.bleedingDay, phase.late, phase.daysUntilPeriod, phase.usualPeriodLength, logs]);
+    periodStart: Number.isFinite(phase.lastStart) ? dayToIso(phase.lastStart) : null,
+  }), [phase.bleedingDay, phase.late, phase.daysUntilPeriod, phase.usualPeriodLength, phase.lastStart, logs]);
   const periodNear = hygieneCycle.bleeding || hygieneCycle.daysUntilPeriod <= 3;
 
   const openRelief = (severity: number | null = null) => setRelief({ open: true, severity });
@@ -344,6 +346,7 @@ export default function HerModePage() {
               <ChartCard title={goal.doc.goal === "ttc" ? "Your fertility calendar" : "Your cycle calendar"} span={12} active={pulsingChart === "calendar"} glow="rgba(16,185,129,0.4)">
                 <FertilityCalendar phase={phase} profile={profile} logs={logs} cycleHistory={cycleHistory} tried={goal.doc.intimacy} trying={goal.doc.goal === "ttc"} />
               </ChartCard>
+              <NextPeriodCard phase={phase} profile={profile} logs={logs} cycleHistory={cycleHistory} className="md:col-span-12" />
               <ChartCard title="Cycle length trend" active={pulsingChart === "cycle_length"}><CycleLengthChart data={cycleHistory} /></ChartCard>
               <ChartCard title="Period duration trend" active={pulsingChart === "cycle_length"} glow="rgba(244,63,94,0.4)"><PeriodDurationChart data={cycleHistory} /></ChartCard>
               <ChartCard title="Flow intensity" span={12} active={pulsingChart === "flow"} glow="rgba(244,63,94,0.4)"><FlowIntensityChart data={logs} /></ChartCard>

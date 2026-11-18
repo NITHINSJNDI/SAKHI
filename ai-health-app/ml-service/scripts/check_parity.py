@@ -35,7 +35,10 @@ def cases(rng):
                       "age": rng.choice([None, rng.randint(18, 42)])}
         yield "pcos", {"cycle_regularity": rng.randint(0, 1), "acne_severity": rng.randint(0, 10),
                        "hair_growth": rng.random() < 0.3, "skin_darkening": rng.random() < 0.2,
-                       "weight_gain": rng.random() < 0.3, "missed_periods": rng.randint(0, 2)}
+                       "weight_gain": rng.random() < 0.3, "missed_periods": rng.randint(0, 2),
+                       "hair_loss": rng.random() < 0.3, "period_days": rng.choice([None, rng.randint(2, 9)]),
+                       "bmi": rng.choice([None, round(rng.uniform(17, 36), 1)]),
+                       "age": rng.choice([None, rng.randint(16, 45)])}
         yield "thyroid", {"fatigue_severity": rng.randint(0, 10), "heavy_or_prolonged_flow": rng.randint(0, 1),
                           "cycle_regularity": rng.randint(0, 1), "weight_gain": rng.random() < 0.3,
                           "palpitations_or_anxiety": rng.random() < 0.2}

@@ -202,9 +202,11 @@ Models are standardised logistic regressions trained on public datasets and stor
 |---|---|---|
 | Preeclampsia / maternal risk | UCI Maternal Health Risk (452 unique rows) plus ACOG blood-pressure thresholds | ROC-AUC 0.84, sensitivity 0.87 at the screening cut-off |
 | Gestational diabetes | Pima Indians Diabetes (768 rows) plus the DIPSI ≥140 mg/dL rule | ROC-AUC 0.83, sensitivity 0.85 at the screening cut-off |
-| PCOS | Rotterdam criteria (rule-based; no open dataset with matching inputs) | — |
+| PCOS | Rotterdam criteria (rule-based). A symptom-only logistic model trained on the Kerala PCOS dataset is used when `data/pcos_symptoms.csv` is downloaded (see `train_pcos.py`) | Not trained in this repo yet |
 | Thyroid | Symptom screen (rule-based) | — |
 | Cycle | Cycle statistics (21–35 day normal range, more than 9 days' variation flagged) | — |
+| Next period | Bayesian model of her own cycle lengths (population prior, outliers set aside) giving a likely day and an 80% range (`frontend/lib/ml/cycleForecast.ts`) | Synthetic cohort only: mean error 4.1 days vs 4.5 for a fixed 28 days; 80% range held 80% of outcomes |
+| Heavy bleeding | PBAC blood-loss score (Higham 1990) from how soaked each pad was; over 100 suggests heavy bleeding | Published, validated scoring chart |
 
 - Retrain: `python train_models.py` (datasets and citations in `ai-health-app/ml-service/data/README.md`).
 - Check that the Python and TypeScript copies agree: `python scripts/check_parity.py`.

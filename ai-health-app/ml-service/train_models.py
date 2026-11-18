@@ -202,6 +202,13 @@ def main():
                      "normal range, variation <= 7-9 days per ACOG/FIGO).",
         },
     }
+    # Optional: the PCOS symptom model, only when its dataset has been downloaded
+    import train_pcos
+    if os.path.exists(train_pcos.DATA_PATH):
+        out["models"]["pcos_symptom"] = train_pcos.train(fit_export, evaluate)
+    else:
+        print(f"Skipping pcos_symptom: {os.path.normpath(train_pcos.DATA_PATH)} not found (see train_pcos.py).")
+
     for path in OUT_PATHS:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:

@@ -7,15 +7,68 @@
 
 export type Product = 'pad' | 'cloth' | 'cup' | 'tampon' | 'period_underwear';
 
+export type Soak = 'light' | 'half' | 'full';
+
+/** One used pad or tampon, for the blood-loss score */
+export interface PadEntry { at: string; soak: Soak; clots?: boolean; product?: Product }
+
 export interface HygieneDoc {
   product: Product | null;
   /** ISO timestamps of changes in the current period (kept short) */
   changes: string[];
   /** disposable pads or tampons she has at home; null = not tracked */
   stock: number | null;
+  /** how soaked each used pad was, last ~45 days */
+  pads?: PadEntry[];
 }
 
-export const EMPTY_HYGIENE: HygieneDoc = { product: null, changes: [], stock: null };
+export const EMPTY_HYGIENE: HygieneDoc = { product: null, changes: [], stock: null, pads: [] };
+
+// ------------------------------------------------------------ blood-loss score
+
+/**
+ * Pictorial Blood loss Assessment Chart (PBAC; Higham, O'Brien & Shaw, 1990,
+ * BJOG 97:734-739). Each pad or tampon scores 1 (lightly stained), 5 (half
+ * soaked) or 20 (fully soaked); a large clot adds 5. A total over 100 for one
+ * period suggests heavy menstrual bleeding. Validated for pads and tampons
+ * only, so cloth gives a rough guide and cups are not scored.
+ */
+export const PBAC_POINTS: Record<Soak, number> = { light: 1, half: 5, full: 20 };
+export const PBAC_HEAVY = 100;
+
+export interface PbacResult {
+  score: number;
+  items: number;
+  heavy: boolean;
+  /** true when pads alone already passed the line part-way through */
+  validFor: 'validated' | 'rough' | 'not_scored';
+  message: string;
+}
+
+export function addPad(pads: PadEntry[] | undefined, entry: PadEntry, now = new Date()): PadEntry[] {
+  const cutoff = now.getTime() - 45 * 86_400_000;
+  return [...(pads || []).filter(p => new Date(p.at).getTime() >= cutoff), entry];
+}
+
+/** Score the pads logged since this period began (periodStart: ISO date or timestamp). */
+export function pbacScore(pads: PadEntry[] | undefined, periodStart: string | null, product: Product | null): PbacResult {
+  if (product === 'cup' || product === 'period_underwear') {
+    return { score: 0, items: 0, heavy: false, validFor: 'not_scored', message: 'The blood-loss score works with pads and tampons. With a cup, filling it more than twice a day on several days can mean heavy bleeding.' };
+  }
+  const since = periodStart ? new Date(periodStart).getTime() - 86_400_000 : -Infinity;
+  const these = (pads || []).filter(p => new Date(p.at).getTime() >= since);
+  const score = these.reduce((a, p) => a + (PBAC_POINTS[p.soak] || 0) + (p.clots ? 5 : 0), 0);
+  const heavy = score > PBAC_HEAVY;
+  const validFor = product === 'cloth' ? 'rough' : 'validated';
+  const message = !these.length
+    ? 'Tap how full each pad was when you change it, and Sakhi adds up a blood-loss score for this period.'
+    : heavy
+      ? `Score ${score} this period: over ${PBAC_HEAVY} suggests heavy menstrual bleeding. Please mention it to a doctor and ask for an Hb (iron) test.`
+      : score > 75
+        ? `Score ${score} this period: close to the heavy line (${PBAC_HEAVY}). Keep logging.`
+        : `Score ${score} this period: within the usual range so far.`;
+  return { score, items: these.length, heavy, validFor, message };
+}
 
 export interface ProductGuide {
   label: string;

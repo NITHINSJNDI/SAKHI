@@ -122,6 +122,9 @@ class PCOSRequest(BaseModel):
     skin_darkening: bool = False   # acanthosis nigricans
     weight_gain: bool = False
     bmi: Optional[float] = None
+    hair_loss: bool = False
+    period_days: Optional[int] = None
+    age: Optional[float] = None
 
 
 class ThyroidRequest(BaseModel):
@@ -223,12 +226,27 @@ def predict_pcos(req: PCOSRequest):
     criteria_met = int(bool(ovulatory)) + int(bool(androgen))
     p = {0: 0.06, 1: 0.28, 2: 0.70}[criteria_met] + 0.06 * len(supportive)
     p = min(0.95, p)
+    level = "High" if criteria_met == 2 else ("Moderate" if criteria_met == 1 or len(supportive) >= 2 else "Low")
+
+    # Trained symptom model (train_pcos.py), when present: its probability is
+    # used and the risk level is the higher of the model and the rule check.
+    ml = None
+    model = REGISTRY.get("models", {}).get("pcos_symptom")
+    if model:
+        values = [0 if req.cycle_regularity == 1 else 1, req.period_days, req.bmi, req.age,
+                  int(req.weight_gain), int(req.hair_growth), int(req.skin_darkening),
+                  int(req.hair_loss), 1 if req.acne_severity >= 3 else 0]
+        p_ml, expl = score_logistic(model, values)
+        p = p_ml
+        level = at_least(risk_level_for(model, p_ml), level)
+        ml = {"probability": round(p_ml, 3), "explanation": expl, "model": model_card(model)}
 
     return {
         "status": "success",
         "has_pcos": 1 if criteria_met == 2 else 0,
         "probability_pcos": round(p, 3),
-        "risk_level": "High" if criteria_met == 2 else ("Moderate" if criteria_met == 1 or len(supportive) >= 2 else "Low"),
+        "risk_level": level,
+        "ml": ml,
         "criteria_met": criteria_met,
         "explanation": {
             "ovulatory_dysfunction": ovulatory,

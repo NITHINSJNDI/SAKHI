@@ -141,6 +141,7 @@ export function predictPcos(req: {
   cycle_regularity?: number; acne_severity?: number; cycle_length?: number | null;
   missed_periods?: number; hair_growth?: boolean; skin_darkening?: boolean;
   weight_gain?: boolean; bmi?: number | null;
+  hair_loss?: boolean; period_days?: number | null; age?: number | null;
 }) {
   const ovulatory: string[] = [];
   const androgen: string[] = [];
@@ -156,12 +157,27 @@ export function predictPcos(req: {
   if (req.bmi != null && req.bmi >= 25) supportive.push(`BMI ${Number(req.bmi).toFixed(1)} (>=25)`);
 
   const criteriaMet = Number(ovulatory.length > 0) + Number(androgen.length > 0);
-  const p = Math.min(0.95, [0.06, 0.28, 0.7][criteriaMet] + 0.06 * supportive.length);
+  let p = Math.min(0.95, [0.06, 0.28, 0.7][criteriaMet] + 0.06 * supportive.length);
+  let level: Level = criteriaMet === 2 ? 'High' : criteriaMet === 1 || supportive.length >= 2 ? 'Moderate' : 'Low';
+
+  // Trained symptom model (train_pcos.py), when present: mirrors main.py
+  const model = (registry.models as Record<string, unknown>).pcos_symptom as LogisticModel | undefined;
+  let ml: { probability: number; explanation: ReturnType<typeof scoreLogistic>['explanation']; model: ReturnType<typeof modelCard> } | null = null;
+  if (model) {
+    const scored = scoreLogistic(model, [
+      Number(req.cycle_regularity ?? 1) === 1 ? 0 : 1, req.period_days ?? null, req.bmi ?? null, req.age ?? null,
+      req.weight_gain ? 1 : 0, req.hair_growth ? 1 : 0, req.skin_darkening ? 1 : 0, req.hair_loss ? 1 : 0, acne >= 3 ? 1 : 0,
+    ]);
+    p = scored.p;
+    level = atLeast(riskLevelFor(model, scored.p), level);
+    ml = { probability: round(scored.p), explanation: scored.explanation, model: modelCard(model) };
+  }
   return {
     status: 'success',
     has_pcos: criteriaMet === 2 ? 1 : 0,
     probability_pcos: round(p),
-    risk_level: criteriaMet === 2 ? 'High' : criteriaMet === 1 || supportive.length >= 2 ? 'Moderate' : 'Low',
+    risk_level: level,
+    ml,
     criteria_met: criteriaMet,
     explanation: { ovulatory_dysfunction: ovulatory, hyperandrogenism: androgen, supportive_signs: supportive },
     clinical_flags: [...ovulatory, ...androgen, ...supportive],

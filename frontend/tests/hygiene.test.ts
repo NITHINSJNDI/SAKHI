@@ -85,3 +85,34 @@ describe('content', () => {
     expect(mythForDay(-1)).toBe(MYTHS[MYTHS.length - 1]);
   });
 });
+
+import { addPad, pbacScore, type PadEntry } from '@/lib/hygiene';
+
+describe('blood-loss score (PBAC)', () => {
+  const pad = (day: number, soak: PadEntry['soak'], clots = false): PadEntry =>
+    ({ at: new Date(2026, 10, day, 10).toISOString(), soak, clots });
+  it('adds 1, 5 or 20 per pad and 5 per large clot', () => {
+    const r = pbacScore([pad(10, 'light'), pad(10, 'half'), pad(11, 'full', true)], '2026-11-10', 'pad');
+    expect(r.score).toBe(31);
+    expect(r.heavy).toBe(false);
+  });
+  it('flags heavy bleeding over 100', () => {
+    const pads = Array.from({ length: 6 }, (_, i) => pad(10 + (i % 3), 'full'));
+    const r = pbacScore(pads, '2026-11-10', 'pad');
+    expect(r.score).toBe(120);
+    expect(r.heavy).toBe(true);
+    expect(r.message).toMatch(/doctor/);
+  });
+  it('only counts pads from this period', () => {
+    const r = pbacScore([pad(1, 'full'), pad(10, 'half')], '2026-11-10', 'pad');
+    expect(r.score).toBe(5);
+  });
+  it('does not score cups, and marks cloth as rough', () => {
+    expect(pbacScore([pad(10, 'full')], '2026-11-10', 'cup').validFor).toBe('not_scored');
+    expect(pbacScore([pad(10, 'full')], '2026-11-10', 'cloth').validFor).toBe('rough');
+  });
+  it('keeps only the last 45 days of pads', () => {
+    const next = addPad([pad(1, 'full')], pad(18, 'light'), new Date(2027, 0, 20));
+    expect(next).toHaveLength(1);
+  });
+});
