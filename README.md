@@ -45,7 +45,7 @@ Sakhi ("friend" in Hindi) turns everyday logs, lab reports and a friendly chat i
 |---|---|
 | Week by week | Trimester, baby size, due-date countdown and growth timeline. |
 | Vitals | Blood pressure, fasting sugar, weight gain against her BMI band, and fetal kick counts. |
-| Risk screening | Preeclampsia and gestational diabetes models that score **only readings she actually logged**, with plain-language explanations. |
+| Risk screening | Blood pressure and blood sugar screens (a general pregnancy-risk model and a diabetes-tendency model, with clinical thresholds) that score **only readings she actually logged**, with plain-language explanations. |
 | Late pregnancy | Contraction timer with *go to hospital now* rules, and a hospital bag checklist from 28 weeks. |
 | Government schemes | Short questionnaire that shows which of PMMVY, JSY, JSSK and PMSMA apply to her, with the steps to claim each. |
 | After the birth | One tap switches to postnatal care: feed and nappy log with side tracking, a daily recovery check for the postnatal danger signs, and baby's vaccine dates on India's Universal Immunisation Programme schedule. |
@@ -200,9 +200,9 @@ Models are standardised logistic regressions trained on public datasets and stor
 
 | Screen | Data and method | 5-fold cross-validation |
 |---|---|---|
-| Preeclampsia / maternal risk | UCI Maternal Health Risk (452 unique rows) plus ACOG blood-pressure thresholds | ROC-AUC 0.84, sensitivity 0.87 at the screening cut-off |
-| Gestational diabetes | Pima Indians Diabetes (768 rows) plus the DIPSI ≥140 mg/dL rule | ROC-AUC 0.83, sensitivity 0.85 at the screening cut-off |
-| PCOS | Rotterdam criteria (rule-based). A symptom-only logistic model trained on the Kerala PCOS dataset is used when `data/pcos_symptoms.csv` is downloaded (see `train_pcos.py`) | Not trained in this repo yet |
+| General pregnancy risk (BP, sugar, heart rate) | UCI Maternal Health Risk (452 unique rows; labels are clinicians' overall risk levels from Bangladesh, not preeclampsia diagnoses) plus ACOG blood-pressure thresholds | ROC-AUC 0.84, sensitivity 0.87 at the screening cut-off |
+| Diabetes tendency | Pima Indians Diabetes (768 rows; outcome is type 2 diabetes in Native American women, not gestational diabetes) plus the DIPSI ≥140 mg/dL rule | ROC-AUC 0.83, sensitivity 0.85 at the screening cut-off |
+| PCOS | Symptom-only logistic model on the Kerala PCOS dataset (541 women; no hormones or ultrasound), alongside the Rotterdam rule check (`train_pcos.py`) | ROC-AUC 0.88; sensitivity 0.85, specificity 0.76 at the screening cut-off |
 | Thyroid | Symptom screen (rule-based) | — |
 | Cycle | Cycle statistics (21–35 day normal range, more than 9 days' variation flagged) | — |
 | Next period | Bayesian model of her own cycle lengths (population prior, outliers set aside) giving a likely day and an 80% range (`frontend/lib/ml/cycleForecast.ts`) | Synthetic cohort only: mean error 4.1 days vs 4.5 for a fixed 28 days; 80% range held 80% of outcomes |

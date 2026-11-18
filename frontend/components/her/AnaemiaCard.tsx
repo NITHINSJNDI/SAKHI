@@ -7,6 +7,7 @@ import { anaemiaWatch, IRON_FOODS, type AnaemiaLevel } from "@/lib/anaemia";
 import type { LabResult } from "@/lib/labs";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_TABLETS, type TabletsDoc } from "@/lib/tablets";
+import { EMPTY_HYGIENE, pbacByPeriod, type HygieneDoc } from "@/lib/hygiene";
 
 const BADGE: Record<AnaemiaLevel, { text: string; cls: string }> = {
   clear: { text: "Looks fine", cls: "bg-emerald-100 text-emerald-800" },
@@ -19,6 +20,7 @@ const BADGE: Record<AnaemiaLevel, { text: string; cls: string }> = {
 export default function AnaemiaCard({ logs, className = "" }: { logs: any[]; className?: string }) {
   const [labs, setLabs] = useState<LabResult[]>([]);
   const { doc: tablets } = useUserDoc<TabletsDoc>("tablets", EMPTY_TABLETS);
+  const { doc: hygiene } = useUserDoc<HygieneDoc>("hygiene", EMPTY_HYGIENE);
 
   useEffect(() => {
     const load = () => fetch("/api/lab-report", { cache: "no-store" }).then(r => r.json()).then(j => setLabs(j.results || [])).catch(() => {});
@@ -28,7 +30,12 @@ export default function AnaemiaCard({ logs, className = "" }: { logs: any[]; cla
   }, []);
 
   const takingIron = tablets.list.some(t => /iron|ifa|ferrous/i.test(t.name));
-  const w = useMemo(() => anaemiaWatch(logs, labs, takingIron), [logs, labs, takingIron]);
+  // Highest blood-loss score among her last 3 logged periods (pads with at least 5 entries)
+  const pbac = useMemo(() => {
+    const scored = pbacByPeriod(hygiene.pads).slice(-3).filter(p => p.items >= 5);
+    return scored.length ? Math.max(...scored.map(p => p.score)) : null;
+  }, [hygiene.pads]);
+  const w = useMemo(() => anaemiaWatch(logs, labs, takingIron, pbac), [logs, labs, takingIron, pbac]);
   const badge = BADGE[w.level];
 
   return (

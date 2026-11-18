@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-11",
+  "version": "2026-11-18",
   "models": {
     "maternal_risk": {
       "type": "standardized_logistic_regression",
@@ -53,7 +53,7 @@
         0.420039
       ],
       "intercept": -1.306462,
-      "name": "Maternal high-risk (hypertensive / metabolic) model",
+      "name": "General pregnancy risk (BP, sugar, heart rate)",
       "dataset": "UCI Maternal Health Risk (Ahmed & Kashem 2020)",
       "dataset_url": "https://archive.ics.uci.edu/dataset/863/maternal+health+risk",
       "n_records": 1014,
@@ -128,7 +128,7 @@
         0.3876
       ],
       "intercept": -0.854576,
-      "name": "Diabetes risk model (gestational-diabetes screening proxy)",
+      "name": "Diabetes tendency (proxy, not a gestational diabetes model)",
       "dataset": "Pima Indians Diabetes Database (NIDDK)",
       "dataset_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
       "n_records": 768,
@@ -157,6 +157,120 @@
         "model_choice": "Logistic regression deployed for per-factor explainability and portability; gradient boosting AUC reported for comparison."
       },
       "limitations": "Outcome is type 2 diabetes, not GDM, and glucose is a 2-hour OGTT value. Used as a proxy screen together with DIPSI / IADPSG glucose thresholds; an OGTT at 24-28 weeks is the diagnostic test."
+    },
+    "pcos_symptom": {
+      "type": "standardized_logistic_regression",
+      "features": [
+        "irregular_cycles",
+        "period_days",
+        "bmi",
+        "age",
+        "weight_gain",
+        "hair_growth",
+        "skin_darkening",
+        "hair_loss",
+        "pimples"
+      ],
+      "labels": [
+        "Irregular cycles",
+        "Period length (bleeding days)",
+        "BMI",
+        "Age",
+        "Weight gain",
+        "Extra hair growth",
+        "Skin darkening",
+        "Hair loss",
+        "Pimples / acne"
+      ],
+      "units": [
+        "yes/no",
+        "days",
+        "kg/m2",
+        "years",
+        "yes/no",
+        "yes/no",
+        "yes/no",
+        "yes/no",
+        "yes/no"
+      ],
+      "medians": [
+        0.0,
+        5.0,
+        24.2382,
+        31.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean": [
+        0.279113,
+        4.950092,
+        24.311285,
+        31.430684,
+        0.377079,
+        0.273567,
+        0.306839,
+        0.452865,
+        0.489834
+      ],
+      "scale": [
+        0.448563,
+        1.475401,
+        4.052648,
+        5.406002,
+        0.484655,
+        0.44579,
+        0.461182,
+        0.497773,
+        0.499897
+      ],
+      "coef": [
+        0.570307,
+        -0.228848,
+        -0.072319,
+        -0.368837,
+        0.606042,
+        0.648108,
+        0.681994,
+        -0.049976,
+        0.477704
+      ],
+      "intercept": -1.110014,
+      "name": "PCOS symptom screen",
+      "dataset": "PCOS dataset, Kerala, India (Kottarathil, Kaggle), self-reportable columns only",
+      "dataset_url": "https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos",
+      "n_records": 541,
+      "n_unique_used": 541,
+      "positive_rate": 0.327,
+      "target": "Clinician PCOS diagnosis (Y/N) in the source hospitals",
+      "metrics": {
+        "cv": "5-fold stratified, out-of-fold predictions",
+        "roc_auc": 0.88,
+        "brier": 0.118,
+        "high_cutoff": {
+          "threshold": 0.5,
+          "accuracy": 0.85,
+          "sensitivity": 0.723,
+          "specificity": 0.912,
+          "precision": 0.8
+        },
+        "screening_cutoff": {
+          "threshold": 0.23,
+          "accuracy": 0.787,
+          "sensitivity": 0.853,
+          "specificity": 0.755,
+          "precision": 0.629
+        },
+        "baseline_gradient_boosting_auc": 0.848,
+        "model_choice": "Logistic regression deployed for per-factor explainability and portability; gradient boosting AUC reported for comparison."
+      },
+      "limitations": [
+        "541 women from hospitals in one Indian state: may not match other regions or women outside hospitals.",
+        "Excludes hormones and ultrasound, so it cannot diagnose PCOS.",
+        "The dataset column 'Cycle length(days)' holds bleeding days, so it is used as period length."
+      ]
     }
   },
   "rule_based": {

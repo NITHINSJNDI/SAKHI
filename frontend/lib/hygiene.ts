@@ -255,3 +255,24 @@ export const MYTHS: { myth: string; fact: string }[] = [
 ];
 
 export const mythForDay = (dayNumber: number) => MYTHS[((dayNumber % MYTHS.length) + MYTHS.length) % MYTHS.length];
+
+export interface PeriodPbac { start: string; score: number; items: number }
+
+/**
+ * Blood-loss score for each recent period, grouping logged pads into periods
+ * (a gap of more than 10 days starts a new one). Newest last.
+ */
+export function pbacByPeriod(pads: PadEntry[] | undefined): PeriodPbac[] {
+  const sorted = [...(pads || [])].filter(p => Number.isFinite(new Date(p.at).getTime())).sort((a, b) => a.at.localeCompare(b.at));
+  const out: PeriodPbac[] = [];
+  let last = -Infinity;
+  for (const p of sorted) {
+    const t = new Date(p.at).getTime();
+    if (t - last > 10 * 86_400_000) out.push({ start: p.at.slice(0, 10), score: 0, items: 0 });
+    const cur = out[out.length - 1];
+    cur.score += (PBAC_POINTS[p.soak] || 0) + (p.clots ? 5 : 0);
+    cur.items += 1;
+    last = t;
+  }
+  return out;
+}

@@ -5,6 +5,7 @@
  */
 import { withCurrentWeek } from '@/lib/pregnancyWeeks';
 import { Owner, readDoc } from '@/lib/store';
+import { EMPTY_HYGIENE, PBAC_HEAVY, pbacByPeriod, type HygieneDoc } from '@/lib/hygiene';
 import { runPrediction } from '@/lib/ml/client';
 import { checkLab, formatLab, labTest, latestLabs, type LabResult } from '@/lib/labs';
 import { EMPTY_TABLETS, FOOD_LABEL, SLOT_LABEL, ledger, normalise, patternOf, type TabletsDoc } from '@/lib/tablets';
@@ -122,11 +123,15 @@ async function pcosPattern(owner: Owner, profile: any, logs: any[], history: any
 }
 
 export async function buildHerSummary(owner: Owner, days = 90) {
-  const [profile, allLogs, history] = await Promise.all([
+  const [profile, allLogs, history, hygiene] = await Promise.all([
     readDoc<any>('her_profile', null, owner),
     readDoc<any[]>('daily_logs', [], owner),
     readDoc<any[]>('cycle_history', [], owner),
+    readDoc<HygieneDoc>('hygiene', EMPTY_HYGIENE, owner),
   ]);
+  // Blood-loss (PBAC) scores from the pads she rated in Period care
+  const bloodLoss = pbacByPeriod(hygiene?.pads).slice(-3);
+  const heavyByScore = bloodLoss.filter(p => p.score > PBAC_HEAVY);
   const logs = windowOf(Array.isArray(allLogs) ? allLogs : [], days)
     .sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
 
@@ -171,6 +176,7 @@ export async function buildHerSummary(owner: Owner, days = 90) {
   const flags: string[] = [];
   if (severeCrampDays > 0) flags.push(`${severeCrampDays} day(s) with cramps rated 7/10 or higher`);
   if (heavyDays > 0) flags.push(`${heavyDays} day(s) of heavy flow`);
+  for (const p of heavyByScore) flags.push(`Blood-loss score (PBAC) ${p.score} for the period starting ${fmtShort(p.start)}: over ${PBAC_HEAVY} suggests heavy menstrual bleeding`);
   for (const f of [...(cycle?.clinical_flags || []), ...(pcos?.clinical_flags || []), ...(thyroid?.clinical_flags || [])]) {
     if (!flags.includes(f)) flags.push(f);
   }
@@ -189,7 +195,7 @@ export async function buildHerSummary(owner: Owner, days = 90) {
   if (severeCrampDays > 0) questions.push('My cramps are often 7/10 or worse. Could this be endometriosis or another cause, and what can help?');
   if (pcos?.criteria_met >= 1) questions.push('I have signs that can be linked to PCOS. Should I have an ultrasound or hormone tests?');
   if ((thyroid?.risk_level === 'Moderate') || (thyroid?.risk_level === 'High')) questions.push('Should I get a TSH (thyroid) blood test?');
-  if (heavyDays > 2) questions.push('My periods are heavy. Should I be checked for anaemia (haemoglobin / ferritin)?');
+  if (heavyDays > 2 || heavyByScore.length) questions.push('My periods are heavy. Should I be checked for anaemia (haemoglobin / ferritin)?');
   if (cycle && cycle.is_regular === 0) questions.push('My cycles are irregular. What could be causing this?');
   if (questions.length === 0) questions.push('Is there anything in this pattern you would like me to keep tracking?');
 
@@ -216,6 +222,7 @@ export async function buildHerSummary(owner: Owner, days = 90) {
       maxCramps: cramps.length ? Math.max(...cramps) : null,
       severeCrampDays,
       heavyDays,
+      bloodLoss,
       avgSleep: r1(mean(sleep)),
       flow: countBy(flows),
       symptoms,

@@ -169,6 +169,7 @@ export default function DoctorSummaryPage() {
                 <Stat label="Average cramps" value={data.stats.avgCramps !== null ? `${data.stats.avgCramps}/10` : null} />
                 <Stat label="Worst cramps" value={data.stats.maxCramps !== null ? `${data.stats.maxCramps}/10` : null} />
                 <Stat label="Heavy-flow days" value={data.stats.heavyDays} />
+                <Stat label="Blood-loss score (PBAC)" value={data.stats.bloodLoss?.length ? data.stats.bloodLoss.map((p: any) => p.score).join(", ") + (data.stats.bloodLoss.some((p: any) => p.score > 100) ? " (over 100 = heavy)" : "") : null} />
                 <Stat label="Average sleep" value={data.stats.avgSleep !== null ? `${data.stats.avgSleep} h` : null} />
               </div>
               <p className="text-[11px] font-semibold text-plum-900/60">Most reported symptoms (days)</p>

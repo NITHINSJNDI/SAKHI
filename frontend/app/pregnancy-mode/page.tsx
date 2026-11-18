@@ -169,7 +169,7 @@ const getPreeclampsiaExplainability = (
   }
 
   // 4. Model score + guideline flags
-  factors.push(...modelExplainFactors(preeclampsiaMl, "Preeclampsia / hypertensive"));
+  factors.push(...modelExplainFactors(preeclampsiaMl, "General pregnancy risk"));
   const level = preeclampsiaMl?.risk_level;
 
   return {
@@ -295,7 +295,7 @@ const getGdmExplainability = (
   });
 
   // 4. Model score + guideline flags
-  factors.push(...modelExplainFactors(gdmMl, "Diabetes"));
+  factors.push(...modelExplainFactors(gdmMl, "Diabetes tendency"));
   factors.push({
     title: "About this model",
     detail: "Trained on general diabetes data from adult women who were not pregnant, so it is a guide only. The glucose tolerance test (OGTT) your doctor offers around weeks 24 to 28 is what diagnoses gestational diabetes.",
@@ -910,7 +910,7 @@ export default function PregnancyModePage() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <RiskTile
-                title="Preeclampsia (high BP)"
+                title="Blood pressure"
                 ml={pe}
                 reading={pe?.factors ? `${pe.factors.systolic}/${pe.factors.diastolic} mmHg` : ""}
                 date={mlPredictions.bpDate}
@@ -972,7 +972,7 @@ export default function PregnancyModePage() {
                             : "text-plum-900/60 hover:text-plum-900"
                         }`}
                       >
-                        Preeclampsia factors ({mlPredictions.preeclampsia ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` : "not scored"})
+                        BP risk factors ({mlPredictions.preeclampsia ? `${Math.round(mlPredictions.preeclampsia.probability * 100)}%` : "not scored"})
                       </button>
                       <button
                         type="button"

@@ -132,7 +132,7 @@ def train_maternal():
         units=["mmHg", "mmHg", "mmol/L", "years", "bpm"],
     )
     model.update({
-        "name": "Maternal high-risk (hypertensive / metabolic) model",
+        "name": "General pregnancy risk (BP, sugar, heart rate)",
         "dataset": "UCI Maternal Health Risk (Ahmed & Kashem 2020)",
         "dataset_url": "https://archive.ics.uci.edu/dataset/863/maternal+health+risk",
         "n_records": int(len(rows)),
@@ -169,7 +169,7 @@ def train_diabetes():
         units=["mg/dL", "kg/m2", "years", "count"],
     )
     model.update({
-        "name": "Diabetes risk model (gestational-diabetes screening proxy)",
+        "name": "Diabetes tendency (proxy, not a gestational diabetes model)",
         "dataset": "Pima Indians Diabetes Database (NIDDK)",
         "dataset_url": "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database",
         "n_records": int(len(rows)),

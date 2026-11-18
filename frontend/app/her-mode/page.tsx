@@ -27,6 +27,7 @@ import FertilityCalendar from "@/components/her/FertilityCalendar";
 import PregnancyTestCard from "@/components/her/PregnancyTestCard";
 import HygieneCard, { type HygieneCycle } from "@/components/her/HygieneCard";
 import NextPeriodCard from "@/components/her/NextPeriodCard";
+import PcosCheckCard from "@/components/her/PcosCheckCard";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
@@ -370,6 +371,7 @@ export default function HerModePage() {
               <CareLinksCard onOpenRelief={() => openRelief()} onOpenSettings={() => setIsSettingsOpen(true)} favourites={favourites} />
               <HygieneCard cycle={hygieneCycle} className="md:col-span-12" />
               <AnaemiaCard logs={logs} className="md:col-span-5" />
+              <PcosCheckCard phase={phase} profile={profile} className="md:col-span-7" />
               <TabletsCard mode="her" className="md:col-span-7" />
               <LabResultsCard mode="her" pregnant={false} className="md:col-span-12" />
               <MoodCheckCard pregnant={false} className="md:col-span-6" />

@@ -116,3 +116,20 @@ describe('blood-loss score (PBAC)', () => {
     expect(next).toHaveLength(1);
   });
 });
+
+import { pbacByPeriod } from '@/lib/hygiene';
+import { anaemiaWatch } from '@/lib/anaemia';
+
+describe('blood-loss score feeds other checks', () => {
+  const p = (m: number, d: number, soak: 'light' | 'half' | 'full') => ({ at: new Date(Date.UTC(2026, m, d, 8)).toISOString(), soak });
+  it('splits pads into periods by a 10-day gap', () => {
+    const periods = pbacByPeriod([p(9, 1, 'full'), p(9, 2, 'half'), p(9, 30, 'light')]);
+    expect(periods.map(x => x.score)).toEqual([25, 1]);
+    expect(periods[0].start).toBe('2026-10-01');
+  });
+  it('a score over 100 makes the iron check watch for heavy periods', () => {
+    expect(anaemiaWatch([], [], false, 140).level).toBe('watch');
+    expect(anaemiaWatch([], [], false, 140).reasons.join(' ')).toMatch(/Blood-loss score 140/);
+    expect(anaemiaWatch([], [], false, 40).level).toBe('clear');
+  });
+});

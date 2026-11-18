@@ -29,7 +29,8 @@ export const IRON_FOODS = [
   'Amla, guava or lemon with meals helps iron absorb',
 ];
 
-export function anaemiaWatch(logs: any[], labs: LabResult[], takingIron: boolean): AnaemiaWatch {
+/** pbac: the highest blood-loss score (PBAC) from her recent logged periods, if any */
+export function anaemiaWatch(logs: any[], labs: LabResult[], takingIron: boolean, pbac: number | null = null): AnaemiaWatch {
   const today = todayNum();
   const recent = (logs || []).filter(l => dayNum(l?.log_date) >= today - 120);
   const heavy = recent.filter(l => /heavy/i.test(String(l.flow_intensity || ''))).length;
@@ -52,7 +53,9 @@ export function anaemiaWatch(logs: any[], labs: LabResult[], takingIron: boolean
   if (tired >= 3) reasons.push(`Tired on ${tired} days`);
   if (dizzy) reasons.push(`Dizzy or breathless on ${dizzy} day${dizzy === 1 ? '' : 's'}`);
 
-  const bleedingSign = heavy >= 4 || veryHeavy >= 2 || longRuns >= 2;
+  const heavyByScore = pbac !== null && pbac > 100;
+  if (heavyByScore) reasons.push(`Blood-loss score ${pbac} in a recent period (over 100 means heavy bleeding)`);
+  const bleedingSign = heavy >= 4 || veryHeavy >= 2 || longRuns >= 2 || heavyByScore;
   const bodySign = tired >= 5 || dizzy >= 2;
 
   // A recent lab result outranks guesses from check-ins
