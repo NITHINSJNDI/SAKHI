@@ -101,9 +101,17 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
     if (speechSupported()) window.speechSynthesis.getVoices();
     window.addEventListener("storage", sync);
     window.addEventListener("sakhi-voice-toggled", onToggle);
+    const onLangChanged = () => {
+      if (recognizerRef.current) {
+        recognizerRef.current.stop();
+        recognizerRef.current = null;
+      }
+    };
+    window.addEventListener("sakhi-language-changed", onLangChanged);
     return () => {
       window.removeEventListener("storage", sync);
       window.removeEventListener("sakhi-voice-toggled", onToggle);
+      window.removeEventListener("sakhi-language-changed", onLangChanged);
       stopVoice();
       recognizerRef.current?.stop();
     };

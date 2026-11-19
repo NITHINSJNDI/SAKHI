@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Microphone, SpeakerHigh, SpeakerSlash, Trash, Waveform, WifiSlash, LockSimple, ShieldCheck } from "@phosphor-icons/react";
 import ChatMarkdown from "./ChatMarkdown";
+import LanguageSelector from "@/components/LanguageSelector";
+import { detectLanguageFromScript, getLanguage } from "@/lib/languages";
 import type { SakhiChat, Engine } from "@/hooks/useSakhiChat";
 
 export interface QuickReply { label: string; text: string; send?: boolean }
@@ -55,25 +57,49 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
     && (chat.messages.length === 0 || chat.messages[chat.messages.length - 1].role === "assistant");
   const notice = chat.notice ? NOTICE[chat.notice] : null;
 
+  const isTextRtl = (text: string): boolean => {
+    const code = detectLanguageFromScript(text);
+    if (!code) return false;
+    return getLanguage(code).direction === "rtl";
+  };
+
   return (
     <div className="flex flex-col h-full">
-      {(headerText || headerAction || chat.messages.length > 0) && (
-        <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
-          <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText}</span>
-          <div className="flex items-center gap-1.5 shrink-0">
-            {headerAction}
-            {chat.messages.length > 0 && (
-              <button
-                type="button"
-                onClick={() => { if (window.confirm("Clear this conversation? Your logged data stays saved.")) chat.clearChat(); }}
-                className="p-1.5 rounded-full text-plum-900/40 hover:text-pink-600 hover:bg-pink-50 transition-colors"
-                title="Clear conversation"
-                aria-label="Clear conversation"
-              >
-                <Trash size={15} />
-              </button>
-            )}
+      <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+        <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText || "Sakhi AI Multilingual"}</span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {headerAction || <LanguageSelector variant="pill" />}
+          {chat.messages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => { if (window.confirm("Clear this conversation? Your logged data stays saved.")) chat.clearChat(); }}
+              className="p-1.5 rounded-full text-plum-900/40 hover:text-pink-600 hover:bg-pink-50 transition-colors"
+              title="Clear conversation"
+              aria-label="Clear conversation"
+            >
+              <Trash size={15} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {chat.isSpeaking && (
+        <div className="mb-2 shrink-0 flex items-center justify-between gap-2 rounded-xl bg-pink-50/90 border border-pink-200/80 px-3 py-1.5 text-xs text-pink-700 animate-in fade-in duration-200 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="flex items-end gap-0.5 h-3">
+              <span className="w-1 bg-pink-500 rounded-full animate-bounce h-2" style={{ animationDuration: '0.6s' }} />
+              <span className="w-1 bg-pink-500 rounded-full animate-bounce h-3" style={{ animationDuration: '0.8s', animationDelay: '0.15s' }} />
+              <span className="w-1 bg-pink-500 rounded-full animate-bounce h-1.5" style={{ animationDuration: '0.7s', animationDelay: '0.3s' }} />
+            </span>
+            <span className="font-medium text-xs">Sakhi is speaking…</span>
           </div>
+          <button
+            type="button"
+            onClick={chat.stopSpeaking}
+            className="text-[11px] font-semibold text-pink-600 hover:text-pink-800 underline underline-offset-2"
+          >
+            Interrupt
+          </button>
         </div>
       )}
 
@@ -85,10 +111,14 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
         {chat.messages.length === 0 && emptyState}
         {chat.messages.map(m => {
           const tag = m.role === "assistant" && m.engine ? ENGINE_TAG[m.engine] : undefined;
+          const rtl = isTextRtl(m.text);
           return (
             <div
               key={m.id}
+              dir={rtl ? "rtl" : "ltr"}
               className={`max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border ${
+                rtl ? "text-right " : ""
+              }${
                 m.role === "user"
                   ? "bg-pink-100/90 text-pink-900 self-end rounded-tr-sm border-white/40 whitespace-pre-wrap"
                   : m.engine === "safety"
@@ -144,7 +174,10 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
           ref={inputRef}
           type="text"
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => {
+            if (chat.isSpeaking) chat.stopSpeaking();
+            setInput(e.target.value);
+          }}
           placeholder={chat.handsFree ? "Hands-free is on, just talk…" : "Type or tap the mic to talk…"}
           aria-label="Message Sakhi"
           className="w-full bg-white/60 border border-plum-900/10 rounded-2xl pl-3.5 sm:pl-5 pr-36 sm:pr-40 py-3 sm:py-4 text-plum-900 placeholder:text-plum-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[border-color,background-color,box-shadow] text-xs sm:text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"

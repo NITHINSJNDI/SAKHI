@@ -1,29 +1,45 @@
 "use client";
 /**
- * Browser voice helpers (Web Speech API), shared by every Sakhi chat.
- *  - speak(): cleans markdown/emoji, speaks sentence by sentence (Chrome cuts
- *    long utterances off), picks a natural voice for her language, and reports
- *    word boundaries so the doll's mouth moves with the words.
- *  - createRecognizer(): speech-to-text in her chosen accent (en-IN by default),
- *    with readable error messages.
+ * Voice Subsystem for SAKHI:
+ * 1. Gemini AI HD Voice Player (Web Audio API PCM 24kHz stream playback)
+ * 2. Browser Speech Synthesis Fallback (for Tier 2 regional languages / offline)
+ * 3. High-Accuracy Speech Recognition with automatic BCP-47 locale binding for all 23 Indian languages
+ * 4. Immediate Barge-in / Interruption Support
  */
+
+import { INDIAN_LANGUAGES, getLanguage, LanguageInfo } from '@/lib/languages';
 
 export const VOICE_ENABLED_KEY = 'sakhi_voice_enabled';
 export const VOICE_LANG_KEY = 'sakhi_voice_lang';
-export const VOICE_LANGS = [
-  { code: 'en-IN', label: 'English (India)' },
-  { code: 'hi-IN', label: 'हिन्दी (Hindi)' },
-  { code: 'ta-IN', label: 'தமிழ் (Tamil)' },
-  { code: 'te-IN', label: 'తెలుగు (Telugu)' },
-  { code: 'en-GB', label: 'English (UK)' },
-  { code: 'en-US', label: 'English (US)' },
-];
+export const VOICE_PREFERRED_LANG_KEY = 'sakhi_preferred_language';
+export const VOICE_STYLE_KEY = 'sakhi_voice_style';
+
+export const VOICE_LANGS = INDIAN_LANGUAGES.map(l => ({
+  code: l.bcp47,
+  langCode: l.code,
+  label: `${l.nativeName} (${l.name})`,
+  name: l.name,
+  nativeName: l.nativeName,
+  tier: l.voiceTier,
+}));
 
 const read = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 
 export function getVoiceLang(): string {
+  const preferred = read(VOICE_PREFERRED_LANG_KEY);
+  if (preferred) {
+    return getLanguage(preferred).bcp47;
+  }
   const v = read(VOICE_LANG_KEY);
-  return VOICE_LANGS.some(l => l.code === v) ? (v as string) : 'en-IN';
+  if (v) {
+    return getLanguage(v).bcp47;
+  }
+  return 'en-IN';
+}
+
+export function getSelectedLanguageCode(): string {
+  const preferred = read(VOICE_PREFERRED_LANG_KEY) || read(VOICE_LANG_KEY);
+  return getLanguage(preferred).code;
 }
 
 export const voiceEnabled = () => read(VOICE_ENABLED_KEY) !== 'false';
@@ -31,7 +47,7 @@ export const speechSupported = () => typeof window !== 'undefined' && 'speechSyn
 export const recognitionSupported = () =>
   typeof window !== 'undefined' && Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
 
-/** Text as it should be heard: no markdown symbols, emoji or links. */
+/** Clean text for speech synthesis: strips markdown, formatting, emoji, and urls. */
 export function cleanForSpeech(text: string): string {
   return text
     .replace(/https?:\/\/\S+/g, '')
@@ -45,7 +61,7 @@ export function cleanForSpeech(text: string): string {
     .trim();
 }
 
-/** Sentences of at most ~180 characters. */
+/** Split into sentences for browser speech fallback. */
 export function splitSentences(text: string): string[] {
   const parts = text.match(/[^.!?]+[.!?]*/g) || [text];
   const out: string[] = [];
@@ -62,74 +78,139 @@ export function splitSentences(text: string): string[] {
   return out;
 }
 
-/** "girl" is a young girl's voice (the default); "woman" is the grown-up one. */
 export type VoiceStyle = 'girl' | 'woman';
-export const VOICE_STYLE_KEY = 'sakhi_voice_style';
 export const VOICE_STYLES: { code: VoiceStyle; label: string }[] = [
   { code: 'girl', label: 'Young girl' },
   { code: 'woman', label: 'Woman' },
 ];
 export const getVoiceStyle = (): VoiceStyle => (read(VOICE_STYLE_KEY) === 'woman' ? 'woman' : 'girl');
 
-// Female, natural-sounding voices that ship with common browsers / OSes
-const PREFERRED = /neerja|heera|veena|kalpana|swara|lekha|pallavi|shruti|google हिन्दी|google uk english female|sonia|libby|aria|jenny|samantha|tessa|victoria|zira|female/i;
-// Real child voices: Microsoft Ana (US) and Maisie (UK) come with Edge's online voices
-const GIRL = /\b(ana|maisie)\b/i;
-
+const PREFERRED = /neerja|heera|veena|kalpana|swara|lekha|pallavi|shruti|google हिन्दी|google தமிழ்|google বাংলা|sonia|libby|aria|jenny|female/i;
 const norm = (l: string) => l.replace('_', '-').toLowerCase();
-
-/** A real girl's voice if this browser has one. */
-function childVoice(voices: SpeechSynthesisVoice[], lang: string): SpeechSynthesisVoice | null {
-  const kids = voices.filter(v => GIRL.test(v.name) && norm(v.lang).startsWith('en'));
-  return kids.find(v => norm(v.lang) === lang.toLowerCase()) || kids[0] || null;
-}
 
 export function pickVoice(lang: string, style: VoiceStyle = 'woman'): SpeechSynthesisVoice | null {
   if (!speechSupported()) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-  const isEnglish = lang.toLowerCase().startsWith('en');
-  // The girl voices (Ana, Maisie) only speak English
-  if (style === 'girl' && isEnglish) {
-    const kid = childVoice(voices, lang);
-    if (kid) return kid;
-  }
   const exact = voices.filter(v => norm(v.lang) === lang.toLowerCase());
-  // Same language from another region (e.g. hi) before falling back to English
   const family = voices.filter(v => norm(v.lang).split('-')[0] === lang.toLowerCase().split('-')[0]);
-  if (!isEnglish && (exact.length || family.length)) {
+  if (exact.length || family.length) {
     const pool = exact.length ? exact : family;
     return pool.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name)) || pool.find(v => PREFERRED.test(v.name)) || pool[0];
   }
   const english = voices.filter(v => norm(v.lang).startsWith('en'));
-  return exact.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name))
-    || exact.find(v => PREFERRED.test(v.name))
-    || english.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name))
-    || english.find(v => PREFERRED.test(v.name))
-    || exact[0] || english[0] || null;
+  return english.find(v => PREFERRED.test(v.name)) || voices[0] || null;
 }
 
-/**
- * How to say it. A real child voice is used as it is; otherwise a girl's voice is
- * made from a woman's by raising the pitch and speeding up a touch.
- */
 function delivery(style: VoiceStyle, voice: SpeechSynthesisVoice | null) {
   if (style === 'woman') return { pitch: 1.05, rate: 0.97 };
-  if (voice && GIRL.test(voice.name)) return { pitch: 1.1, rate: 1 };
-  return { pitch: 1.6, rate: 1.04 };
+  return { pitch: 1.25, rate: 1.02 };
 }
 
+// ------------------------------------------------------------ Web Audio Context for Gemini PCM
+let audioCtx: AudioContext | null = null;
+let currentSourceNode: AudioBufferSourceNode | null = null;
 let session = 0;
 
-export function stopSpeaking() {
-  session++;
-  if (speechSupported()) window.speechSynthesis.cancel();
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!audioCtx || audioCtx.state === 'closed') {
+    audioCtx = new AudioContextClass();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  return audioCtx;
 }
 
-/** Speak a reply. Resolves when finished or interrupted. */
-export function speak(text: string, handlers: { onStart?: () => void; onEnd?: () => void; onWord?: () => void } = {}): Promise<void> {
+/** Stop any currently playing audio immediately (instant barge-in). */
+export function stopSpeaking() {
+  session++;
+  if (currentSourceNode) {
+    try {
+      currentSourceNode.stop();
+      currentSourceNode.disconnect();
+    } catch {
+      // ignore
+    }
+    currentSourceNode = null;
+  }
+  if (speechSupported()) {
+    try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
+  }
+}
+
+/** Decode base64 16-bit PCM little-endian audio into an AudioBuffer. */
+function decodePcmToBuffer(ctx: AudioContext, base64Pcm: string, sampleRate = 24000): AudioBuffer {
+  const binaryString = atob(base64Pcm);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  // 16-bit PCM is 2 bytes per sample
+  const numSamples = Math.floor(len / 2);
+  const audioBuffer = ctx.createBuffer(1, numSamples, sampleRate);
+  const channelData = audioBuffer.getChannelData(0);
+  const dataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+  for (let i = 0; i < numSamples; i++) {
+    const int16 = dataView.getInt16(i * 2, true); // little-endian
+    channelData[i] = int16 / 32768.0; // normalize to [-1.0, 1.0]
+  }
+
+  return audioBuffer;
+}
+
+/** Play high-fidelity Gemini AI spoken audio via Web Audio API. */
+function playGeminiAudio(
+  base64Pcm: string,
+  sampleRate: number = 24000,
+  handlers: { onStart?: () => void; onEnd?: () => void; onWord?: () => void } = {}
+): Promise<void> {
+  const ctx = getAudioContext();
+  if (!ctx) return Promise.resolve();
+
+  return new Promise(resolve => {
+    try {
+      const audioBuffer = decodePcmToBuffer(ctx, base64Pcm, sampleRate);
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(ctx.destination);
+      currentSourceNode = source;
+
+      handlers.onStart?.();
+
+      // Mouth animation pulse
+      const pulseInterval = setInterval(() => {
+        handlers.onWord?.();
+      }, 120);
+
+      source.onended = () => {
+        clearInterval(pulseInterval);
+        currentSourceNode = null;
+        handlers.onEnd?.();
+        resolve();
+      };
+
+      source.start();
+    } catch (e) {
+      console.warn('Could not play Gemini PCM audio buffer:', e);
+      handlers.onEnd?.();
+      resolve();
+    }
+  });
+}
+
+/** Browser speech synthesis fallback (Tier 2 languages or offline). */
+function speakBrowser(
+  text: string,
+  handlers: { onStart?: () => void; onEnd?: () => void; onWord?: () => void } = {}
+): Promise<void> {
   if (!speechSupported()) return Promise.resolve();
-  stopSpeaking();
   const mine = ++session;
   const lang = getVoiceLang();
   const style = getVoiceStyle();
@@ -141,8 +222,13 @@ export function speak(text: string, handlers: { onStart?: () => void; onEnd?: ()
   return new Promise(resolve => {
     let started = false;
     let done = false;
-    // A newer speak() takes over the handlers, so only the current session reports its end
-    const finish = () => { if (done) return; done = true; if (mine === session) handlers.onEnd?.(); resolve(); };
+    const finish = () => {
+      if (done) return;
+      done = true;
+      if (mine === session) handlers.onEnd?.();
+      resolve();
+    };
+
     chunks.forEach((chunk, i) => {
       const u = new SpeechSynthesisUtterance(chunk);
       if (voice) u.voice = voice;
@@ -150,29 +236,82 @@ export function speak(text: string, handlers: { onStart?: () => void; onEnd?: ()
       u.rate = rate;
       u.pitch = pitch;
       u.volume = 1;
-      u.onstart = () => { if (!started && mine === session) { started = true; handlers.onStart?.(); } };
-      u.onboundary = (e: any) => { if (mine === session && (!e.name || e.name === 'word')) handlers.onWord?.(); };
+      u.onstart = () => {
+        if (!started && mine === session) {
+          started = true;
+          handlers.onStart?.();
+        }
+      };
+      u.onboundary = (e: any) => {
+        if (mine === session && (!e.name || e.name === 'word')) handlers.onWord?.();
+      };
       u.onerror = () => { if (i === chunks.length - 1 || mine !== session) finish(); };
       u.onend = () => { if (i === chunks.length - 1 || mine !== session) finish(); };
       window.speechSynthesis.speak(u);
     });
-    // Chrome sometimes never fires onend after a cancel; give up after a while
+
     const guard = setInterval(() => {
-      if (mine !== session || !window.speechSynthesis.speaking) { clearInterval(guard); if (mine !== session) finish(); }
+      if (mine !== session || !window.speechSynthesis.speaking) {
+        clearInterval(guard);
+        if (mine !== session) finish();
+      }
     }, 1000);
   });
 }
 
+/**
+ * Unified speak function:
+ * First attempts Gemini AI HD Voice via `/api/voice/speak`.
+ * Seamlessly falls back to browser synthesis for Tier 2 languages or offline mode.
+ */
+export async function speak(
+  text: string,
+  handlers: { onStart?: () => void; onEnd?: () => void; onWord?: () => void } = {}
+): Promise<void> {
+  stopSpeaking();
+  const currentSession = session;
+  const langCode = getSelectedLanguageCode();
+
+  // Attempt server-side Gemini HD Voice
+  try {
+    const res = await fetch('/api/voice/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        lang: langCode,
+        voiceName: 'Kore',
+      }),
+    });
+
+    if (currentSession !== session) return; // Interrupted while fetching
+
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && data.audioBase64) {
+      await playGeminiAudio(data.audioBase64, data.sampleRate || 24000, handlers);
+      return;
+    }
+  } catch {
+    // network failure: fall through to browser speech
+  }
+
+  if (currentSession !== session) return;
+  return speakBrowser(text, handlers);
+}
+
 const MIC_ERRORS: Record<string, string> = {
   'not-allowed': "Microphone access is blocked. Allow it in your browser's site settings, then tap the mic again.",
-  'service-not-allowed': "Voice input is turned off in this browser. You can still type to me.",
+  'service-not-allowed': 'Voice input is turned off in this browser. You can still type to me.',
   'no-speech': "I didn't hear anything. Tap the mic and try again.",
   'audio-capture': 'No microphone was found on this device.',
   network: 'Voice input needs an internet connection in this browser.',
 };
 
-export interface Recognizer { start: () => void; stop: () => void }
+export interface Recognizer { start: () => void; stop: () => void; isListening: () => boolean }
 
+/**
+ * Creates speech recognizer bound to the user's active Indian language.
+ */
 export function createRecognizer(h: {
   onInterim: (text: string) => void;
   onFinal: (text: string) => void;
@@ -183,14 +322,19 @@ export function createRecognizer(h: {
   const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   let rec: any = null;
   let finalText = '';
+  let active = false;
+
   return {
     start() {
+      stopSpeaking(); // Immediate barge-in on mic press
       try { rec?.abort(); } catch { /* ignore */ }
       rec = new SR();
       rec.lang = getVoiceLang();
       rec.continuous = false;
       rec.interimResults = true;
       finalText = '';
+      active = true;
+
       rec.onresult = (e: any) => {
         let interim = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -200,14 +344,35 @@ export function createRecognizer(h: {
         }
         h.onInterim((finalText + interim).trim());
       };
-      rec.onerror = (e: any) => { if (e.error !== 'aborted') h.onError(MIC_ERRORS[e.error] || 'Voice input stopped unexpectedly. Please try again.'); };
+
+      rec.onerror = (e: any) => {
+        active = false;
+        if (e.error !== 'aborted') {
+          h.onError(MIC_ERRORS[e.error] || 'Voice input stopped unexpectedly. Please try again.');
+        }
+      };
+
       rec.onend = () => {
+        active = false;
         const text = finalText.trim();
         if (text) h.onFinal(text);
         h.onEnd();
       };
-      try { rec.start(); } catch { h.onError('Voice input is busy. Please try again.'); h.onEnd(); }
+
+      try {
+        rec.start();
+      } catch {
+        active = false;
+        h.onError('Voice input is busy. Please try again.');
+        h.onEnd();
+      }
     },
-    stop() { try { rec?.stop(); } catch { /* ignore */ } },
+    stop() {
+      active = false;
+      try { rec?.stop(); } catch { /* ignore */ }
+    },
+    isListening() {
+      return active;
+    },
   };
 }

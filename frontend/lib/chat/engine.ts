@@ -37,8 +37,8 @@ export interface ChatResult {
 
 const KEEP = 40;   // turns stored
 const SEND = 10;   // turns given to the model
-const FALLBACK_MODEL = 'gemini-flash-lite-latest';
-let activeModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+const FALLBACK_MODEL = 'gemini-3.5-flash-lite';
+let activeModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
 export const dailyLimit = () => Math.max(1, Number(process.env.SAKHI_AI_DAILY_LIMIT) || 50);
 export const geminiModel = () => activeModel;
@@ -170,7 +170,8 @@ export async function runSakhiChat(input: {
   mode: ChatMode; message: string; owner: Owner; name: string; clientHistory?: any; lang?: string;
 }): Promise<ChatResult> {
   const { mode, message, owner, name } = input;
-  const lang = replyLang(input.lang, message);
+  const storedPrefs = await readDoc<any>('preferences', null, owner).catch(() => null);
+  const lang = replyLang(input.lang || storedPrefs?.language, message);
   const offline = mode === 'her' ? offlineHerReply : offlinePregnancyReply;
 
   // Without database/file storage, history lives in the browser and is sent along

@@ -7,10 +7,11 @@ import { getOwner, readDoc, storageMode } from '@/lib/store';
 export async function GET() {
   try {
     const owner = await getOwner();
-    const [her, preg, consent, storage] = await Promise.all([
+    const [her, preg, consent, preferences, storage] = await Promise.all([
       readDoc<any>('her_profile', null, owner),
       readDoc<any>('preg_profile', null, owner),
       readDoc<any>('consent', null, owner),
+      readDoc<any>('preferences', null, owner),
       storageMode(),
     ]);
     return NextResponse.json({
@@ -22,6 +23,7 @@ export async function GET() {
       hasHerProfile: Boolean(her),
       hasMomProfile: Boolean(preg && preg.preferred_name),
       consent: consent || null,
+      preferences: preferences || null,
       storage,
     });
   } catch (err: any) {

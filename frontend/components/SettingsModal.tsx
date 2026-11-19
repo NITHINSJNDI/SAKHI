@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight, ShieldCheck, DownloadSimple, Trash } from '@phosphor-icons/react';
 import DiscreetSettings from '@/components/DiscreetSettings';
+import LanguageSelector from '@/components/LanguageSelector';
 import { VOICE_LANGS, VOICE_LANG_KEY, VOICE_STYLES, VOICE_STYLE_KEY, getVoiceLang, getVoiceStyle, speak, type VoiceStyle } from '@/lib/voice';
 
 interface SettingsModalProps {
@@ -63,6 +64,18 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
     
     // Save voice setting
     localStorage.setItem('sakhi_voice_enabled', voiceEnabled.toString());
+    try {
+      await fetch('/api/preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voiceEnabled,
+          voiceName: voiceStyle === 'girl' ? 'Kore' : 'Aoede',
+        }),
+      });
+    } catch {
+      // non-blocking
+    }
     const trimmedName = formData.preferred_name ? formData.preferred_name.trim() : '';
     if (trimmedName) {
       localStorage.setItem('sakhi_preferred_name', trimmedName);
@@ -165,29 +178,21 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     <div className={`w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-white shadow-sm transition-transform ${voiceEnabled ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'}`} />
                   </button>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
-                  <div className="min-w-0">
-                    <label htmlFor="voice-lang" className="font-medium text-sm sm:text-base text-plum-900">Language</label>
-                    <p className="text-xs sm:text-sm text-plum-900/60">Sakhi chats, speaks and listens in this language.</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <select
-                      id="voice-lang"
-                      value={voiceLang}
-                      onChange={e => {
-                        setVoiceLang(e.target.value);
-                        try { localStorage.setItem(VOICE_LANG_KEY, e.target.value); } catch { /* ignore */ }
-                      }}
-                      className="rounded-xl border border-black/10 bg-white px-2 py-2 text-sm text-plum-900 focus:ring-2 focus:ring-pink-300 outline-none"
-                    >
-                      {VOICE_LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-                    </select>
+                <div className="mt-2 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5 space-y-3">
+                  <LanguageSelector
+                    variant="expanded"
+                    onSelect={(lang) => {
+                      setVoiceLang(lang.bcp47);
+                    }}
+                  />
+                  <div className="flex items-center justify-between pt-1 border-t border-black/5">
+                    <span className="text-xs text-plum-900/60">Preview voice greeting in selected language</span>
                     <button
                       type="button"
                       onClick={() => speak(`Hi ${formData.preferred_name || 'dear'}, this is how I sound.`)}
-                      className="rounded-xl border border-pink-200 px-2.5 py-2 text-xs font-medium text-pink-700 hover:bg-pink-50"
+                      className="rounded-xl border border-pink-200 bg-white px-3 py-1.5 text-xs font-medium text-pink-700 hover:bg-pink-50 transition-colors shadow-sm"
                     >
-                      Test
+                      Test Voice
                     </button>
                   </div>
                 </div>

@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   try {
     const text = await executeGeminiWithAutoSwitch(async ai => {
       const res = await ai.models.generateContent({
-        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+        model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
         contents: [{ role: 'user', parts: [{ inlineData: { mimeType: m[1], data: m[2] } }, { text: PROMPT }] }],
         config: { responseMimeType: 'application/json', temperature: 0, maxOutputTokens: 800 },
       });

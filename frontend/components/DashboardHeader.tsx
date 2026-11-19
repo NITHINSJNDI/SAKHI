@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell, EyeSlash } from "@phosphor-icons/react";
 import { DISCREET_CHANGED, isDiscreet, lockNow } from "@/lib/discreet";
 import AccountMenu from "@/components/AccountMenu";
+import LanguageSelector from "@/components/LanguageSelector";
 
 /**
  * Shared header for Her Mode and Mom Mode: mode and today's date on one quiet
@@ -51,6 +52,7 @@ export default function DashboardHeader({
         </h1>
       </div>
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <LanguageSelector variant="pill" />
         {discreet && (
           <button
             type="button"
