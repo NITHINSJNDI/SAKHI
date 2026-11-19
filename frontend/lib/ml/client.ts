@@ -6,8 +6,12 @@ import {
   predictThyroid,
 } from './scoring';
 
-const ML_URL = process.env.ML_SERVICE_URL || process.env.NEXT_PUBLIC_ML_BACKEND_URL || 'http://127.0.0.1:8000';
-const TIMEOUT_MS = 2500;
+const ML_URL =
+  process.env.ML_SERVICE_URL ||
+  (process.env.VERCEL || (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_ML_BACKEND_URL?.includes('localhost'))
+    ? 'https://sakhi1.vercel.app/api/ml'
+    : (process.env.NEXT_PUBLIC_ML_BACKEND_URL || 'http://127.0.0.1:8000'));
+const TIMEOUT_MS = 6000;
 
 const LOCAL = {
   cycle: predictCycle,
