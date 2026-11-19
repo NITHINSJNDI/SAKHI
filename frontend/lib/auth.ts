@@ -62,26 +62,26 @@ export const authOptions: NextAuthOptions = {
         if (rows.length === 0) {
           // Create new user in PostgreSQL
           await query(
-            "INSERT INTO users (email, name, image, auth_provider) VALUES ($1, $2, $3, 'google')",
+            "INSERT INTO users (email, name, full_name, image, auth_provider, created_at, updated_at) VALUES ($1, $2, $2, $3, 'google', NOW(), NOW())",
             [user.email.toLowerCase(), user.name || null, user.image || null]
           );
           console.log(`Successfully created user: ${user.email} in PostgreSQL`);
         } else {
           // If profile image or name changed/updated, we can sync it
           await query(
-            "UPDATE users SET name = COALESCE($1, name), image = COALESCE($2, image) WHERE LOWER(email) = LOWER($3)",
+            "UPDATE users SET name = COALESCE($1, name), full_name = COALESCE($1, full_name), image = COALESCE($2, image), updated_at = NOW() WHERE LOWER(email) = LOWER($3)",
             [user.name || null, user.image || null, user.email]
           );
         }
         return true;
       } catch (err: any) {
         console.error("Error during NextAuth signIn callback:", err.message);
-        // Return true to allow fallback mode even if DB connection fails
         return true;
       }
     },
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
@@ -96,17 +96,16 @@ export const authOptions: NextAuthOptions = {
 
         // Fetch user database ID to attach to session
         try {
-          const { rows } = await query("SELECT id, age, bmi FROM users WHERE LOWER(email) = LOWER($1)", [token.email]);
+          const { rows } = await query("SELECT id, uuid, age, bmi, phone_number FROM users WHERE LOWER(email) = LOWER($1)", [token.email]);
           if (rows.length > 0) {
             (session as any).user.id = rows[0].id;
+            (session as any).user.uuid = rows[0].uuid;
             (session as any).user.age = rows[0].age;
             (session as any).user.bmi = rows[0].bmi;
-          } else {
-            // Fallback for mock mode if user wasn't stored
-            (session as any).user.id = 999;
+            (session as any).user.phone = rows[0].phone_number;
           }
         } catch (err) {
-          (session as any).user.id = 999;
+          // fallback
         }
       }
       return session;

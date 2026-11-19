@@ -47,6 +47,9 @@ async function wipeAllData() {
         await client.query('DELETE FROM user_health_profiles WHERE user_id = $1', [userId]);
         await client.query('DELETE FROM cycle_logs WHERE user_id = $1', [userId]);
         await client.query('DELETE FROM triage_logs WHERE user_id = $1', [userId]);
+        await client.query('DELETE FROM wellness_logs WHERE user_id = $1', [userId]);
+        await client.query('DELETE FROM appointments WHERE user_id = $1', [userId]);
+        await client.query('DELETE FROM medications WHERE user_id = $1', [userId]);
       }
     } catch (e) {
       console.error('Failed to clean postgres database:', e);

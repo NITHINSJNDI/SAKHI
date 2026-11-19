@@ -8,8 +8,11 @@ const scrypt = promisify(scryptCb);
 
 export interface StoredUserAccount {
   id: number | string;
+  uuid?: string;
   email: string;
   name: string | null;
+  fullName?: string | null;
+  phoneNumber?: string | null;
   image: string | null;
   passwordHash: string | null;
   authProvider: string;
@@ -120,15 +123,18 @@ export async function findAccountByEmail(rawEmail: string): Promise<StoredUserAc
     const pool = await getPool();
     if (pool) {
       const { rows } = await pool.query(
-        "SELECT id, email, name, image, password_hash, auth_provider FROM users WHERE LOWER(email) = $1 LIMIT 1",
+        "SELECT id, uuid, email, name, full_name, phone_number, image, password_hash, auth_provider FROM users WHERE LOWER(email) = $1 LIMIT 1",
         [email]
       );
       if (rows.length > 0) {
         const r = rows[0];
         return {
           id: r.id,
+          uuid: r.uuid,
           email: r.email,
-          name: r.name,
+          name: r.name || r.full_name,
+          fullName: r.full_name || r.name,
+          phoneNumber: r.phone_number || null,
           image: r.image,
           passwordHash: r.password_hash || null,
           authProvider: r.auth_provider || "google",
@@ -148,6 +154,7 @@ export async function createManualAccount(input: {
   name: string;
   email: string;
   password: string;
+  phoneNumber?: string;
 }): Promise<{ ok: true; user: StoredUserAccount } | { ok: false; error: string; status: number }> {
   const checked = validateRegistrationInput(input);
   if (!checked.ok) {
@@ -155,6 +162,7 @@ export async function createManualAccount(input: {
   }
 
   const { name, email, password } = checked.data;
+  const phoneNumber = input.phoneNumber ? String(input.phoneNumber).trim().slice(0, 50) : null;
   const existing = await findAccountByEmail(email);
 
   if (existing) {
@@ -178,18 +186,21 @@ export async function createManualAccount(input: {
     const pool = await getPool();
     if (pool) {
       const { rows } = await pool.query(
-        `INSERT INTO users (email, name, password_hash, auth_provider)
-         VALUES ($1, $2, $3, 'credentials')
-         RETURNING id, email, name, image, password_hash, auth_provider`,
-        [email, name, passwordHash]
+        `INSERT INTO users (email, name, full_name, phone_number, password_hash, auth_provider, created_at, updated_at)
+         VALUES ($1, $2, $2, $3, $4, 'credentials', NOW(), NOW())
+         RETURNING id, uuid, email, name, full_name, phone_number, image, password_hash, auth_provider`,
+        [email, name, phoneNumber, passwordHash]
       );
       const r = rows[0];
       return {
         ok: true,
         user: {
           id: r.id,
+          uuid: r.uuid,
           email: r.email,
           name: r.name,
+          fullName: r.full_name,
+          phoneNumber: r.phone_number,
           image: r.image,
           passwordHash: r.password_hash,
           authProvider: r.auth_provider,

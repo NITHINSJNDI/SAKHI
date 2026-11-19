@@ -121,21 +121,62 @@ export async function initDatabase() {
   try {
     await client.query('BEGIN');
 
-    // Create Users Table
+    // Create or Upgrade Users Table
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
+        uuid UUID DEFAULT gen_random_uuid(),
         email VARCHAR(255) UNIQUE NOT NULL,
         name VARCHAR(255),
+        full_name VARCHAR(255),
         image VARCHAR(255),
         password_hash TEXT,
         auth_provider VARCHAR(50) DEFAULT 'google',
+        phone_number VARCHAR(50),
         age INTEGER,
         bmi NUMERIC(5,2),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS uuid UUID DEFAULT gen_random_uuid();
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number VARCHAR(50);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) DEFAULT 'google';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+      CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email));
+    `);
+
+    // Ensure unique constraint on users.uuid
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'users_uuid_key'
+        ) THEN
+          ALTER TABLE users ADD CONSTRAINT users_uuid_key UNIQUE (uuid);
+        END IF;
+      END $$;
+    `);
+
+    // Sync full_name with name
+    await client.query(`
+      UPDATE users SET full_name = name WHERE full_name IS NULL AND name IS NOT NULL;
+    `);
+
+    // Create or Upgrade User Documents Table (JSONB Store with foreign key user_id)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_documents (
+        owner_key TEXT NOT NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        kind VARCHAR(64) NOT NULL,
+        data JSONB,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (owner_key, kind)
+      );
+      ALTER TABLE user_documents ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+      CREATE INDEX IF NOT EXISTS idx_user_documents_user_id ON user_documents(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_documents_owner_key ON user_documents(owner_key);
     `);
 
     // Create User Health Profiles (One-Time Onboarding)
@@ -153,6 +194,14 @@ export async function initDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'user_health_profiles_user_id_key'
+        ) THEN
+          ALTER TABLE user_health_profiles ADD CONSTRAINT user_health_profiles_user_id_key UNIQUE (user_id);
+        END IF;
+      END $$;
     `);
 
     // Create Daily Health Logs (Check-ins)
@@ -173,6 +222,49 @@ export async function initDatabase() {
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'daily_health_logs_user_date_key'
+        ) THEN
+          ALTER TABLE daily_health_logs ADD CONSTRAINT daily_health_logs_user_date_key UNIQUE (user_id, log_date);
+        END IF;
+      END $$;
+    `);
+
+    // Create Appointments Table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS appointments (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        appointment_date DATE NOT NULL,
+        appointment_time VARCHAR(50),
+        doctor_name VARCHAR(255),
+        clinic_name VARCHAR(255),
+        notes TEXT,
+        completed BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_appointments_user_id ON appointments (user_id);
+    `);
+
+    // Create Medications Table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS medications (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        dosage VARCHAR(100),
+        frequency VARCHAR(100),
+        time_of_day VARCHAR(100),
+        active BOOLEAN DEFAULT true,
+        notes TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_medications_user_id ON medications (user_id);
     `);
 
     // Create Cycle Logs Table (Legacy)

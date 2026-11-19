@@ -412,8 +412,33 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
         return;
       }
 
-      const dest = callbackUrl && callbackUrl !== "/login" && callbackUrl !== "/signup" ? callbackUrl : "/onboarding";
-      router.replace(dest);
+      if (callbackUrl && callbackUrl !== "/login" && callbackUrl !== "/signup") {
+        router.replace(callbackUrl);
+        router.refresh();
+        return;
+      }
+
+      // Route existing users with saved profiles straight to their dashboard
+      try {
+        const meRes = await fetch("/api/me", { cache: "no-store" });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me.hasMomProfile) {
+            router.replace("/pregnancy-mode");
+            router.refresh();
+            return;
+          }
+          if (me.hasHerProfile) {
+            router.replace("/her-mode");
+            router.refresh();
+            return;
+          }
+        }
+      } catch {
+        // fallback
+      }
+
+      router.replace("/onboarding");
       router.refresh();
     } catch {
       setError("Network error while signing in. Please try again.");

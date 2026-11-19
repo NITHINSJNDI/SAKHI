@@ -11,7 +11,7 @@ export async function GET() {
 
   try {
     const { rows } = await query(
-      "SELECT id, email, name, image, age, bmi FROM users WHERE email = $1",
+      "SELECT id, uuid, email, name, full_name, phone_number, image, age, bmi, created_at, updated_at FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1",
       [session.user.email]
     );
 
@@ -33,12 +33,27 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { age, bmi } = await req.json();
+    const { age, bmi, fullName, name, phoneNumber } = await req.json();
 
     // Update user profile in PostgreSQL
     const { rows } = await query(
-      "UPDATE users SET age = $1, bmi = $2 WHERE email = $3 RETURNING *",
-      [age || null, bmi || null, session.user.email]
+      `UPDATE users 
+       SET age = COALESCE($1, age),
+           bmi = COALESCE($2, bmi),
+           name = COALESCE($3, name),
+           full_name = COALESCE($4, full_name),
+           phone_number = COALESCE($5, phone_number),
+           updated_at = NOW()
+       WHERE LOWER(email) = LOWER($6) 
+       RETURNING id, uuid, email, name, full_name, phone_number, image, age, bmi, updated_at`,
+      [
+        age !== undefined ? Number(age) : null,
+        bmi !== undefined ? Number(bmi) : null,
+        name || fullName || null,
+        fullName || name || null,
+        phoneNumber || null,
+        session.user.email,
+      ]
     );
 
     if (rows.length === 0) {

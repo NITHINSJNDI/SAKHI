@@ -77,6 +77,8 @@ export interface Owner {
   email: string | null;
   name: string | null;
   isGuest: boolean;
+  userId?: number | null;
+  userUuid?: string | null;
 }
 
 /** Resolve who the current request belongs to (creates a guest id if needed). */
@@ -84,12 +86,34 @@ export async function getOwner(): Promise<Owner> {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email || null;
   if (email) {
+    const cleanEmail = email.toLowerCase().trim();
+    let userId: number | null = null;
+    let userUuid: string | null = null;
+
+    try {
+      const pool = await getPool();
+      if (pool) {
+        const { rows } = await pool.query(
+          "SELECT id, uuid, name, full_name FROM users WHERE LOWER(email) = $1 LIMIT 1",
+          [cleanEmail]
+        );
+        if (rows.length > 0) {
+          userId = rows[0].id;
+          userUuid = rows[0].uuid;
+        }
+      }
+    } catch (e: any) {
+      console.error("[getOwner] DB lookup failed:", e?.message);
+    }
+
     return {
-      key: `user:${email.toLowerCase()}`,
-      cookieId: email.replace(/[^a-zA-Z0-9]/g, '_'),
-      email,
+      key: `user:${cleanEmail}`,
+      cookieId: cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'),
+      email: cleanEmail,
       name: session?.user?.name || null,
       isGuest: false,
+      userId,
+      userUuid,
     };
   }
   const store = await cookies();
@@ -104,6 +128,8 @@ export async function getOwner(): Promise<Owner> {
     email: null,
     name: null,
     isGuest: true,
+    userId: null,
+    userUuid: null,
   };
 }
 
@@ -180,12 +206,15 @@ async function ensureTable() {
       .query(`
         CREATE TABLE IF NOT EXISTS user_documents (
           owner_key TEXT NOT NULL,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
           kind VARCHAR(64) NOT NULL,
           data JSONB,
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           PRIMARY KEY (owner_key, kind)
         );
-        ALTER TABLE IF EXISTS public.user_documents ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE user_documents ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+        CREATE INDEX IF NOT EXISTS idx_user_documents_user_id ON user_documents(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_documents_owner_key ON user_documents(owner_key);
       `)
       .then(() => undefined)
       .catch((err) => {
@@ -246,8 +275,10 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
 
   try {
     const { rows } = await pool.query(
-      'SELECT data FROM user_documents WHERE owner_key = $1 AND kind = $2',
-      [who.key, kind]
+      `SELECT data FROM user_documents 
+       WHERE (owner_key = $1 OR (user_id IS NOT NULL AND user_id = $2)) AND kind = $3 
+       ORDER BY updated_at DESC LIMIT 1`,
+      [who.key, who.userId ?? -1, kind]
     );
     if (rows.length > 0) return (rows[0].data ?? fallback) as T;
 
@@ -266,6 +297,96 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
   }
 }
 
+async function syncRelationalTables(userId: number, kind: DocKind, value: any, pool: any) {
+  if (!userId || !value) return;
+
+  if (kind === 'her_profile' && typeof value === 'object') {
+    const cleanConditions = Array.isArray(value.diagnosed_conditions) ? value.diagnosed_conditions : [];
+    await pool.query(
+      `INSERT INTO user_health_profiles (
+        user_id, preferred_name, last_period_start, last_period_end,
+        period_duration, cycle_length_avg, cycle_regularity, diagnosed_conditions, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      ON CONFLICT (user_id) DO UPDATE SET
+        preferred_name = EXCLUDED.preferred_name,
+        last_period_start = EXCLUDED.last_period_start,
+        last_period_end = EXCLUDED.last_period_end,
+        period_duration = EXCLUDED.period_duration,
+        cycle_length_avg = EXCLUDED.cycle_length_avg,
+        cycle_regularity = EXCLUDED.cycle_regularity,
+        diagnosed_conditions = EXCLUDED.diagnosed_conditions,
+        updated_at = NOW()`,
+      [
+        userId,
+        value.preferred_name || null,
+        value.last_period_start ? String(value.last_period_start).split('T')[0] : null,
+        value.last_period_end ? String(value.last_period_end).split('T')[0] : null,
+        parseInt(value.period_duration) || 5,
+        parseInt(value.cycle_length || value.cycle_length_avg) || 28,
+        value.cycle_regularity || 'Regular',
+        cleanConditions,
+      ]
+    );
+  } else if (kind === 'daily_logs' && Array.isArray(value)) {
+    for (const log of value.slice(-10)) {
+      if (!log || !log.log_date) continue;
+      const dayStr = String(log.log_date).split('T')[0];
+      const symptoms = Array.isArray(log.symptoms) ? log.symptoms : [log.symptoms || 'None'];
+      const warningSigns = Array.isArray(log.warning_signs) ? log.warning_signs : [];
+      await pool.query(
+        `INSERT INTO daily_health_logs (
+          user_id, log_date, on_period, flow_intensity, cramps_severity,
+          symptoms, mood, sleep_hours, water_consumed, exercised, warning_signs, notes
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ON CONFLICT (user_id, log_date) DO UPDATE SET
+          on_period = EXCLUDED.on_period,
+          flow_intensity = EXCLUDED.flow_intensity,
+          cramps_severity = EXCLUDED.cramps_severity,
+          symptoms = EXCLUDED.symptoms,
+          mood = EXCLUDED.mood,
+          sleep_hours = EXCLUDED.sleep_hours,
+          water_consumed = EXCLUDED.water_consumed,
+          exercised = EXCLUDED.exercised,
+          warning_signs = EXCLUDED.warning_signs,
+          notes = EXCLUDED.notes`,
+        [
+          userId,
+          dayStr,
+          Boolean(log.on_period),
+          log.flow_intensity || 'None',
+          Number(log.cramps_severity) || 0,
+          symptoms,
+          log.mood || 'Calm',
+          Number(log.sleep_hours) || 7.5,
+          log.water_consumed || '1.5-2L',
+          Boolean(log.exercised),
+          warningSigns,
+          log.notes || null,
+        ]
+      );
+    }
+  } else if (kind === 'pregnancy_appointments' && Array.isArray(value)) {
+    for (const apt of value) {
+      if (!apt || !apt.name) continue;
+      const aptDate = apt.date && /^\d{4}-\d{2}-\d{2}/.test(apt.date) ? apt.date.split('T')[0] : new Date().toISOString().split('T')[0];
+      await pool.query(
+        `INSERT INTO appointments (user_id, title, appointment_date, completed, notes, updated_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())`,
+        [userId, apt.name, aptDate, Boolean(apt.completed), apt.notes || null]
+      );
+    }
+  } else if (kind === 'tablets' && typeof value === 'object' && Array.isArray(value.list)) {
+    for (const tab of value.list) {
+      if (!tab || !tab.name) continue;
+      await pool.query(
+        `INSERT INTO medications (user_id, name, dosage, frequency, active, notes, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+        [userId, tab.name, tab.dose || tab.dosage || null, tab.schedule || tab.frequency || null, tab.active !== false, tab.notes || null]
+      );
+    }
+  }
+}
+
 export async function writeDoc<T>(kind: DocKind, value: T, owner?: Owner): Promise<void> {
   const who = owner || (await getOwner());
   let pool = null;
@@ -277,11 +398,20 @@ export async function writeDoc<T>(kind: DocKind, value: T, owner?: Owner): Promi
   if (pool) {
     try {
       await pool.query(
-        `INSERT INTO user_documents (owner_key, kind, data, updated_at)
-         VALUES ($1, $2, $3::jsonb, NOW())
-         ON CONFLICT (owner_key, kind) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
-        [who.key, kind, JSON.stringify(value ?? null)]
+        `INSERT INTO user_documents (owner_key, user_id, kind, data, updated_at)
+         VALUES ($1, $2, $3, $4::jsonb, NOW())
+         ON CONFLICT (owner_key, kind) DO UPDATE SET 
+           user_id = COALESCE(EXCLUDED.user_id, user_documents.user_id),
+           data = EXCLUDED.data, 
+           updated_at = NOW()`,
+        [who.key, who.userId ?? null, kind, JSON.stringify(value ?? null)]
       );
+
+      if (who.userId) {
+        await syncRelationalTables(who.userId, kind, value, pool).catch((err: any) =>
+          console.error(`[store] syncRelationalTables ${kind} error:`, err?.message)
+        );
+      }
       return;
     } catch (err: any) {
       if (isConnectionError(err)) markDbUnavailable(err);
@@ -327,6 +457,27 @@ export async function readAllDocs(owner?: Owner) {
   return out;
 }
 
+/** Reassign documents created during a guest session to the newly signed-in user. */
+export async function claimGuestDocuments(guestOwner: Owner, userOwner: Owner): Promise<void> {
+  if (!guestOwner.isGuest || userOwner.isGuest || !userOwner.userId) return;
+  const pool = await getPool();
+  if (!pool) return;
+  try {
+    // Reassign guest documents to the user if user does not already have that document
+    await pool.query(
+      `UPDATE user_documents 
+       SET owner_key = $1, user_id = $2, updated_at = NOW()
+       WHERE owner_key = $3
+       AND kind NOT IN (SELECT kind FROM user_documents WHERE owner_key = $1 OR user_id = $2)`,
+      [userOwner.key, userOwner.userId, guestOwner.key]
+    );
+    // Delete duplicate or leftover guest records
+    await pool.query('DELETE FROM user_documents WHERE owner_key = $1', [guestOwner.key]);
+  } catch (err: any) {
+    console.error('[store] claimGuestDocuments error:', err?.message);
+  }
+}
+
 /** Delete every document (and legacy cookie) for this owner. */
 export async function deleteAllDocs(owner?: Owner) {
   const who = owner || (await getOwner());
@@ -334,7 +485,13 @@ export async function deleteAllDocs(owner?: Owner) {
   for (const kind of ALL_KINDS) store.delete(cookieName(kind, who));
   try {
     const pool = await ensureTable();
-    if (pool) await pool.query('DELETE FROM user_documents WHERE owner_key = $1', [who.key]);
+    if (pool) {
+      if (who.userId) {
+        await pool.query('DELETE FROM user_documents WHERE owner_key = $1 OR user_id = $2', [who.key, who.userId]);
+      } else {
+        await pool.query('DELETE FROM user_documents WHERE owner_key = $1', [who.key]);
+      }
+    }
   } catch (err: any) {
     console.error('[store] delete failed:', err?.message);
   }
