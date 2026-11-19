@@ -32,7 +32,8 @@ export async function sendOrQueue(url: string, method: "POST" | "PUT", body: unk
   if (!offline) {
     try {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: text });
-      return { ok: res.ok, queued: false, res };
+      // 503: the server's storage was busy and refused to save blind; try again later
+      if (res.status !== 503) return { ok: res.ok, queued: false, res };
     } catch { /* network failure: fall through and queue */ }
   }
   enqueue({ url, method, body: text, at: Date.now() });
@@ -54,7 +55,7 @@ export async function flushOutbox(): Promise<number> {
         res = await fetch(first.url, { method: first.method, headers: { "Content-Type": "application/json" }, body: first.body });
       } catch { break; }
       // Signed out: keep it until she signs back in. Other errors would never succeed, so drop them.
-      if (res.status === 401) break;
+      if (res.status === 401 || res.status === 503) break;
       items = load().filter(i => !(i.at === first.at && i.url === first.url));
       store(items);
     }

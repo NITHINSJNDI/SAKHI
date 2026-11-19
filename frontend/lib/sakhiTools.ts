@@ -2,6 +2,7 @@
  * Side-effecting tools that Sakhi (Gemini function calling or the offline
  * fallback) can invoke. They all persist through the unified store.
  */
+import { addPainEvent } from '@/lib/painLog';
 import { dueFromWeeks } from '@/lib/pregnancyWeeks';
 import { Owner, patchDoc, readDoc, writeDoc } from '@/lib/store';
 import { mergePregnancyLog } from '@/lib/pregnancyLogs';
@@ -55,12 +56,15 @@ export async function runHerTool(name: string, args: any, owner: Owner): Promise
       ...(existing.symptoms || []).filter((s: string) => s && s !== 'None'),
       ...toList(args.symptoms).filter(s => s && s !== 'None'),
     ]));
+    // "pain 7 now" is one more report today; the day's score is the worst report
+    const painNow = args.cramps_severity !== undefined && Number.isFinite(Number(args.cramps_severity));
+    const base = painNow ? addPainEvent(existing, Number(args.cramps_severity), 'chat') : existing;
     const log = {
-      ...existing,
+      ...base,
       log_date: existing.log_date || todayIso,
       // Unmentioned flow stays unknown: defaulting to "None" would end her period early
       ...((args.flow_intensity ?? existing.flow_intensity) !== undefined ? { flow_intensity: args.flow_intensity ?? existing.flow_intensity } : {}),
-      cramps_severity: args.cramps_severity !== undefined ? Number(args.cramps_severity) : existing.cramps_severity ?? 0,
+      cramps_severity: painNow ? base.cramps_severity : existing.cramps_severity ?? 0,
       symptoms: merged.length > 0 ? merged : existing.symptoms || ['None'],
       mood: args.mood || existing.mood || 'Calm',
       sleep_hours: args.sleep_hours !== undefined ? Number(args.sleep_hours) : existing.sleep_hours ?? 7.5,

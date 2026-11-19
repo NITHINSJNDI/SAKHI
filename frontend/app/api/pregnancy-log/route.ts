@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getOwner, readDoc, writeDoc } from '@/lib/store';
+import { getOwner, readDoc, writeDoc, storeErrorResponse } from '@/lib/store';
 import { mergePregnancyLog } from '@/lib/pregnancyLogs';
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const data = await req.json();
     const owner = await getOwner();
@@ -13,5 +13,14 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Pregnancy Log API Error:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function POST(req: Request) {
+  try {
+    return await handlePOST(req);
+  } catch (err) {
+    return storeErrorResponse(err);
   }
 }

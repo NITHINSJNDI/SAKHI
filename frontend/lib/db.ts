@@ -28,23 +28,24 @@ const mockDb = {
  * 3. URL-encoding slashes in pooler passwords
  */
 export function resolveDatabaseUrl(rawUrl?: string): string {
-  const url = (rawUrl || process.env.DATABASE_URL || "").trim();
+  let url = (rawUrl || process.env.DATABASE_URL || "").trim().replace(/^["']|["']$/g, "");
+  if (!url) return "";
 
-  // If URL is missing, empty, or points to the defunct/deleted Supabase tenant, route to the active project
-  if (!url || url.includes("jhfrxcbheoixrwiyucwt")) {
-    return "postgresql://postgres.tpsolvvwzckdflbdaolu:6Xqw3inAe%2FmHxM2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres";
+  // Encode special characters in the password (e.g. "/") so the URL parses.
+  // Credentials always come from the environment, never from this file.
+  const m = url.match(/^(postgres(?:ql)?:\/\/[^:/@]+:)(.+)@([^@]+)$/);
+  if (m) {
+    let pw = m[2];
+    try { pw = decodeURIComponent(pw); } catch { /* already raw */ }
+    url = `${m[1]}${encodeURIComponent(pw)}@${m[3]}`;
   }
 
-  // If URL uses direct Supabase host for tpsolvvwzckdflbdaolu (IPv6 only), rewrite to IPv4 pooler
-  if (url.includes("db.tpsolvvwzckdflbdaolu.supabase.co")) {
-    return "postgresql://postgres.tpsolvvwzckdflbdaolu:6Xqw3inAe%2FmHxM2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres";
+  // Supabase pooler: use transaction mode (6543). Session mode (5432) keeps one
+  // server connection per client and runs out at 15, and serverless functions
+  // open many clients, so reads failed under load.
+  if (/pooler\.supabase\.com:5432\//.test(url) && process.env.SAKHI_DB_SESSION_MODE !== "1") {
+    url = url.replace(/pooler\.supabase\.com:5432\//, "pooler.supabase.com:6543/");
   }
-
-  // Fix unencoded slash in password for pooler if present
-  if (url.includes("6Xqw3inAe/mHxM2")) {
-    return url.replace("6Xqw3inAe/mHxM2", "6Xqw3inAe%2FmHxM2");
-  }
-
   return url;
 }
 
@@ -56,8 +57,10 @@ if (!pool) {
     try {
       pool = new Pool({
         connectionString: activeDbUrl,
+        // Few connections per server instance: the pooler is shared by every instance
+        max: Number(process.env.SAKHI_DB_POOL_MAX) || 4,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000, // 10s connection timeout for reliable cross-region pooler
+        connectionTimeoutMillis: Number(process.env.SAKHI_DB_CONNECT_TIMEOUT_MS) || 20000, // first connects to the cross-region pooler can take ~9 s
         ssl: activeDbUrl.includes('supabase') || activeDbUrl.includes('neon.tech') 
           ? { rejectUnauthorized: false } 
           : undefined
@@ -89,6 +92,11 @@ export function markDbUnavailable(err: any) {
   globalForPg.pgDownUntil = downUntil;
   connectionError = err?.message || String(err);
   globalForPg.pgConnError = connectionError;
+}
+
+/** True when a database is set up, even if it is briefly unreachable. */
+export function dbConfigured(): boolean {
+  return !isMockMode && Boolean(pool);
 }
 
 export function dbAvailable(): boolean {
@@ -260,6 +268,7 @@ export async function initDatabase() {
           ALTER TABLE daily_health_logs ADD CONSTRAINT daily_health_logs_user_date_key UNIQUE (user_id, log_date);
         END IF;
       END $$;
+      ALTER TABLE daily_health_logs ADD COLUMN IF NOT EXISTS pain_events JSONB DEFAULT '[]'::jsonb;
     `);
 
     // Create Appointments Table

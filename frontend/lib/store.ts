@@ -20,7 +20,7 @@ import { randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { authOptions } from '@/lib/auth';
-import { getPool, isConnectionError, markDbUnavailable } from '@/lib/db';
+import { dbConfigured, getPool, isConnectionError, markDbUnavailable } from '@/lib/db';
 
 export type DocKind =
   | 'her_profile'
@@ -249,6 +249,45 @@ export async function storageMode(): Promise<'postgres' | 'file' | 'cookie'> {
   return (await fileBackendUsable()) ? 'file' : 'cookie';
 }
 
+/**
+ * Thrown when the database can't be read or written. Saving is refused rather
+ * than done blind: writing after a failed read would replace her real data with
+ * an empty list, and writing to a cookie while a database exists splits her data.
+ */
+export class StoreUnavailableError extends Error {
+  status = 503;
+  constructor(kind: string) {
+    super(`Storage is busy, ${kind} was not saved. Please try again.`);
+    this.name = 'StoreUnavailableError';
+  }
+}
+
+/** JSON 503 for a refused save (the client's outbox retries it), 500 for anything else. */
+export function storeErrorResponse(err: any, what = 'save') {
+  const busy = err instanceof StoreUnavailableError;
+  if (!busy) console.error(`[store] ${what} failed:`, err?.message || err);
+  return Response.json(
+    { error: busy ? err.message : 'Something went wrong. Please try again.' },
+    { status: busy ? 503 : 500 },
+  );
+}
+
+// Reads that failed recently, per owner and kind: writes to those wait for a good read
+const failedReads = new Map<string, number>();
+const FAILED_READ_MS = 20_000;
+const readKey = (who: Owner, kind: DocKind) => `${who.key}|${kind}`;
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+async function queryWithRetry(pool: any, text: string, params: any[]) {
+  try {
+    return await pool.query(text, params);
+  } catch (err: any) {
+    if (!isConnectionError(err) && !/max clients|too many/i.test(String(err?.message))) throw err;
+    await sleep(400);
+    return pool.query(text, params);
+  }
+}
+
 export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Promise<T> {
   const who = owner || (await getOwner());
   const store = await cookies();
@@ -259,6 +298,11 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
     pool = await ensureTable();
   } catch (err: any) {
     console.error('[store] Postgres unavailable, using cookie fallback:', err?.message);
+  }
+  if (!pool && dbConfigured()) {
+    failedReads.set(readKey(who, kind), Date.now());
+    console.error(`[store] read ${kind} skipped: database unavailable`);
+    return parse(legacy, fallback);
   }
   if (!pool) {
     if (await fileBackendUsable()) {
@@ -276,12 +320,13 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
   }
 
   try {
-    const { rows } = await pool.query(
+    const { rows } = await queryWithRetry(pool,
       `SELECT data FROM user_documents 
        WHERE (owner_key = $1 OR (user_id IS NOT NULL AND user_id = $2)) AND kind = $3 
        ORDER BY updated_at DESC LIMIT 1`,
       [who.key, who.userId ?? -1, kind]
     );
+    failedReads.delete(readKey(who, kind));
     if (rows.length > 0) return (rows[0].data ?? fallback) as T;
 
     // One-time migration of data saved in the old cookie format
@@ -294,6 +339,7 @@ export async function readDoc<T>(kind: DocKind, fallback: T, owner?: Owner): Pro
     return fallback;
   } catch (err: any) {
     if (isConnectionError(err)) markDbUnavailable(err);
+    failedReads.set(readKey(who, kind), Date.now());
     console.error(`[store] read ${kind} failed:`, err?.message);
     return parse(legacy, fallback);
   }
@@ -338,9 +384,10 @@ async function syncRelationalTables(userId: number, kind: DocKind, value: any, p
       await pool.query(
         `INSERT INTO daily_health_logs (
           user_id, log_date, on_period, flow_intensity, cramps_severity,
-          symptoms, mood, sleep_hours, water_consumed, exercised, warning_signs, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          symptoms, mood, sleep_hours, water_consumed, exercised, warning_signs, notes, pain_events
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
         ON CONFLICT (user_id, log_date) DO UPDATE SET
+          pain_events = EXCLUDED.pain_events,
           on_period = EXCLUDED.on_period,
           flow_intensity = EXCLUDED.flow_intensity,
           cramps_severity = EXCLUDED.cramps_severity,
@@ -364,10 +411,13 @@ async function syncRelationalTables(userId: number, kind: DocKind, value: any, p
           Boolean(log.exercised),
           warningSigns,
           log.notes || null,
+          JSON.stringify(Array.isArray(log.pain_events) ? log.pain_events : []),
         ]
       );
     }
   } else if (kind === 'pregnancy_appointments' && Array.isArray(value)) {
+    // The document is the full list: replace the copy instead of adding to it
+    await pool.query('DELETE FROM appointments WHERE user_id = $1', [userId]);
     for (const apt of value) {
       if (!apt || !apt.name) continue;
       const aptDate = apt.date && /^\d{4}-\d{2}-\d{2}/.test(apt.date) ? apt.date.split('T')[0] : new Date().toISOString().split('T')[0];
@@ -378,12 +428,13 @@ async function syncRelationalTables(userId: number, kind: DocKind, value: any, p
       );
     }
   } else if (kind === 'tablets' && typeof value === 'object' && Array.isArray(value.list)) {
+    await pool.query('DELETE FROM medications WHERE user_id = $1', [userId]);
     for (const tab of value.list) {
       if (!tab || !tab.name) continue;
       await pool.query(
         `INSERT INTO medications (user_id, name, dosage, frequency, active, notes, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-        [userId, tab.name, tab.dose || tab.dosage || null, tab.schedule || tab.frequency || null, tab.active !== false, tab.notes || null]
+        [userId, tab.name, tab.dose || tab.dosage || null, Array.isArray(tab.slots) ? `${tab.slots.join(', ')}${tab.food ? ` (${tab.food} food)` : ''}` : tab.schedule || tab.frequency || null, tab.active !== false, tab.note || tab.notes || null]
       );
     }
   }
@@ -391,15 +442,22 @@ async function syncRelationalTables(userId: number, kind: DocKind, value: any, p
 
 export async function writeDoc<T>(kind: DocKind, value: T, owner?: Owner): Promise<void> {
   const who = owner || (await getOwner());
+  // Never overwrite data we couldn't read: the value was built from an empty fallback
+  const failedAt = failedReads.get(readKey(who, kind));
+  if (failedAt && Date.now() - failedAt < FAILED_READ_MS) {
+    console.error(`[store] write ${kind} refused: the last read failed`);
+    throw new StoreUnavailableError(kind);
+  }
   let pool = null;
   try {
     pool = await ensureTable();
   } catch (err: any) {
-    console.error('[store] Postgres unavailable, using cookie fallback:', err?.message);
+    console.error('[store] Postgres unavailable:', err?.message);
   }
+  if (!pool && dbConfigured()) throw new StoreUnavailableError(kind);
   if (pool) {
     try {
-      await pool.query(
+      await queryWithRetry(pool, 
         `INSERT INTO user_documents (owner_key, user_id, kind, data, updated_at)
          VALUES ($1, $2, $3, $4::jsonb, NOW())
          ON CONFLICT (owner_key, kind) DO UPDATE SET 
@@ -417,8 +475,8 @@ export async function writeDoc<T>(kind: DocKind, value: T, owner?: Owner): Promi
       return;
     } catch (err: any) {
       if (isConnectionError(err)) markDbUnavailable(err);
-      console.error(`[store] write ${kind} failed, using fallback:`, err?.message);
-      pool = null;
+      console.error(`[store] write ${kind} failed:`, err?.message);
+      throw new StoreUnavailableError(kind);
     }
   }
   if (!pool && (await fileBackendUsable())) {

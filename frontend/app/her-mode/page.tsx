@@ -28,6 +28,8 @@ import PregnancyTestCard from "@/components/her/PregnancyTestCard";
 import HygieneCard, { type HygieneCycle } from "@/components/her/HygieneCard";
 import NextPeriodCard from "@/components/her/NextPeriodCard";
 import PcosCheckCard from "@/components/her/PcosCheckCard";
+import PainTodayCard from "@/components/her/PainTodayCard";
+import { addPainEvent } from "@/lib/painLog";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
@@ -178,6 +180,11 @@ export default function HerModePage() {
     heavyFlow: logs.some(l => dayNum(l.log_date) >= todayNum() - 120 && /heavy/i.test(String(l.flow_intensity || ""))),
     periodStart: Number.isFinite(phase.lastStart) ? dayToIso(phase.lastStart) : null,
   }), [phase.bleedingDay, phase.late, phase.daysUntilPeriod, phase.usualPeriodLength, phase.lastStart, logs]);
+  // A pain log from the "Pain right now" card replaces that day's entry
+  const savePainLog = (log: any) => {
+    if (!log?.log_date) return;
+    setLogs(prev => [...prev.filter(l => dayNum(l.log_date) !== dayNum(log.log_date)), log]);
+  };
   const periodNear = hygieneCycle.bleeding || hygieneCycle.daysUntilPeriod <= 3;
 
   const openRelief = (severity: number | null = null) => setRelief({ open: true, severity });
@@ -200,11 +207,16 @@ export default function HerModePage() {
       data.onPeriod === true ||
       String(data.onPeriod || "").toLowerCase() === "yes" ||
       (Boolean(data.flowIntensity) && data.flowIntensity !== "None");
+    // Keep today's earlier pain reports on screen: the check-in adds one more, it doesn't replace them
+    const before = logs.find(l => dayNum(l.log_date) === todayNum()) || {};
+    const withPain = addPainEvent(before, Number(data.crampsSeverity ?? 0), "check-in");
     const newLog = {
+      ...before,
       log_date: todayStr,
       on_period: isPeriod,
       flow_intensity: data.flowIntensity || "None",
-      cramps_severity: Number(data.crampsSeverity ?? 0),
+      pain_events: withPain.pain_events,
+      cramps_severity: withPain.cramps_severity,
       symptoms: Array.isArray(data.symptoms) && data.symptoms.length > 0 ? data.symptoms : ["None"],
       mood: data.mood || "Calm",
       sleep_hours: data.sleepHours !== undefined && data.sleepHours !== null ? Number(data.sleepHours) : 7.5,
@@ -333,6 +345,7 @@ export default function HerModePage() {
               )}
               {/* On her period or about to start: period care comes up on Today */}
               {periodNear && <HygieneCard cycle={hygieneCycle} className="md:col-span-12" />}
+              <PainTodayCard logs={logs} onSaved={savePainLog} onOpenRelief={() => openRelief()} className="md:col-span-12" />
               <PmsForecastCard forecast={forecast} />
               <GoalCard className="md:col-span-12" goal={goal} cycle={{
                 phase, profile, logs, cycleHistory,
@@ -370,6 +383,7 @@ export default function HerModePage() {
               <PatternsCard patterns={patterns} logCount={logs.length} />
               <CareLinksCard onOpenRelief={() => openRelief()} onOpenSettings={() => setIsSettingsOpen(true)} favourites={favourites} />
               <HygieneCard cycle={hygieneCycle} className="md:col-span-12" />
+              <PainTodayCard logs={logs} onSaved={savePainLog} onOpenRelief={() => openRelief()} className="md:col-span-12" />
               <AnaemiaCard logs={logs} className="md:col-span-5" />
               <PcosCheckCard phase={phase} profile={profile} className="md:col-span-7" />
               <TabletsCard mode="her" className="md:col-span-7" />
