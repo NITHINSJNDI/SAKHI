@@ -10,6 +10,7 @@ const ENGINE_TAG: Partial<Record<Engine, { label: string; icon: React.ReactNode 
   offline: { label: "Simple mode", icon: <WifiSlash size={11} /> },
   local: { label: "Private AI", icon: <LockSimple size={11} /> },
   safety: { label: "Safety guidance", icon: <ShieldCheck size={11} weight="fill" /> },
+  guard: { label: "Health topics only", icon: <ShieldCheck size={11} /> },
 };
 
 const NOTICE: Record<string, string> = {
@@ -20,6 +21,19 @@ const NOTICE: Record<string, string> = {
   "no-key": "Sakhi is in simple mode: she can log what you tell her and give basic guidance.",
   "english-only": "Sakhi is in simple mode, which replies in English for now. Your readings are still saved.",
 };
+
+/** "Today", "Yesterday" or "18 Nov" for a message's time; undefined when unknown. */
+function dayLabel(at?: string): string | undefined {
+  if (!at) return undefined;
+  const d = new Date(at);
+  if (isNaN(d.getTime())) return undefined;
+  const key = (x: Date) => x.toDateString();
+  const now = new Date();
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (key(d) === key(now)) return "Today";
+  if (key(d) === key(y)) return "Yesterday";
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
+}
 
 interface Props {
   chat: SakhiChat;
@@ -34,14 +48,29 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Keep the newest message in view without scrolling the page itself
+  // Follow new messages only while she is at the bottom; if she scrolled up to
+  // read, leave her there. Her own message always brings the view back down.
+  const atBottom = useRef(true);
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (el) atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  };
+  // Saved history loads in one go: jump straight to the newest message, after layout
+  const seen = useRef(0);
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    if (!el) return;
+    const firstLoad = seen.current === 0 && chat.messages.length > 1;
+    seen.current = chat.messages.length;
+    if (!firstLoad && !atBottom.current) return;
+    const go = () => el.scrollTo({ top: el.scrollHeight, behavior: firstLoad || chat.interim ? "auto" : "smooth" });
+    go();
+    if (firstLoad) requestAnimationFrame(() => requestAnimationFrame(go));
   }, [chat.messages.length, chat.isLoading, chat.interim]);
 
   const submit = (text: string) => {
     if (!text.trim() || chat.isLoading) return;
+    atBottom.current = true;
     chat.sendMessage(text);
     setInput("");
   };
@@ -56,7 +85,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
   const notice = chat.notice ? NOTICE[chat.notice] : null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {(headerText || headerAction || chat.messages.length > 0) && (
         <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
           <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText}</span>
@@ -81,13 +110,18 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
         <div className="mb-2 shrink-0 rounded-xl bg-amber-50/90 border border-amber-200/70 px-3 py-1.5 text-[11px] sm:text-xs text-amber-900">{notice}</div>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar mb-3 flex flex-col gap-3 sm:gap-4 pr-2" aria-live="polite">
+      <div ref={scrollRef} onScroll={onScroll} className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar mb-3 flex flex-col gap-3 sm:gap-4 pr-2 [&>*]:shrink-0" aria-live="polite">
         {chat.messages.length === 0 && emptyState}
-        {chat.messages.map(m => {
+        {chat.messages.map((m, i) => {
           const tag = m.role === "assistant" && m.engine ? ENGINE_TAG[m.engine] : undefined;
+          const day = dayLabel(m.at);
+          const showDay = day && day !== dayLabel(chat.messages[i - 1]?.at);
           return (
+            <React.Fragment key={m.id}>
+            {showDay && (
+              <div className="self-center text-[11px] text-plum-900/50 bg-white/70 border border-pink-100 rounded-full px-3 py-0.5">{day}</div>
+            )}
             <div
-              key={m.id}
               className={`max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border ${
                 m.role === "user"
                   ? "bg-pink-100/90 text-pink-900 self-end rounded-tr-sm border-white/40 whitespace-pre-wrap"
@@ -103,6 +137,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
                 </span>
               )}
             </div>
+            </React.Fragment>
           );
         })}
         {chat.listening && (

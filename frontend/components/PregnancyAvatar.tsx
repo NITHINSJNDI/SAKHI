@@ -92,7 +92,7 @@ export default function PregnancyAvatar({
 
       <div className="w-full md:w-2/3 flex flex-col h-[400px] sm:h-[420px] bg-white/70 rounded-2xl md:rounded-[2rem] border border-pink-100/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_2px_12px_rgba(244,114,182,0.06)] p-3.5 sm:p-5 md:p-6 overflow-hidden min-w-0">
         {checkInMode && !afterBirth ? (
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 w-full flex flex-col">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar pr-2 w-full flex flex-col">
             <PregnancyDailyCheckIn
               onComplete={(data: any) => {
                 setIsCompletedToday(true);
