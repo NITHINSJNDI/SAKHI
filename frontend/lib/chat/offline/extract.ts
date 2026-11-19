@@ -63,6 +63,8 @@ export function moodOf(t: string): string | undefined {
     [/\b(happy|great|good|wonderful|amazing|cheerful|joyful|excited|lovely)\b/, 'Happy'],
     [/\b(calm|relaxed|okay|ok|fine|peaceful|alright|normal)\b/, 'Calm'],
   ];
+  // "is that okay?", "is it normal?" are questions, not her mood
+  t = t.replace(/\b(is|was|are|will|would) (that|it|this|they|she|he|baby|everything) (\w+ )?(okay|ok|fine|normal|alright|good)\b/g, ' ');
   // "not great", "not feeling good", "meh", "rough day" read as a low mood
   if (/\b(not|isn't|wasn't|don't feel|didn't feel)\s+(feeling\s+|so\s+|very\s+|that\s+)?(great|good|well|okay|ok|fine|happy|myself)\b|\b(meh|awful|terrible|horrible|rough (day|time)|bad day|so-so|miserable)\b/.test(t)) return 'Sad';
   for (const [re, mood] of table) {

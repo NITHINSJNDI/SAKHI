@@ -6,13 +6,15 @@ import {
 } from "@/lib/voice";
 
 export type ChatMode = "her" | "pregnancy";
-export type Engine = "gemini" | "local" | "offline" | "safety";
+export type Engine = "gemini" | "local" | "offline" | "safety" | "guard";
 
 export type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
   engine?: Engine;
+  /** ISO time, used for the day separators */
+  at?: string;
 };
 
 interface Options {
@@ -67,7 +69,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
         if (cancelled) return;
         if (data.stored) {
           setServerStores(true);
-          setMessages((data.messages || []).map((m: any) => ({ id: newId(), role: m.role, text: m.text, engine: m.engine })));
+          setMessages((data.messages || []).map((m: any) => ({ id: newId(), role: m.role, text: m.text, engine: m.engine, at: m.at || undefined })));
         } else {
           setServerStores(false);
           const saved = JSON.parse(localStorage.getItem(localKey(mode)) || "[]");
@@ -80,7 +82,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
 
   useEffect(() => {
     if (serverStores) return;
-    try { localStorage.setItem(localKey(mode), JSON.stringify(messages.slice(-20))); } catch { /* storage full or blocked */ }
+    try { localStorage.setItem(localKey(mode), JSON.stringify(messages.slice(-100))); } catch { /* storage full or blocked */ }
   }, [messages, serverStores, mode]);
 
   // ---------------------------------------------------------------- voice output
@@ -187,7 +189,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
     const text = raw.trim();
     if (!text) return;
     const prior = messagesRef.current;
-    setMessages(prev => [...prev, { id: newId(), role: "user", text }]);
+    setMessages(prev => [...prev, { id: newId(), role: "user", text, at: new Date().toISOString() }]);
     setIsLoading(true);
     let name: string | undefined;
     try { name = localStorage.getItem("sakhi_preferred_name") || profileName; } catch { name = profileName; }
@@ -207,7 +209,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
       });
       const data = await res.json().catch(() => ({}));
       const reply: string = data.reply || "I'm having trouble connecting right now. Please try again in a moment.";
-      setMessages(prev => [...prev, { id: newId(), role: "assistant", text: reply, engine: data.engine }]);
+      setMessages(prev => [...prev, { id: newId(), role: "assistant", text: reply, engine: data.engine, at: new Date().toISOString() }]);
       setNotice(data.notice || null);
       const updates: any[] = Array.isArray(data.chartUpdates) ? data.chartUpdates : data.updatedChartData ? [data.updatedChartData] : [];
       updates.forEach(u => {
@@ -218,7 +220,7 @@ export function useSakhiChat({ mode, onChartUpdate, profileName }: Options) {
       say(reply, viaVoice);
     } catch {
       const reply = "I'm having trouble connecting right now. Please check your internet and try again.";
-      setMessages(prev => [...prev, { id: newId(), role: "assistant", text: reply, engine: "offline" }]);
+      setMessages(prev => [...prev, { id: newId(), role: "assistant", text: reply, engine: "offline", at: new Date().toISOString() }]);
       setIsLoading(false);
       say(reply, false);
     }

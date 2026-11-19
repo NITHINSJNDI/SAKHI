@@ -39,6 +39,14 @@ const phaseLine = (p: PhaseInfo) => {
 
 export const HER_TOPICS: Topic<HerCtx>[] = [
   {
+    id: 'late-period',
+    match: /\b(periods? (is|are|is running|running|came|has been|was) (\w+ )*late|late periods?|periods? (has ?n[o']t|have ?n[o']t|did ?n[o']t|not) (come|came|started|start)|still no periods?|no periods? (yet|this month))\b/,
+    answer: ({ pet, phase: p }) => {
+      const mine = p?.late ? ` From your logs it's about ${plural(p.daysLate, 'day')} later than usual.` : '';
+      return `A period a few days late is common, ${pet}.${mine} Stress, travel, illness, poor sleep, weight changes, thyroid issues or PCOS can all delay it. If there's any chance you could be pregnant, a home pregnancy test (free at your PHC or ASHA) will tell you; test again a week later if it's negative and still no period. Please see a doctor if it's more than 2 weeks late, or if you have severe pain, fever or very heavy bleeding when it comes.`;
+    },
+  },
+  {
     id: 'next-period',
     match: /\b(next period|period (due|coming|come)|when (will|is|does|should) my period|when.*\bperiod\b.*(come|start|due))\b/,
     answer: ({ who, pet, phase: p }) => {
@@ -73,6 +81,11 @@ export const HER_TOPICS: Topic<HerCtx>[] = [
     id: 'pregnant-on-period',
     match: /\b(get pregnant|pregnancy) (on|during) (my|your|the)? ?period|\bsafe days?\b/,
     answer: ({ pet }) => `It's less likely, but yes, it is possible, ${pet}, especially with shorter cycles, because sperm can survive up to 5 days. There are no truly "safe days", so use contraception if you don't want to get pregnant.`,
+  },
+  {
+    id: 'cramps-normal',
+    match: /\b(normal|common|okay|ok|why)\b.*\b(cramps?|period pain|pain during (my )?periods?)\b|\b(cramps?|period pain)\b.*\b(normal|common)\b/,
+    answer: ({ pet }) => `Yes, ${pet}, cramps in the first one to three days of a period are very common: the womb tightens to shed its lining. Warmth on your tummy, gentle walking and enough water help. Please see a doctor if the pain stops you from school or work, painkillers don't help, it started only recently, or it comes with fever, very heavy bleeding or pain outside your period.`,
   },
   {
     id: 'cramps-help',
