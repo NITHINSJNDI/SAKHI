@@ -20,15 +20,45 @@ const mockDb = {
   wellnessLogs: [] as any[],
 };
 
+/**
+ * Resolves the active PostgreSQL connection URL.
+ * Automatically handles:
+ * 1. Defunct/paused tenant overrides (e.g. jhfrxcbheoixrwiyucwt -> tpsolvvwzckdflbdaolu)
+ * 2. Rewriting direct Supabase hosts (which are IPv6-only) to the IPv4 pooler
+ * 3. URL-encoding slashes in pooler passwords
+ */
+export function resolveDatabaseUrl(rawUrl?: string): string {
+  const url = (rawUrl || process.env.DATABASE_URL || "").trim();
+
+  // If URL is missing, empty, or points to the defunct/deleted Supabase tenant, route to the active project
+  if (!url || url.includes("jhfrxcbheoixrwiyucwt")) {
+    return "postgresql://postgres.tpsolvvwzckdflbdaolu:6Xqw3inAe%2FmHxM2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres";
+  }
+
+  // If URL uses direct Supabase host for tpsolvvwzckdflbdaolu (IPv6 only), rewrite to IPv4 pooler
+  if (url.includes("db.tpsolvvwzckdflbdaolu.supabase.co")) {
+    return "postgresql://postgres.tpsolvvwzckdflbdaolu:6Xqw3inAe%2FmHxM2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres";
+  }
+
+  // Fix unencoded slash in password for pooler if present
+  if (url.includes("6Xqw3inAe/mHxM2")) {
+    return url.replace("6Xqw3inAe/mHxM2", "6Xqw3inAe%2FmHxM2");
+  }
+
+  return url;
+}
+
+const activeDbUrl = resolveDatabaseUrl(process.env.DATABASE_URL);
+
 // Initialize pool if DATABASE_URL is available
 if (!pool) {
-  if (process.env.DATABASE_URL) {
+  if (activeDbUrl) {
     try {
       pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: activeDbUrl,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000, // 10s connection timeout for reliable cross-region pooler
-        ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
+        ssl: activeDbUrl.includes('supabase') || activeDbUrl.includes('neon.tech') 
           ? { rejectUnauthorized: false } 
           : undefined
       });

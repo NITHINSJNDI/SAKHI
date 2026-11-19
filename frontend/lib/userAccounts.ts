@@ -218,6 +218,15 @@ export async function createManualAccount(input: {
     console.error("[userAccounts] DB create failed, using local fallback:", err?.message);
   }
 
+  // In production (Vercel serverless), never silently pretend to succeed with an ephemeral in-memory account
+  if (!canUseFileStore()) {
+    return {
+      ok: false,
+      error: "Unable to reach database to store account permanently. Please try again.",
+      status: 503,
+    };
+  }
+
   const accounts = await loadAccountsFile();
   const created: StoredUserAccount = {
     id: `local_${Date.now()}`,
