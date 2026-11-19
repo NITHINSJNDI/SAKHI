@@ -171,26 +171,6 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             </React.Fragment>
           );
         })}
-              className={`max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border ${
-                rtl ? "text-right " : ""
-              }${
-                m.role === "user"
-                  ? "bg-pink-100/90 text-pink-900 self-end rounded-tr-sm border-white/40 whitespace-pre-wrap"
-                  : m.engine === "safety"
-                  ? "bg-rose-50 text-plum-900 self-start rounded-tl-sm border-rose-200"
-                  : "bg-white/90 backdrop-blur-md text-plum-900 self-start rounded-tl-sm border-white/40"
-              }`}
-            >
-              {m.role === "assistant" ? <ChatMarkdown text={m.text} /> : m.text}
-              {tag && (
-                <span className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-plum-900/45">
-                  {tag.icon} {tag.label}
-                </span>
-              )}
-            </div>
-            </React.Fragment>
-          );
-        })}
         {chat.listening && (
           <div className="max-w-[85%] self-end rounded-2xl rounded-tr-sm p-3 text-sm bg-pink-50 border border-dashed border-pink-300 text-pink-800/80 italic">
             {chat.interim || "Listening…"}
