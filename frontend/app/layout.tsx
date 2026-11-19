@@ -15,11 +15,11 @@ export const metadata: Metadata = {
     "The AI-powered companion connecting menstrual cycle, maternal care, and mental wellness into one seamless system.",
   icons: {
     icon: [
-      { url: "/original-logo.png?v=5", type: "image/png" },
-      { url: "/favicon.ico?v=5" },
+      { url: "/icon.png?v=6", type: "image/png" },
+      { url: "/favicon.ico?v=6" },
     ],
-    shortcut: "/original-logo.png?v=5",
-    apple: "/original-logo.png?v=5",
+    shortcut: "/icon.png?v=6",
+    apple: "/apple-icon.png?v=6",
   },
   keywords: [
     "women's health",
@@ -47,9 +47,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/original-logo.png?v=5" type="image/png" />
-        <link rel="shortcut icon" href="/original-logo.png?v=5" type="image/png" />
-        <link rel="apple-touch-icon" href="/original-logo.png?v=5" />
+        <link rel="icon" href="/icon.png?v=6" type="image/png" />
+        <link rel="shortcut icon" href="/icon.png?v=6" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=6" />
         {/* Geist + Instrument Serif via Google Fonts (self-host in production) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

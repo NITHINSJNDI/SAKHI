@@ -112,22 +112,12 @@ async function persistAccountsFile(): Promise<void> {
 
 // ------------------------------------------------------------ DB + fallback operations
 
-async function ensurePasswordColumns() {
-  const pool = await getPool();
-  if (!pool) return null;
-  await pool.query(`
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) DEFAULT 'google';
-  `);
-  return pool;
-}
-
 export async function findAccountByEmail(rawEmail: string): Promise<StoredUserAccount | null> {
   const email = normalizeEmail(rawEmail);
   if (!email) return null;
 
   try {
-    const pool = await ensurePasswordColumns();
+    const pool = await getPool();
     if (pool) {
       const { rows } = await pool.query(
         "SELECT id, email, name, image, password_hash, auth_provider FROM users WHERE LOWER(email) = $1 LIMIT 1",
@@ -185,7 +175,7 @@ export async function createManualAccount(input: {
   const passwordHash = await hashPassword(password);
 
   try {
-    const pool = await ensurePasswordColumns();
+    const pool = await getPool();
     if (pool) {
       const { rows } = await pool.query(
         `INSERT INTO users (email, name, password_hash, auth_provider)

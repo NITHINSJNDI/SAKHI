@@ -1,8 +1,16 @@
 import { Pool } from 'pg';
 
-let pool: Pool | null = null;
+// Preserve PostgreSQL pool and circuit-breaker across Next.js dev server reloads
+const globalForPg = globalThis as unknown as {
+  pgPool?: Pool;
+  pgInitPromise?: Promise<void> | null;
+  pgDownUntil?: number;
+  pgConnError?: string | null;
+};
+
+let pool: Pool | null = globalForPg.pgPool || null;
 let isMockMode = false;
-let connectionError: string | null = null;
+let connectionError: string | null = globalForPg.pgConnError || null;
 
 // Graceful Mock Database Store (for fallback)
 const mockDb = {
@@ -13,33 +21,32 @@ const mockDb = {
 };
 
 // Initialize pool if DATABASE_URL is available
-if (process.env.DATABASE_URL) {
-  try {
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      // For Serverless / Next.js, close idle connections after 10s
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 3000,
-      ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
-        ? { rejectUnauthorized: false } 
-        : undefined
-    });
-  } catch (err: any) {
-    console.error("Failed to initialize PostgreSQL pool:", err.message);
+if (!pool) {
+  if (process.env.DATABASE_URL) {
+    try {
+      pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000, // 10s connection timeout for reliable cross-region pooler
+        ssl: process.env.DATABASE_URL.includes('supabase') || process.env.DATABASE_URL.includes('neon.tech') 
+          ? { rejectUnauthorized: false } 
+          : undefined
+      });
+      globalForPg.pgPool = pool;
+    } catch (err: any) {
+      console.error("Failed to initialize PostgreSQL pool:", err.message);
+      connectionError = err.message;
+    }
+  } else {
+    console.log("No DATABASE_URL found. Running in Graceful Mock Mode.");
     isMockMode = true;
-    connectionError = err.message;
+    connectionError = "No DATABASE_URL configured in environment variables.";
   }
-} else {
-  console.log("No DATABASE_URL found. Running in Graceful Mock Mode.");
-  isMockMode = true;
-  connectionError = "No DATABASE_URL configured in environment variables.";
 }
 
-// Circuit breaker: when the database is unreachable (wrong URL, paused project,
-// network), skip it for a minute instead of paying a connection timeout on
-// every single read. This is what made API calls take ~3 s each.
-const DOWN_MS = 60_000;
-let downUntil = 0;
+// Circuit breaker: when the database is unreachable, pause briefly instead of paying timeout
+const DOWN_MS = 15_000;
+let downUntil = globalForPg.pgDownUntil || 0;
 
 const CONNECTION_CODES = new Set(['ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET', 'EAI_AGAIN', '28P01', '28000', '3D000', '57P01', '57P03', 'XX000']);
 export function isConnectionError(err: any): boolean {
@@ -49,7 +56,9 @@ export function isConnectionError(err: any): boolean {
 
 export function markDbUnavailable(err: any) {
   downUntil = Date.now() + DOWN_MS;
+  globalForPg.pgDownUntil = downUntil;
   connectionError = err?.message || String(err);
+  globalForPg.pgConnError = connectionError;
 }
 
 export function dbAvailable(): boolean {
@@ -72,7 +81,7 @@ export async function getDbStatus() {
 }
 
 // Run the schema migration at most once per server process.
-let initPromise: Promise<void> | null = null;
+let initPromise: Promise<void> | null = globalForPg.pgInitPromise || null;
 
 /**
  * Returns the shared PostgreSQL pool after making sure tables exist,
@@ -81,11 +90,16 @@ let initPromise: Promise<void> | null = null;
 export async function getPool(): Promise<Pool | null> {
   if (!dbAvailable()) return null;
   if (!initPromise) {
-    initPromise = initDatabase().catch((err) => {
-      console.error("Database initialization failed:", err?.message || err);
-      markDbUnavailable(err);
-      initPromise = null;
-    });
+    initPromise = initDatabase()
+      .then(() => {
+        globalForPg.pgInitPromise = initPromise;
+      })
+      .catch((err) => {
+        console.error("Database initialization failed:", err?.message || err);
+        markDbUnavailable(err);
+        initPromise = null;
+        globalForPg.pgInitPromise = null;
+      });
   }
   await initPromise;
   return dbAvailable() ? pool : null;
@@ -95,7 +109,15 @@ export async function getPool(): Promise<Pool | null> {
 export async function initDatabase() {
   if (isMockMode || !pool) return;
 
-  const client = await pool.connect();
+  let client;
+  try {
+    client = await pool.connect();
+  } catch (err: any) {
+    console.error("PostgreSQL connection failed during initDatabase:", err?.message || err);
+    markDbUnavailable(err);
+    return;
+  }
+
   try {
     await client.query('BEGIN');
 
@@ -214,12 +236,11 @@ export async function initDatabase() {
     await client.query('COMMIT');
     console.log("PostgreSQL database tables initialized successfully.");
   } catch (err: any) {
-    await client.query('ROLLBACK');
-    console.error("Database migration failed, falling back to mock mode:", err.message);
-    isMockMode = true;
-    connectionError = err.message;
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error("Database migration error:", err.message);
+    markDbUnavailable(err);
   } finally {
-    client.release();
+    try { client.release(); } catch {}
   }
 }
 
