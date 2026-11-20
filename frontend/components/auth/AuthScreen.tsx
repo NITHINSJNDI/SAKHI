@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -139,14 +139,13 @@ function StageModePreview({
   reduce: boolean;
 }) {
   const { t } = useLanguage();
-  const isHer = mode === "her";
 
   return (
     <div className="w-full max-w-md">
       <div
         role="tablist"
         aria-label="Preview Sakhi care modes"
-        className="inline-flex rounded-full bg-plum-800 p-1"
+        className="inline-flex rounded-full bg-plum-800/90 p-1 border border-plum-700/50 backdrop-blur-md shadow-sm"
       >
         {(
           [
@@ -173,21 +172,6 @@ function StageModePreview({
           );
         })}
       </div>
-
-      <motion.div
-        key={mode}
-        initial={reduce ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 w-full aspect-square overflow-hidden rounded-[26px] shadow-2xl transition-all duration-300"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={isHer ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
-          alt={isHer ? "Her Mode — Cycles, hormones and everyday health" : "Mom Mode — Pregnancy and after the birth"}
-          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-300"
-        />
-      </motion.div>
     </div>
   );
 }
@@ -420,6 +404,41 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
     <div className="relative min-h-[100dvh] bg-cream text-ink lg:grid lg:grid-cols-[46fr_54fr]">
       {/* Compact header on mobile; full sticky sanctuary stage on desktop */}
       <aside className="relative overflow-hidden bg-plum-900 text-cream px-6 py-5 lg:sticky lg:top-0 lg:h-[100dvh] lg:px-12 lg:py-9 flex flex-col justify-between">
+        {/* Full-height atmospheric background doll illustration covering the entire left panel */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={previewMode}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.03 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 h-full w-full flex items-center justify-center"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewMode === "her" ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
+                alt=""
+                className="h-full w-full object-cover object-center lg:object-[center_55%]"
+                style={{
+                  opacity: 0.22,
+                  maskImage:
+                    "radial-gradient(ellipse 85% 85% at 50% 55%, black 25%, transparent 85%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 85% 85% at 50% 55%, black 25%, transparent 85%)",
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Gentle atmospheric gradient overlays to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-plum-900/85 via-transparent to-plum-900/90 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-plum-900/40 via-transparent to-plum-900/50 pointer-events-none" />
+        </div>
+
         <PetalWind contained className="pointer-events-none absolute inset-0 z-[1] h-full w-full" />
         {/* Soft breathing blooms inside the sanctuary stage */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
