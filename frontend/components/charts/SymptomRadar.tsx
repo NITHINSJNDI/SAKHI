@@ -3,12 +3,14 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface SymptomRadarProps {
   logs: any[];
 }
 
 export default function SymptomRadar({ logs }: SymptomRadarProps) {
+  const { t, tValue } = useLanguage();
   const symptomCounts: Record<string, number> = {
     "Cramps": 0,
     "Headache": 0,
@@ -32,7 +34,7 @@ export default function SymptomRadar({ logs }: SymptomRadarProps) {
   });
 
   const data = Object.keys(symptomCounts).map(key => ({
-    subject: key,
+    subject: tValue(key),
     A: Math.round((symptomCounts[key] / totalLogs) * 100),
     fullMark: 100,
   }));
@@ -60,10 +62,10 @@ export default function SymptomRadar({ logs }: SymptomRadarProps) {
             }}
             labelStyle={{ color: '#2D1B36', fontWeight: 'bold' }}
             itemStyle={{ color: '#ec4899' }}
-            formatter={(value) => [`${value}% of logged days`, 'Frequency']}
+            formatter={(value) => [`${value}%`, t("charts.daysExperienced")]}
           />
           <Radar 
-            name="Symptoms" 
+            name={t("charts.daysExperienced")} 
             dataKey="A" 
             stroke="#ec4899" 
             strokeWidth={2.5} 

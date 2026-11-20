@@ -3,12 +3,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { useLanguage } from "@/context/LanguageContext";
+import { getLanguage } from "@/lib/languages";
 
 interface PainFlowCorrelationProps {
   logs: any[];
 }
 
 export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) {
+  const { t, language } = useLanguage();
+  const locale = getLanguage(language).bcp47 || "en-IN";
   const flowMap: Record<string, number> = {
     "None": 0,
     "Spotting": 1,
@@ -19,7 +23,7 @@ export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) 
   };
 
   const data = logs.slice(-7).map(log => ({
-    date: new Date(log.log_date).toLocaleDateString('en-US', { weekday: 'short' }),
+    date: new Date(log.log_date).toLocaleDateString(locale, { weekday: 'short' }),
     cramps: log.cramps_severity || 0,
     flow: flowMap[log.flow_intensity] || 0,
   }));
@@ -28,8 +32,8 @@ export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) 
     return (
       <div className="w-full h-64 flex flex-col items-center justify-center text-plum-900/50 text-xs p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80">
         <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩸</span>
-        <p className="font-semibold text-xs">Not enough log data to chart.</p>
-        <p className="text-[11px] text-plum-900/40 mt-1">Complete your check-in to correlate flow with cramps.</p>
+        <p className="font-semibold text-xs">{t("charts.noLogs")}</p>
+        <p className="text-[11px] text-plum-900/40 mt-1">{t("charts.completeDailyCheckIn")}</p>
       </div>
     );
   }
@@ -71,7 +75,7 @@ export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) 
           <Bar 
             yAxisId="left" 
             dataKey="flow" 
-            name="Flow Intensity" 
+            name={t("charts.flow")} 
             fill="url(#flowBarGrad)" 
             radius={[8, 8, 0, 0]} 
             barSize={24}
@@ -83,7 +87,7 @@ export default function PainFlowCorrelation({ logs }: PainFlowCorrelationProps) 
             yAxisId="right" 
             type="monotone" 
             dataKey="cramps" 
-            name="Cramps (0-10)" 
+            name={t("charts.painScore")} 
             stroke="url(#painLineGrad2)" 
             strokeWidth={3.5} 
             dot={{ r: 5, fill: '#ef4444', stroke: '#ffffff', strokeWidth: 2 }} 

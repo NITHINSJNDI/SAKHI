@@ -449,6 +449,7 @@ export const SleepHoursChart = ({ data }: { data: any[] }) => {
 
 // 9. Ovulation & Fertile Window Calendar
 export const OvulationCalendar = ({ profile }: { profile: any }) => {
+  const { t, language } = useLanguage();
   const today = new Date();
   const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
@@ -509,14 +510,14 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
 
   // Phase badge calculation
   const phaseLabel = currentCycleDay === ovulationCycleDay 
-    ? "Ovulation Peak Day" 
+    ? t("vocab.ovulationPeakDay") 
     : (currentCycleDay >= ovulationCycleDay - 4 && currentCycleDay <= ovulationCycleDay + 1)
-      ? "Fertile Window Open" 
+      ? t("vocab.fertileWindowOpen") 
       : (currentCycleDay < periodDur) 
-        ? "Menstrual Phase" 
+        ? t("vocab.menstrualPhase") 
         : (currentCycleDay < ovulationCycleDay) 
-          ? "Follicular Phase" 
-          : "Luteal Phase";
+          ? t("vocab.follicularPhase") 
+          : t("vocab.lutealPhase");
 
   return (
     <div className="w-full mt-3">
@@ -525,7 +526,7 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Cycle Day {currentCycleDay + 1} of {cycleLen}
+            {t("vocab.cycleDayOf", { current: currentCycleDay + 1, total: cycleLen })}
           </span>
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200/80 shadow-sm">
             {phaseLabel}
@@ -533,9 +534,9 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
         </div>
         {ovuDateStr && (
           <div className="text-xs text-plum-900/70 flex items-center gap-2">
-            <span>Estimated Ovulation: <strong className="text-emerald-700 font-bold">{ovuDateStr}</strong></span>
+            <span>{t("vocab.estimatedOvulation")}: <strong className="text-emerald-700 font-bold">{ovuDateStr}</strong></span>
             {fertileStartStr && fertileEndStr && (
-              <span className="hidden sm:inline text-plum-900/50">• Fertile Window: <strong className="text-plum-900 font-semibold">{fertileStartStr} – {fertileEndStr}</strong></span>
+              <span className="hidden sm:inline text-plum-900/50">• {t("vocab.fertileWindow")}: <strong className="text-plum-900 font-semibold">{fertileStartStr} – {fertileEndStr}</strong></span>
             )}
           </div>
         )}
@@ -582,18 +583,18 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
               <div className="h-5 flex items-center justify-center">
                 {isToday ? (
                   <span className="text-[10px] font-bold bg-pink-500 text-white px-2 py-0.5 rounded-full shadow-sm">
-                    {d.isOvulation ? "Today · Ovu" : "Today"}
+                    {d.isOvulation ? `${t("common.today")} · Ovu` : t("common.today")}
                   </span>
                 ) : d.isOvulation ? (
                   <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full shadow-sm">
                     Ovu
                   </span>
                 ) : d.isPeriod ? (
-                  <span className="text-[9px] font-semibold text-rose-500">Period</span>
+                  <span className="text-[9px] font-semibold text-rose-500">{t("cycle.period")}</span>
                 ) : d.isFertile ? (
-                  <span className="text-[9px] font-semibold text-emerald-600">Fertile</span>
+                  <span className="text-[9px] font-semibold text-emerald-600">{t("cycle.fertile")}</span>
                 ) : (
-                  <span className="text-[9px] text-plum-900/40">Day {d.cycleDay}</span>
+                  <span className="text-[9px] text-plum-900/40">{t("cycle.day")} {d.cycleDay}</span>
                 )}
               </div>
             </motion.div>
@@ -605,19 +606,19 @@ export const OvulationCalendar = ({ profile }: { profile: any }) => {
       <div className="mt-3 p-3 rounded-2xl bg-white/70 border border-pink-100/90 shadow-[0_2px_12px_rgba(244,114,182,0.06)] backdrop-blur-sm flex flex-wrap items-center justify-end gap-4 text-xs text-plum-900">
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-pink-500 ring-2 ring-pink-200"></span>
-          <span className="text-plum-900/70 font-medium text-xs">Today</span>
+          <span className="text-plum-900/70 font-medium text-xs">{t("common.today")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
-          <span className="text-plum-900/70 font-medium text-xs">Period Flow</span>
+          <span className="text-plum-900/70 font-medium text-xs">{t("charts.bleedingDays")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          <span className="text-plum-900/70 font-medium text-xs">Ovulation</span>
+          <span className="text-plum-900/70 font-medium text-xs">{t("cycle.ovulation")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
-          <span className="text-plum-900/70 font-medium text-xs">Fertile Window</span>
+          <span className="text-plum-900/70 font-medium text-xs">{t("vocab.fertileWindow")}</span>
         </div>
       </div>
     </div>

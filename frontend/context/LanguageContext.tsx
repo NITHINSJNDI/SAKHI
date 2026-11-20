@@ -16,10 +16,88 @@ interface LanguageContextType {
     fallbackOrParams?: string | Record<string, string | number>,
     params?: Record<string, string | number>
   ) => string;
+  tValue: (val?: string | null) => string;
   languages: SupportedLanguageMeta[];
   currentMeta: SupportedLanguageMeta;
   isRTL: boolean;
 }
+
+const VOCAB_ALIASES: Record<string, string> = {
+  cramp: "cramps",
+  cramps: "cramps",
+  acne: "acne",
+  fatigue: "fatigue",
+  fatigued: "fatigue",
+  tired: "fatigue",
+  bloat: "bloating",
+  bloating: "bloating",
+  backpain: "backPain",
+  "back pain": "backPain",
+  headache: "headache",
+  hairgrowth: "hairGrowth",
+  "hair growth": "hairGrowth",
+  hairloss: "hairLoss",
+  "hair loss": "hairLoss",
+  nausea: "nausea",
+  swelling: "swelling",
+  heartburn: "heartburn",
+  braxtonhicks: "braxtonHicks",
+  "braxton hicks": "braxtonHicks",
+  dizziness: "dizziness",
+  pelvicpain: "pelvicPain",
+  "pelvic pain": "pelvicPain",
+  vaginaldryness: "vaginalDryness",
+  "vaginal dryness": "vaginalDryness",
+  jointaches: "jointAches",
+  "joint aches": "jointAches",
+  hotflashes: "hotFlashes",
+  "hot flashes": "hotFlashes",
+  nightsweats: "nightSweats",
+  "night sweats": "nightSweats",
+  poorsleep: "poorSleep",
+  "poor sleep": "poorSleep",
+  moodswings: "moodSwings",
+  "mood swings": "moodSwings",
+  calm: "calm",
+  happy: "happy",
+  energetic: "energetic",
+  anxious: "anxious",
+  irritable: "irritable",
+  sad: "sad",
+  lowmood: "lowMood",
+  "low mood": "lowMood",
+  none: "none",
+  "none recorded": "noneRecorded",
+  "none reported": "noneRecorded",
+  spotting: "spotting",
+  light: "light",
+  medium: "medium",
+  moderate: "medium",
+  heavy: "heavy",
+  "very heavy": "veryHeavy",
+  veryheavy: "veryHeavy",
+  pcos: "pcos",
+  endometriosis: "endometriosis",
+  thyroid: "thyroid",
+  anaemia: "anaemia",
+  anemia: "anaemia",
+  gestationaldiabetes: "gestationalDiabetes",
+  "gestational diabetes": "gestationalDiabetes",
+  hypertension: "hypertension",
+  "high blood pressure": "hypertension",
+  regular: "regular",
+  irregular: "irregular",
+  sometimes: "sometimes",
+  low: "low",
+  high: "high",
+  "ovulation peak day": "ovulationPeakDay",
+  "fertile window open": "fertileWindowOpen",
+  "menstrual phase": "menstrualPhase",
+  "follicular phase": "follicularPhase",
+  "luteal phase": "lutealPhase",
+  "estimated ovulation": "estimatedOvulation",
+  "fertile window": "fertileWindow",
+};
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -147,6 +225,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
+  const tValue = useCallback(
+    (val?: string | null): string => {
+      if (!val || typeof val !== "string") return "";
+      const clean = val.trim().toLowerCase();
+      const key = VOCAB_ALIASES[clean] || VOCAB_ALIASES[clean.replace(/[\-_]/g, " ")];
+      if (key) {
+        return getTranslation(language, `vocab.${key}`, val);
+      }
+      return val;
+    },
+    [language]
+  );
+
   const currentMeta = useMemo(() => {
     return SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
   }, [language]);
@@ -156,11 +247,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       language,
       setLanguage,
       t,
+      tValue,
       languages: SUPPORTED_LANGUAGES,
       currentMeta,
       isRTL: currentMeta.direction === "rtl",
     }),
-    [language, setLanguage, t, currentMeta]
+    [language, setLanguage, t, tValue, currentMeta]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
@@ -178,6 +270,7 @@ export function useLanguage() {
         fallbackOrParams?: string | Record<string, string | number>,
         params?: Record<string, string | number>
       ) => getTranslation("en", path, fallbackOrParams, params),
+      tValue: (val?: string | null) => val || "",
       languages: SUPPORTED_LANGUAGES,
       currentMeta: SUPPORTED_LANGUAGES[0],
       isRTL: false,

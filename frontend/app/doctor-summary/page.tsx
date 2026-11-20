@@ -36,7 +36,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function Screen({ title, data, detail, notScoredText, screeningAidText }: { title: string; data: any; detail?: string; notScoredText?: string; screeningAidText?: string }) {
+function Screen({ title, data, detail, notScoredText, screeningAidText, tValue }: { title: string; data: any; detail?: string; notScoredText?: string; screeningAidText?: string; tValue?: (v: string) => string }) {
   if (!data) return null;
   if (data.not_scored) {
     return (
@@ -49,8 +49,9 @@ function Screen({ title, data, detail, notScoredText, screeningAidText }: { titl
       </div>
     );
   }
-  const level = data.risk_level || "—";
-  const tone = level === "High" ? "bg-red-50 text-red-800 border-red-200" : level === "Moderate" ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-emerald-50 text-emerald-800 border-emerald-200";
+  const rawLevel = data.risk_level || "—";
+  const level = tValue ? tValue(rawLevel) : rawLevel;
+  const tone = rawLevel === "High" ? "bg-red-50 text-red-800 border-red-200" : rawLevel === "Moderate" ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-emerald-50 text-emerald-800 border-emerald-200";
   return (
     <div className="rounded-lg border border-plum-900/10 p-3 break-inside-avoid">
       <div className="flex items-center justify-between gap-2">
@@ -73,15 +74,15 @@ function Screen({ title, data, detail, notScoredText, screeningAidText }: { titl
   );
 }
 
-const List = ({ items, emptyText }: { items: { label: string; count: number }[]; emptyText?: string }) =>
+const List = ({ items, emptyText, tValue }: { items: { label: string; count: number }[]; emptyText?: string; tValue?: (v: string) => string }) =>
   items.length ? (
-    <p className="text-xs text-plum-900/80">{items.slice(0, 8).map(i => `${i.label} (${i.count})`).join(" · ")}</p>
+    <p className="text-xs text-plum-900/80">{items.slice(0, 8).map(i => `${tValue ? tValue(i.label) : i.label} (${i.count})`).join(" · ")}</p>
   ) : (
     <p className="text-xs text-plum-900/50">{emptyText || "None recorded"}</p>
   );
 
 export default function DoctorSummaryPage() {
-  const { t, language } = useLanguage();
+  const { t, tValue, language } = useLanguage();
   const [mode, setMode] = useState<Mode>("her");
   const [days, setDays] = useState(90);
   const [data, setData] = useState<any>(null);
@@ -173,7 +174,7 @@ export default function DoctorSummaryPage() {
                   {t("doctor.history")}: {data.cycle.history.map((h: any) => `${h.month}: ${h.cycleLength}d cycle / ${h.periodDuration}d bleed`).join(" · ")}
                 </p>
               )}
-              <p className="text-xs text-plum-900/70 mt-1">{t("doctor.regularity")}: {data.cycle.regularity || "—"} · {t("doctor.conditions")}: {data.patient.diagnosedConditions.length ? data.patient.diagnosedConditions.join(", ") : t("doctor.none")}</p>
+              <p className="text-xs text-plum-900/70 mt-1">{t("doctor.regularity")}: {data.cycle.regularity ? tValue(data.cycle.regularity) : "—"} · {t("doctor.conditions")}: {data.patient.diagnosedConditions.length ? data.patient.diagnosedConditions.map((c: string) => tValue(c)).join(", ") : t("doctor.none")}</p>
             </Section>
 
             <Section title={t("doctor.symptomsPeriod")}>
@@ -185,11 +186,11 @@ export default function DoctorSummaryPage() {
                 <Stat label={t("doctor.avgSleep")} value={data.stats.avgSleep !== null ? `${data.stats.avgSleep} h` : null} />
               </div>
               <p className="text-[11px] font-semibold text-plum-900/60">{t("doctor.mostSymptoms")}</p>
-              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} />
+              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} tValue={tValue} />
               <p className="text-[11px] font-semibold text-plum-900/60 mt-1">{t("doctor.flow")}</p>
-              <List items={data.stats.flow} emptyText={t("doctor.noneRecorded")} />
+              <List items={data.stats.flow} emptyText={t("doctor.noneRecorded")} tValue={tValue} />
               <p className="text-[11px] font-semibold text-plum-900/60 mt-1">{t("doctor.mood")}</p>
-              <List items={data.stats.moods} emptyText={t("doctor.noneRecorded")} />
+              <List items={data.stats.moods} emptyText={t("doctor.noneRecorded")} tValue={tValue} />
             </Section>
 
             {data.pcosPattern && data.pcosPattern.rows.some((r: any) => r.checkIns > 0) && (
@@ -273,7 +274,7 @@ export default function DoctorSummaryPage() {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-left text-plum-900/50">
-                      <th className="py-1 font-medium">Date</th><th className="font-medium">BP (mmHg)</th><th className="font-medium">Glucose (mg/dL)</th>
+                      <th className="py-1 font-medium">{t("tableHeaders.date")}</th><th className="font-medium">{t("tableHeaders.bp")}</th><th className="font-medium">{t("tableHeaders.glucose")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -296,14 +297,14 @@ export default function DoctorSummaryPage() {
             </Section>
 
             <Section title={t("doctor.mostSymptoms")}>
-              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} />
+              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} tValue={tValue} />
             </Section>
 
             {!data.postnatal && (
             <Section title={t("doctor.screeningResults")}>
               <div className="grid sm:grid-cols-2 gap-2">
-                <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
-                <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
+                <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} tValue={tValue} />
+                <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} tValue={tValue} />
               </div>
             </Section>
             )}
@@ -342,7 +343,7 @@ export default function DoctorSummaryPage() {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-left text-plum-900/50">
-                      <th className="py-1 font-medium">Tablet</th><th className="font-medium">Schedule</th><th className="font-medium">On time</th><th className="font-medium">Late</th><th className="font-medium">Missed</th>
+                      <th className="py-1 font-medium">{t("tableHeaders.tablet")}</th><th className="font-medium">{t("tableHeaders.schedule")}</th><th className="font-medium">{t("tableHeaders.onTime")}</th><th className="font-medium">{t("tableHeaders.late")}</th><th className="font-medium">{t("tableHeaders.missed")}</th>
                     </tr>
                   </thead>
                   <tbody>

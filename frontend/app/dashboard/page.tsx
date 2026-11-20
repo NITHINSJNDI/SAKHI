@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import ConsentGate from "@/components/ConsentGate";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Bell,
   GearSix,
@@ -34,6 +35,7 @@ const iconWrapClass = "w-12 h-12 rounded-full bg-plum-900/5 flex items-center ju
 
 // --- DASHBOARD PANELS ---
 function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
+  const { t } = useLanguage();
   
   // Calculate next period
   const startDate = profile ? new Date(profile.last_period_start) : new Date();
@@ -61,10 +63,10 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
-            <span className="text-sm font-medium text-plum-900/60">Cycle intelligence</span>
+            <span className="text-sm font-medium text-plum-900/60">{t("dashboardLabels.cycleIntelligence")}</span>
           </div>
-          <h2 className="text-4xl font-light tracking-tight text-plum-900">Your Cycle Timeline</h2>
-          <p className="text-plum-900/70 mt-4 max-w-md leading-relaxed">Mapping your hormonal rhythm based on your personalized data.</p>
+          <h2 className="text-4xl font-light tracking-tight text-plum-900">{t("dashboardLabels.yourCycleTimeline")}</h2>
+          <p className="text-plum-900/70 mt-4 max-w-md leading-relaxed">{t("dashboardLabels.mappingHormonalRhythm")}</p>
         </div>
         
         {profile && (
@@ -78,22 +80,22 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
           <div className={innerCardClass}>
             <Calendar weight="duotone" className="w-8 h-8 text-pink-400 mb-6" />
             <div>
-              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">{daysUntilNext > 0 ? `${daysUntilNext} Days` : 'Due'}</h4>
-              <p className="text-sm text-plum-900/60 mt-1">Next Period</p>
+              <h4 className="text-2xl font-semibold text-plum-900 tracking-tight">{daysUntilNext > 0 ? `${daysUntilNext} ${t("common.days")}` : t("common.today")}</h4>
+              <p className="text-sm text-plum-900/60 mt-1">{t("dashboardLabels.nextPeriod")}</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Sparkle weight="duotone" className="w-8 h-8 text-purple-400 mb-6" />
             <div>
-              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.cycle_length_avg || 28} Days</h4>
-              <p className="text-sm text-plum-900/60 mt-1">Avg Cycle</p>
+              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.cycle_length_avg || 28} {t("common.days")}</h4>
+              <p className="text-sm text-plum-900/60 mt-1">{t("dashboardLabels.avgCycle")}</p>
             </div>
           </div>
           <div className={innerCardClass}>
             <Heartbeat weight="duotone" className="w-8 h-8 text-rose-400 mb-6" />
             <div>
-              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.period_duration || 5} Days</h4>
-              <p className="text-sm text-plum-900/60 mt-1">Avg Duration</p>
+              <h4 className="text-xl font-semibold text-plum-900 tracking-tight">{profile?.period_duration || 5} {t("common.days")}</h4>
+              <p className="text-sm text-plum-900/60 mt-1">{t("dashboardLabels.avgDuration")}</p>
             </div>
           </div>
         </div>
@@ -105,8 +107,8 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 16v-4M12 8h.01" />
           </svg>
         </div>
-        <h3 className="text-xl font-medium text-plum-900">AI Triage</h3>
-        <p className="text-sm text-plum-900/60 mt-2">Tap to report symptoms via voice</p>
+        <h3 className="text-xl font-medium text-plum-900">{t("dashboardLabels.aiTriage")}</h3>
+        <p className="text-sm text-plum-900/60 mt-2">{t("dashboardLabels.tapToReportSymptoms")}</p>
       </div>
 
       {/* Secondary Data Row */}
@@ -115,14 +117,14 @@ function MenstrualDashboard({ profile, logs }: { profile: any, logs: any[] }) {
           <div className={iconWrapClass}><Drop weight="duotone" className="w-6 h-6" /></div>
           <span className="text-xs font-medium text-plum-900/55">Flow &amp; pain (last 7 days)</span>
         </div>
-        <h3 className="text-xl font-medium text-plum-900">Correlation History</h3>
+        <h3 className="text-xl font-medium text-plum-900">{t("dashboardLabels.correlationHistory")}</h3>
         <PainFlowCorrelation logs={logs} />
       </div>
 
       <div className={`${cardClass} md:col-span-6`}>
         <div className="flex items-center justify-between mb-2">
           <div className={iconWrapClass}><Heartbeat weight="duotone" className="w-6 h-6" /></div>
-          <span className="text-xs font-medium text-plum-900/55">Symptom tracking</span>
+          <span className="text-xs font-medium text-plum-900/55">{t("dashboardLabels.symptomTracking")}</span>
         </div>
         <h3 className="text-xl font-medium text-plum-900">Symptom Frequency</h3>
         <SymptomRadar logs={logs} />

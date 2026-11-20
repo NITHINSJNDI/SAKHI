@@ -1,0 +1,1536 @@
+{
+  "frontend\\app\\dashboard\\page.tsx": [
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 64,
+      "text": "Cycle intelligence",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 66,
+      "text": "Your Cycle Timeline",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 67,
+      "text": "Mapping your hormonal rhythm based on your personalized data.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 82,
+      "text": "Next Period",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 89,
+      "text": "Avg Cycle",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 96,
+      "text": "Avg Duration",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 108,
+      "text": "AI Triage",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 109,
+      "text": "Tap to report symptoms via voice",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 118,
+      "text": "Correlation History",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 125,
+      "text": "Symptom tracking",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 127,
+      "text": "Symptom Frequency",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 134,
+      "text": "Pattern Detected",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 142,
+      "text": "PCOS Risk Indicator",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 160,
+      "text": "Doctor Summary",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 161,
+      "text": "Generate your real data PDF report for your next visit.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 181,
+      "text": "Pregnancy journey",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 183,
+      "text": "Week 24",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 192,
+      "text": "Estimated Length",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 199,
+      "text": "Until Due Date",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 205,
+      "text": "Normal",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 206,
+      "text": "Fetal Movement",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 215,
+      "text": "Next ANC Visit",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 219,
+      "text": "Nov 12",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 220,
+      "text": "In 8 days",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 229,
+      "text": "Emergency Alerts",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 230,
+      "text": "No risk factors detected. Tap to review danger signs to watch out for.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\dashboard\\page.tsx",
+      "line": 393,
+      "text": "Your daily wellness summary.",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\app\\doctor-summary\\page.tsx": [
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 276,
+      "text": "Date",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 276,
+      "text": "BP (mmHg)",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 276,
+      "text": "Glucose (mg/dL)",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 345,
+      "text": "Tablet",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 345,
+      "text": "Schedule",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 345,
+      "text": "On time",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 345,
+      "text": "Late",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\doctor-summary\\page.tsx",
+      "line": 345,
+      "text": "Missed",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\app\\onboarding\\page.tsx": [
+    {
+      "file": "frontend\\app\\onboarding\\page.tsx",
+      "line": 66,
+      "text": "Checking profile...",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\onboarding\\page.tsx",
+      "line": 99,
+      "text": "Sakhi",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\onboarding\\page.tsx",
+      "line": 101,
+      "text": "Let's set up your personalized health companion.",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\app\\portal\\page.tsx": [
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 283,
+      "text": "Entering Sakhi Portal...",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 311,
+      "text": "Sakhi",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 350,
+      "text": "DB Mode:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 428,
+      "text": "Period prediction",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 442,
+      "text": "Estimated ovulation",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 447,
+      "text": "Calculated around Day 14 of your average cycle.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 454,
+      "text": "Cycle stats",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 464,
+      "text": "Based on your log history database.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 477,
+      "text": "Statistical risk calculated from your reported symptom patterns.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 481,
+      "text": "PCOS Risk Assessment",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 483,
+      "text": "No Logs",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 485,
+      "text": "Elevated (Check Triage)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 487,
+      "text": "Low Risk",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 491,
+      "text": "Thyroid Risk Classifier",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 493,
+      "text": "No Logs",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 495,
+      "text": "Hypothyroid Signal",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 497,
+      "text": "Normal Range",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 510,
+      "text": "Rule-based assessment logged at your last triage query.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 521,
+      "text": "Normal / Safe Status",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 548,
+      "text": "Symptom Metrics",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 560,
+      "text": "Cycle Start Date",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 570,
+      "text": "Cycle End Date (Optional)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 583,
+      "text": "Flow Intensity",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 589,
+      "text": "Spotting",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 590,
+      "text": "Light",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 591,
+      "text": "Normal",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 592,
+      "text": "Heavy",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 593,
+      "text": "Very Heavy",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 597,
+      "text": "Average Sleep Hours",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 613,
+      "text": "Symptom severity (0–10)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 644,
+      "text": "Clinical warning flags",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 690,
+      "text": "Symptoms Saved to PostgreSQL",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 691,
+      "text": "Clinical triage rules and wellness advice generated successfully.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 714,
+      "text": "Trigger reasons:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 725,
+      "text": "Detected profile sign:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 762,
+      "text": "Timeline",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 776,
+      "text": "No health logs found",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 814,
+      "text": "Cramps:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 818,
+      "text": "Bloating:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 822,
+      "text": "Fatigue:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 826,
+      "text": "Acne:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 858,
+      "text": "Biometrics",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 901,
+      "text": "Calculated Body Mass Index (BMI)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\app\\portal\\page.tsx",
+      "line": 917,
+      "text": "Saves parameters directly to database profile.",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\app\\pregnancy-mode\\page.tsx": [
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 351,
+      "text": "Latest readings",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 727,
+      "text": "Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 748,
+      "text": "Baby growth timeline",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 762,
+      "text": "Blood Pressure",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 771,
+      "text": "Fasting Blood Sugar",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 779,
+      "text": "Weight",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 786,
+      "text": "Fetal Movement Count",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 805,
+      "text": "Appointments",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 844,
+      "text": "Mood Tracker",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 849,
+      "text": "Sleep Graph",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 863,
+      "text": "Contraction timer",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 865,
+      "text": "Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 886,
+      "text": "Not scored",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 892,
+      "text": "model estimate",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 901,
+      "text": "Based on",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 916,
+      "text": "Pregnancy risk check",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 960,
+      "text": "Your BP, Hb and urine are checked at every antenatal visit and written on your MCP card. Your ASHA worker can check BP too.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 1084,
+      "text": "Doctor Summary",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\app\\pregnancy-mode\\page.tsx",
+      "line": 1085,
+      "text": "Generate your Pregnancy PDF report for your next ANC visit.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\app\\reset\\page.tsx": [
+    {
+      "file": "frontend\\app\\reset\\page.tsx",
+      "line": 53,
+      "text": "Resetting Sakhi",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\components\\auth\\AuthScreen.tsx": [
+    {
+      "file": "frontend\\components\\auth\\AuthScreen.tsx",
+      "line": 513,
+      "text": "Sakhi",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\auth\\AuthScreen.tsx",
+      "line": 521,
+      "text": "Home",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\auth\\AuthScreen.tsx",
+      "line": 547,
+      "text": "Private workspace per account. Download or delete your records anytime.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\BabyGrowthCard.tsx": [
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 57,
+      "text": "WHO growth standards, as on the MCP card",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 66,
+      "text": "Baby is a girl or a boy",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 100,
+      "text": "Date weighed",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 105,
+      "text": "Weight (kg)",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 177,
+      "text": "Normal",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 178,
+      "text": "Underweight",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 179,
+      "text": "Severely underweight",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 180,
+      "text": "Average",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\BabyGrowthCard.tsx",
+      "line": 181,
+      "text": "kg by age in months",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\charts\\DashboardCharts.tsx": [
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 536,
+      "text": "Estimated Ovulation:",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 592,
+      "text": "Period",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 594,
+      "text": "Fertile",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 608,
+      "text": "Today",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 612,
+      "text": "Period Flow",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 616,
+      "text": "Ovulation",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\charts\\DashboardCharts.tsx",
+      "line": 620,
+      "text": "Fertile Window",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\charts\\PainFlowCorrelation.tsx": [
+    {
+      "file": "frontend\\components\\charts\\PainFlowCorrelation.tsx",
+      "line": 31,
+      "text": "Not enough log data to chart.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\charts\\PainFlowCorrelation.tsx",
+      "line": 32,
+      "text": "Complete your check-in to correlate flow with cramps.",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\components\\chat\\SakhiDoll.tsx": [
+    {
+      "file": "frontend\\components\\chat\\SakhiDoll.tsx",
+      "line": 26,
+      "text": "Sakhi",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\components\\ComprehensiveAssessment.tsx": [
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 108,
+      "text": "Welcome to Sakhi",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 120,
+      "text": "Hello again.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 130,
+      "text": "What may I call you?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 144,
+      "text": "When did your last period start?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 152,
+      "text": "And when did it end?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 166,
+      "text": "What is your average cycle length?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 167,
+      "text": "Usually between 21 and 35 days.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 184,
+      "text": "Are your periods usually regular?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 202,
+      "text": "Have you been diagnosed with any of these?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 220,
+      "text": "Are you currently on your period?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 246,
+      "text": "How heavy is your flow today?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 260,
+      "text": "How severe are your cramps? (0-10)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 275,
+      "text": "Are you experiencing any of these?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 293,
+      "text": "How are you feeling today?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 311,
+      "text": "Just a few lifestyle details",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 313,
+      "text": "Hours of sleep last night",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 321,
+      "text": "Did you exercise today?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 333,
+      "text": "Emergency Screening",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 334,
+      "text": "Are you experiencing any of these warning signs?",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\ComprehensiveAssessment.tsx",
+      "line": 352,
+      "text": "Would you like to add anything else?",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\components\\DiscreetGuard.tsx": [
+    {
+      "file": "frontend\\components\\DiscreetGuard.tsx",
+      "line": 137,
+      "text": "Enter PIN",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\components\\FamilyAlert.tsx": [
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 141,
+      "text": "Let your family know",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 145,
+      "text": "Tip: add a family contact in the Care tab so you can alert them in one tap.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 149,
+      "text": "Call 14416",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 150,
+      "text": "Call 112",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 151,
+      "text": "Nearest hospital",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 218,
+      "text": "Name",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 219,
+      "text": "Relation",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\FamilyAlert.tsx",
+      "line": 220,
+      "text": "Mobile",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\her\\AnaemiaCard.tsx": [
+    {
+      "file": "frontend\\components\\her\\AnaemiaCard.tsx",
+      "line": 62,
+      "text": "Iron-rich food to add",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\AnaemiaCard.tsx",
+      "line": 66,
+      "text": "Skip tea or coffee for an hour around meals: it blocks iron.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\her\\GoalCard.tsx": [
+    {
+      "file": "frontend\\components\\her\\GoalCard.tsx",
+      "line": 75,
+      "text": "Promise",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\GoalCard.tsx",
+      "line": 158,
+      "text": "Partial",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\her\\HerPanels.tsx": [
+    {
+      "file": "frontend\\components\\her\\HerPanels.tsx",
+      "line": 280,
+      "text": "Period start date",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\her\\HygieneCard.tsx": [
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 133,
+      "text": "How full was the one you took off?",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 138,
+      "text": "Skip",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 154,
+      "text": "With cloth this is a rough guide.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 158,
+      "text": "That is a lot of changes for one day. If you are soaking a pad every hour, see a doctor.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 199,
+      "text": "Disposal:",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 208,
+      "text": "Find nearest on Google Maps",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\HygieneCard.tsx",
+      "line": 221,
+      "text": "Emergency: call 112 or 108.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\her\\PainTodayCard.tsx": [
+    {
+      "file": "frontend\\components\\her\\PainTodayCard.tsx",
+      "line": 118,
+      "text": "Where? (optional)",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\PainTodayCard.tsx",
+      "line": 155,
+      "text": "Today",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\her\\PainTodayCard.tsx",
+      "line": 192,
+      "text": "Open pain relief",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\LabReport.tsx": [
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 198,
+      "text": "Take a photo",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 202,
+      "text": "Choose a photo",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 212,
+      "text": "Reads haemoglobin, sugar (fasting, after-meal, HbA1c), thyroid TSH, ferritin, platelets, vitamin D, B12, urine protein and BP.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 221,
+      "text": "The first time takes a little longer.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 234,
+      "text": "Please check each one against your report.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 239,
+      "text": "Who measured this?",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 295,
+      "text": "Add a test",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 305,
+      "text": "Start over",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 334,
+      "text": "Your fasting sugar and BP from this report are now in your vitals and the pregnancy risk check.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 336,
+      "text": "A guide, not a diagnosis. Your doctor reads results with your whole history.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\LabReport.tsx",
+      "line": 337,
+      "text": "Done",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\LanguageSelector.tsx": [
+    {
+      "file": "frontend\\components\\LanguageSelector.tsx",
+      "line": 112,
+      "text": "Change",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\MealsCard.tsx": [
+    {
+      "file": "frontend\\components\\MealsCard.tsx",
+      "line": 100,
+      "text": "Nothing logged yet today.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MealsCard.tsx",
+      "line": 105,
+      "text": "Water",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MealsCard.tsx",
+      "line": 150,
+      "text": "Last 7 days: food groups per day",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\MilestonesCard.tsx": [
+    {
+      "file": "frontend\\components\\MilestonesCard.tsx",
+      "line": 64,
+      "text": "Worth asking your doctor about",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MilestonesCard.tsx",
+      "line": 74,
+      "text": "Now and coming up",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MilestonesCard.tsx",
+      "line": 78,
+      "text": "Nothing new to look for right now.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\MoodCheckCard.tsx": [
+    {
+      "file": "frontend\\components\\MoodCheckCard.tsx",
+      "line": 71,
+      "text": "Not now",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MoodCheckCard.tsx",
+      "line": 73,
+      "text": "Your answers stay private to you. This is a short screening, not a diagnosis.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MoodCheckCard.tsx",
+      "line": 81,
+      "text": "Call Tele-MANAS 14416",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MoodCheckCard.tsx",
+      "line": 82,
+      "text": "Call 112",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\MoodCheckCard.tsx",
+      "line": 87,
+      "text": "Your last check-ins (shorter bar is better)",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\Postpartum.tsx": [
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 14,
+      "text": "Promise",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 51,
+      "text": "Has your baby arrived?",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 54,
+      "text": "Yes, tell Sakhi",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 60,
+      "text": "Date of birth",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 70,
+      "text": "Delivery",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 80,
+      "text": "Baby is a",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 90,
+      "text": "Birth weight",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 161,
+      "text": "Tap when a feed starts. Most newborns feed 8 to 12 times a day.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 178,
+      "text": "Bottle",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 180,
+      "text": "Wet nappy",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 181,
+      "text": "Dirty nappy",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 183,
+      "text": "Undo last",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 186,
+      "text": "See a doctor the same day if baby feeds poorly, is very sleepy, has a fever or feels cold, breathes fast, or the skin or eyes look yellow.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 246,
+      "text": "A 30-second check each day for the first 6 weeks.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 251,
+      "text": "Bleeding today",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 259,
+      "text": "Pain",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 263,
+      "text": "Any of these today?",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 273,
+      "text": "Save today",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 282,
+      "text": "Rest when baby sleeps, drink plenty of water, and keep taking your iron and calcium tablets.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 304,
+      "text": "Free at every government health centre and Anganwadi under the Universal Immunisation Programme. Take the MCP card each time.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 386,
+      "text": "Yes, my period came",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 387,
+      "text": "Not yet",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 392,
+      "text": "First day of this period",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 405,
+      "text": "before",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\Postpartum.tsx",
+      "line": 423,
+      "text": "v.days",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\PregnancyNotificationCenter.tsx": [
+    {
+      "file": "frontend\\components\\PregnancyNotificationCenter.tsx",
+      "line": 77,
+      "text": "Receive pregnancy reminders.",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\SchemesCard.tsx": [
+    {
+      "file": "frontend\\components\\SchemesCard.tsx",
+      "line": 79,
+      "text": "Answer a few questions to see which schemes fit you. Nothing here is saved or sent anywhere.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\SchemesCard.tsx",
+      "line": 108,
+      "text": "Likely for you",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\SchemesCard.tsx",
+      "line": 109,
+      "text": "May not apply",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\SchemesCard.tsx",
+      "line": 117,
+      "text": "Who:",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\sections\\Footer.tsx": [
+    {
+      "file": "frontend\\components\\sections\\Footer.tsx",
+      "line": 74,
+      "text": "Sakhi",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\sections\\TalkToSakhi.tsx": [
+    {
+      "file": "frontend\\components\\sections\\TalkToSakhi.tsx",
+      "line": 64,
+      "text": "Sakhi",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\TabletsCard.tsx": [
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 225,
+      "text": "When (as on the prescription)",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 244,
+      "text": "Food",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 251,
+      "text": "Add tablet",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 252,
+      "text": "Cancel",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 274,
+      "text": "Before food is 30 minutes before the meal, after food 30 minutes after, empty stomach 45 minutes before breakfast.",
+      "hasUseLanguage": true
+    },
+    {
+      "file": "frontend\\components\\TabletsCard.tsx",
+      "line": 283,
+      "text": "Intake ledger, last 14 days",
+      "hasUseLanguage": true
+    }
+  ],
+  "frontend\\components\\UnifiedOnboardingChat.tsx": [
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 237,
+      "text": "Track periods, ovulation, and PCOS/Thyroid health.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 247,
+      "text": "Mom Mode (Pregnancy)",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 248,
+      "text": "Track baby growth, trimesters, and maternity health.",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 274,
+      "text": "Quick options:",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 388,
+      "text": "Periods arrive consistently every 24–35 days",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 404,
+      "text": "Varies significantly, skips months, or unpredictable timing",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 487,
+      "text": "Gestational Age",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 563,
+      "text": "High Blood Pressure",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 565,
+      "text": "Preeclampsia screening",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 577,
+      "text": "Gestational Diabetes",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 579,
+      "text": "Blood sugar monitor",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 591,
+      "text": "Thyroid Condition",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 593,
+      "text": "Hormonal balance",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 605,
+      "text": "None / Healthy",
+      "hasUseLanguage": false
+    },
+    {
+      "file": "frontend\\components\\UnifiedOnboardingChat.tsx",
+      "line": 607,
+      "text": "Standard prenatal care",
+      "hasUseLanguage": false
+    }
+  ],
+  "frontend\\context\\LanguageContext.tsx": [
+    {
+      "file": "frontend\\context\\LanguageContext.tsx",
+      "line": 13,
+      "text": "Promise",
+      "hasUseLanguage": true
+    }
+  ]
+}
