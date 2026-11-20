@@ -179,16 +179,14 @@ function StageModePreview({
         initial={reduce ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 overflow-hidden rounded-[26px] bg-plum-800/80 border border-white/10 p-3 sm:p-4 text-cream shadow-xl backdrop-blur flex flex-col items-center justify-center"
+        className="mt-6 w-full aspect-square overflow-hidden rounded-[26px] shadow-2xl transition-all duration-300"
       >
-        <div className="relative w-full max-w-[340px] aspect-square rounded-2xl overflow-hidden bg-[#fdf7fb] flex items-center justify-center shadow-inner">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={isHer ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
-            alt={isHer ? "Her Mode — Cycles, hormones and everyday health" : "Mom Mode — Pregnancy and after the birth"}
-            className="w-full h-full object-contain"
-          />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={isHer ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
+          alt={isHer ? "Her Mode — Cycles, hormones and everyday health" : "Mom Mode — Pregnancy and after the birth"}
+          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-300"
+        />
       </motion.div>
     </div>
   );
