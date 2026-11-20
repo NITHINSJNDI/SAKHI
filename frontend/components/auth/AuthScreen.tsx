@@ -34,81 +34,238 @@ function resolveSafeCallback(raw: string | null): string | null {
   return null;
 }
 
-const STAGE_MODES = {
-  her: {
-    label: "Her Mode",
-    src: "/auth/her-mode.jpg",
-    alt: "Her Mode: cycles, hormones and everyday health. A smiling illustrated woman holding a period-tracking calendar.",
-  },
-  mom: {
-    label: "Mom Mode",
-    src: "/auth/mom-mode.jpg",
-    alt: "Mom Mode: pregnancy and after the birth. A smiling illustrated expecting mother, with a baby and a feeding bottle.",
-  },
-} as const;
+/** Delicate botanical wreath framing the Sakhi crest with gentle breeze sway. */
+function FloralCrest({ reduce }: { reduce: boolean }) {
+  const petals = [
+    { angle: 0, fill: "#d9c2ee", delay: 0 },
+    { angle: 45, fill: "#f6c6d2", delay: 0.4 },
+    { angle: 90, fill: "#c3a3e4", delay: 0.8 },
+    { angle: 135, fill: "#ee9fb1", delay: 1.2 },
+    { angle: 180, fill: "#d9c2ee", delay: 1.6 },
+    { angle: 225, fill: "#f6c6d2", delay: 2.0 },
+    { angle: 270, fill: "#c3a3e4", delay: 2.4 },
+    { angle: 315, fill: "#ee9fb1", delay: 2.8 },
+  ];
 
-/** Her / Mom mode illustration on the fixed left stage, switched by the tabs above it. */
+  return (
+    <div className="relative flex h-32 w-32 items-center justify-center">
+      {/* Ambient floral glow */}
+      <div
+        aria-hidden="true"
+        className="breathe absolute inset-2 rounded-full bg-lavender-300/25 blur-2xl"
+      />
+
+      {/* Slowly rotating / swaying botanical halo */}
+      <motion.svg
+        viewBox="0 0 160 160"
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full"
+        animate={reduce ? undefined : { rotate: 360 }}
+        transition={
+          reduce ? undefined : { duration: 64, repeat: Infinity, ease: "linear" }
+        }
+      >
+        {petals.map((p) => (
+          <motion.g
+            key={p.angle}
+            transform={`rotate(${p.angle} 80 80)`}
+            animate={
+              reduce
+                ? undefined
+                : {
+                    scale: [1, 1.06, 0.98, 1],
+                    opacity: [0.5, 0.85, 0.55, 0.5],
+                  }
+            }
+            transition={
+              reduce
+                ? undefined
+                : {
+                    duration: 5.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: p.delay,
+                  }
+            }
+            style={{ transformOrigin: "80px 80px" }}
+          >
+            <path
+              d="M80 12 C88 22, 88 36, 80 42 C72 36, 72 22, 80 12 Z"
+              fill={p.fill}
+              fillOpacity="0.65"
+            />
+          </motion.g>
+        ))}
+        <circle
+          cx="80"
+          cy="80"
+          r="50"
+          fill="none"
+          stroke="#d9c2ee"
+          strokeOpacity="0.22"
+          strokeWidth="1"
+          strokeDasharray="4 6"
+        />
+      </motion.svg>
+
+      {/* Center Sakhi crest */}
+      <motion.div
+        animate={reduce ? undefined : { y: [0, -3, 0] }}
+        transition={
+          reduce
+            ? undefined
+            : { duration: 4.5, repeat: Infinity, ease: "easeInOut" }
+        }
+        className="relative flex h-20 w-20 items-center justify-center rounded-full bg-cream p-1.5"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/original-logo.png?v=4"
+          alt="Sakhi crest"
+          className="h-full w-full rounded-full object-contain"
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+/** Interactive cycle / maternal preview on the fixed left stage. */
 function StageModePreview({
   mode,
   onChange,
+  reduce,
 }: {
   mode: PreviewMode;
   onChange: (m: PreviewMode) => void;
+  reduce: boolean;
 }) {
+  const isHer = mode === "her";
+
   return (
-    <div className="flex flex-col items-start gap-5">
+    <div className="w-full max-w-md">
       <div
         role="tablist"
         aria-label="Preview Sakhi care modes"
         className="inline-flex rounded-full bg-plum-800 p-1"
       >
-        {(Object.keys(STAGE_MODES) as PreviewMode[]).map((id) => {
-          const active = mode === id;
+        {(
+          [
+            { id: "her", label: "Her Mode" },
+            { id: "mom", label: "Mom Mode" },
+          ] as const
+        ).map((tab) => {
+          const active = mode === tab.id;
           return (
             <button
-              key={id}
-              id={`stage-tab-${id}`}
+              key={tab.id}
               type="button"
               role="tab"
               aria-selected={active}
-              aria-controls="stage-panel"
-              onClick={() => onChange(id)}
+              onClick={() => onChange(tab.id)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 ${
                 active
                   ? "bg-cream text-plum-900"
                   : "text-cream/75 hover:text-cream"
               }`}
             >
-              {STAGE_MODES[id].label}
+              {tab.label}
             </button>
           );
         })}
       </div>
 
-      {/* Both images stay mounted and cross-fade, so switching never waits on a download. */}
-      <div
-        id="stage-panel"
-        role="tabpanel"
-        aria-labelledby={`stage-tab-${mode}`}
-        className="relative aspect-square w-[min(23rem,44dvh)] overflow-hidden rounded-[28px] bg-[#fdf7fb] ring-1 ring-white/10 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.55)]"
+      <motion.div
+        key={mode}
+        initial={reduce ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-6 rounded-[26px] bg-plum-800 p-6 sm:p-7 text-cream"
       >
-        {(Object.keys(STAGE_MODES) as PreviewMode[]).map((id) => (
-          <Image
-            key={id}
-            src={STAGE_MODES[id].src}
-            alt={STAGE_MODES[id].alt}
-            width={800}
-            height={800}
-            sizes="(min-width: 1024px) 368px, 0px"
-            priority={id === "her"}
-            aria-hidden={mode !== id}
-            draggable={false}
-            className={`absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-300 ease-out motion-reduce:transition-none ${
-              mode === id ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        ))}
-      </div>
+        <Image
+          src={isHer ? "/auth/her-mode.jpg" : "/auth/mom-mode.jpg"}
+          alt={isHer ? "Her Mode illustration: a smiling woman holding a period-tracking calendar." : "Mom Mode illustration: a smiling expecting mother with a baby and a feeding bottle."}
+          width={800}
+          height={800}
+          sizes="400px"
+          priority
+          draggable={false}
+          className="mb-4 h-32 w-full select-none rounded-2xl object-cover object-[50%_30%]"
+        />
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-lavender-200">
+              {isHer ? "Cycle & hormone rhythm" : "Maternal & fetal vitals"}
+            </p>
+            <p className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-cream">
+              {isHer ? "Day 18 of 29" : "Week 24 · Day 3"}
+            </p>
+          </div>
+
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            aria-hidden="true"
+            className="shrink-0"
+          >
+            <circle
+              cx="32"
+              cy="32"
+              r="25"
+              fill="none"
+              stroke="rgba(251, 246, 243, 0.16)"
+              strokeWidth="6"
+            />
+            <circle
+              cx="32"
+              cy="32"
+              r="25"
+              fill="none"
+              stroke={isHer ? "#c3a3e4" : "#ee9fb1"}
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeDasharray={`${isHer ? 98 : 94} 160`}
+              transform="rotate(-90 32 32)"
+            />
+            <text
+              x="32"
+              y="36"
+              textAnchor="middle"
+              fill="#fbf6f3"
+              fontSize="13"
+              fontWeight="600"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {isHer ? "62%" : "60%"}
+            </text>
+          </svg>
+        </div>
+
+        <p className="mt-4 text-base leading-relaxed text-cream/85">
+          {isHer
+            ? "Early luteal window. Sleep and mood logs calibrate your personal PMS, PCOS, and thyroid screening baselines."
+            : "Second trimester check-ins track fasting glucose, blood pressure trends, kick counts, and OB-GYN visit notes."}
+        </p>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-plum-900/70 p-3.5">
+            <p className="text-sm text-cream/75">
+              {isHer ? "Screening focus" : "Latest vitals"}
+            </p>
+            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
+              {isHer ? "PCOS & Thyroid" : "118/76 mmHg"}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-plum-900/70 p-3.5">
+            <p className="text-sm text-cream/75">
+              {isHer ? "Clinical export" : "Fasting glucose"}
+            </p>
+            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
+              {isHer ? "90-day PDF brief" : "86 mg/dL · Optimal"}
+            </p>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -376,21 +533,24 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
           </Link>
         </div>
 
-        {/* Desktop stage body: editorial voice + the Her / Mom mode illustration */}
-        <div className="relative z-10 hidden lg:flex flex-col gap-7 my-auto py-4">
-          <div className="max-w-sm">
-            <p className="text-3xl font-medium leading-tight tracking-tight text-cream">
-              Your body speaks.{" "}
-              <span className="display-serif text-[2.2rem] text-lavender-200">
-                Sakhi listens.
-              </span>
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-cream/75">
-              Every cycle phase and trimester held in one quiet, private timeline.
-            </p>
+        {/* Desktop stage body: floral crest + editorial voice + interactive preview */}
+        <div className="relative z-10 hidden lg:flex flex-col gap-6 my-auto py-4">
+          <div className="flex items-center gap-5">
+            <FloralCrest reduce={reduce} />
+            <div className="max-w-xs">
+              <p className="text-2xl font-medium leading-snug tracking-tight text-cream">
+                Your body speaks.{" "}
+                <span className="display-serif text-[1.85rem] text-lavender-200">
+                  Sakhi listens.
+                </span>
+              </p>
+              <p className="mt-1.5 text-sm leading-relaxed text-cream/75">
+                Every cycle phase and trimester held in one quiet, private timeline.
+              </p>
+            </div>
           </div>
 
-          <StageModePreview mode={previewMode} onChange={setPreviewMode} />
+          <StageModePreview mode={previewMode} onChange={setPreviewMode} reduce={reduce} />
         </div>
 
         <div className="relative z-10 hidden lg:flex items-center gap-2.5 text-sm text-cream/75">
