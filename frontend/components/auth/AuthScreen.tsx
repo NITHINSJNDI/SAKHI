@@ -189,7 +189,7 @@ function StageModePreview({
           sizes="400px"
           priority
           draggable={false}
-          className="mb-4 h-32 w-full select-none rounded-2xl object-cover object-[50%_30%]"
+          className="mx-auto mb-4 aspect-square w-full max-w-[10rem] select-none rounded-2xl object-contain"
         />
         <div className="flex items-center justify-between gap-4">
           <div>
