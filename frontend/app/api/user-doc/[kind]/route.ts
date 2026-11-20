@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getOwner, readDoc, writeDoc, type DocKind } from '@/lib/store';
+import { getOwner, readDoc, writeDoc, type DocKind, storeErrorResponse } from '@/lib/store';
 
 /**
  * Small per-user documents for the newer features (tablets, checklists, family
@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   return NextResponse.json({ doc });
 }
 
-export async function PUT(req: Request, { params }: Ctx) {
+async function handlePUT(req: Request, { params }: Ctx) {
   const { kind } = await params;
   if (!KINDS.has(kind)) return NextResponse.json({ error: 'Unknown document.' }, { status: 404 });
   const body = await req.json().catch(() => null);
@@ -29,4 +29,13 @@ export async function PUT(req: Request, { params }: Ctx) {
   if (JSON.stringify(doc).length > MAX_CHARS) return NextResponse.json({ error: 'That is too much to save at once.' }, { status: 413 });
   await writeDoc(kind as DocKind, doc, await getOwner());
   return NextResponse.json({ doc });
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function PUT(req: Request, { params }: Ctx) {
+  try {
+    return await handlePUT(req, { params });
+  } catch (err) {
+    return storeErrorResponse(err);
+  }
 }

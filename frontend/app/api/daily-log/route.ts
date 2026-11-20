@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getOwner, readDoc, writeDoc } from '@/lib/store';
+import { getOwner, readDoc, writeDoc, storeErrorResponse } from '@/lib/store';
 import { syncPeriodStartFromLog } from '@/lib/sakhiTools';
+import { addPainEvent } from '@/lib/painLog';
 
 // Parse boolean/string period indicator safely ("No" -> false, not Boolean("No") === true)
 function resolveOnPeriod(raw: unknown, flow: string): boolean {
@@ -20,7 +21,7 @@ function finiteNumber(raw: unknown, fallback: number): number {
 }
 
 // POST: Save (or merge into) today's Her Mode daily log
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     const {
@@ -36,16 +37,19 @@ export async function POST(request: Request) {
     const dayStr = dateToSave.split('T')[0];
     const existing = list.find((l: any) => String(l?.log_date || '').startsWith(dayStr)) || {};
     const flow = flowIntensity || flow_intensity || existing.flow_intensity || 'None';
-    const cramps = finiteNumber(crampsSeverity ?? cramps_severity, existing.cramps_severity ?? 0);
+    const postedPain = crampsSeverity ?? cramps_severity;
+    const hasPain = postedPain !== undefined && postedPain !== null && postedPain !== '';
     const sleep = finiteNumber(sleepHours ?? sleep_hours, existing.sleep_hours ?? 7.5);
     const rawOnPeriod = onPeriod !== undefined ? onPeriod : on_period;
 
     // Merge so fields logged earlier today (e.g. via chat) are not overwritten by defaults
+    // A pain score is one report at this moment: the day keeps every report and its worst
+    const base = hasPain ? addPainEvent(existing, finiteNumber(postedPain, 0), 'check-in') : existing;
     const entry = {
-      ...existing,
-      log_date: dateToSave,
+      ...base,
+      log_date: existing.log_date || dateToSave,
       flow_intensity: flow,
-      cramps_severity: cramps,
+      cramps_severity: hasPain ? base.cramps_severity : existing.cramps_severity ?? 0,
       symptoms: Array.isArray(symptoms) && symptoms.length > 0 ? symptoms : existing.symptoms || ['None'],
       mood: mood || existing.mood || 'Calm',
       sleep_hours: sleep,
@@ -67,7 +71,15 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, log: entry, cycleUpdate });
   } catch (error: any) {
-    console.error('Error saving daily log:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return storeErrorResponse(error, 'daily log');
+  }
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function POST(request: Request) {
+  try {
+    return await handlePOST(request);
+  } catch (err) {
+    return storeErrorResponse(err);
   }
 }

@@ -232,7 +232,7 @@ ${pre.map(p => p.summary).join(' ')} Mention this briefly in your reply.` : base
     if (!notice) {
       try {
         const g = await geminiReply({ mode, message, owner, name, history, context, lang });
-        await bumpUsage(owner);
+        await bumpUsage(owner).catch(err => console.warn('[chat] usage not counted:', err?.message));
         return { ...g, chartUpdates: [...tabletUpdates, ...g.chartUpdates], engine: 'gemini' };
       } catch (err: any) {
         counters.geminiErrors++;
@@ -256,6 +256,9 @@ ${pre.map(p => p.summary).join(' ')} Mention this briefly in your reply.` : base
   counters[result.engine]++;
   const at = new Date().toISOString();
   const next = [...history, { role: 'user' as const, text: message, at }, { role: 'assistant' as const, text: result.reply, at, engine: result.engine }];
-  if ((await storageMode()) !== 'cookie') await writeDoc(historyKind(mode), next.slice(-KEEP), owner);
+  // A busy database must not lose her reply: the history just misses this turn
+  if ((await storageMode()) !== 'cookie') {
+    await writeDoc(historyKind(mode), next.slice(-KEEP), owner).catch(err => console.warn('[chat] history not saved:', err?.message));
+  }
   return result;
 }

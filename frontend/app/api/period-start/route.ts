@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getOwner } from '@/lib/store';
+import { getOwner, storeErrorResponse } from '@/lib/store';
 import { runHerTool } from '@/lib/sakhiTools';
 
 // POST { date?: 'YYYY-MM-DD', correction?: boolean } : "my period started" from the phase card.
 // correction = she picked the date herself ("started on another day?"), so it may move
 // the start of the current period; otherwise a date inside it is kept as the same period.
 // Uses the same tool as the chat so cycle history stays consistent.
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const today = new Date().toISOString().slice(0, 10);
   // Her local date may be a day ahead of the server's UTC date (India is UTC+5:30)
@@ -21,4 +21,13 @@ export async function POST(req: Request) {
     periodDay: result?.apiResult?.periodDay ?? null,
     chartData: result?.chartData ?? null,
   });
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function POST(req: Request) {
+  try {
+    return await handlePOST(req);
+  } catch (err) {
+    return storeErrorResponse(err);
+  }
 }

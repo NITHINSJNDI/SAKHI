@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getOwner, readDoc, writeDoc } from '@/lib/store';
+import { getOwner, readDoc, writeDoc, storeErrorResponse } from '@/lib/store';
 
 /**
  * Her weight log, shared by Her Mode and Mom Mode:
@@ -21,7 +21,7 @@ export async function GET() {
 }
 
 // POST { kg?, date?, heightCm?, preKg? }
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const owner = await getOwner();
   const doc = await load(owner);
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 }
 
 // DELETE ?date=YYYY-MM-DD removes one manual entry
-export async function DELETE(req: Request) {
+async function handleDELETE(req: Request) {
   const date = new URL(req.url).searchParams.get('date');
   if (!valid(date)) return NextResponse.json({ error: 'date is required' }, { status: 400 });
   const owner = await getOwner();
@@ -64,4 +64,22 @@ export async function DELETE(req: Request) {
   doc.entries = doc.entries.filter(e => e.date !== date);
   await writeDoc('weight_log', doc, owner);
   return NextResponse.json({ success: true, ...doc });
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function POST(req: Request) {
+  try {
+    return await handlePOST(req);
+  } catch (err) {
+    return storeErrorResponse(err);
+  }
+}
+
+// Storage errors become a JSON 503 (her outbox retries) instead of a blind save
+export async function DELETE(req: Request) {
+  try {
+    return await handleDELETE(req);
+  } catch (err) {
+    return storeErrorResponse(err);
+  }
 }
