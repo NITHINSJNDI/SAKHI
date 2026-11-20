@@ -281,13 +281,13 @@ export function Navigation() {
           {status === "authenticated" && (
             <div className="border-t border-pink-100/80 pt-2 mt-1 flex items-center justify-between px-2">
               <span className="text-xs text-ink-soft">
-                Signed in as <strong>{userName}</strong>
+                {t("landing.signedInAs", "Signed in as")} <strong>{userName}</strong>
               </span>
               <button
                 onClick={handleSignOut}
                 className="text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
               >
-                Sign Out
+                {t("landing.signOut", "Sign out")}
               </button>
             </div>
           )}

@@ -518,7 +518,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
             className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/85 hover:text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 rounded-md px-2 py-1"
           >
             <ArrowLeft size={15} weight="bold" aria-hidden="true" />
-            <span>Home</span>
+            <span>{t("menu.homePage", "Home")}</span>
           </Link>
         </div>
 

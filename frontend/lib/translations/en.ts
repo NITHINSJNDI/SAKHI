@@ -489,7 +489,8 @@ export const en = {
     "periodInAbout": "Period in about {days} days",
     "sampleTip": "Energy often dips this week. Iron-rich food and an earlier night help.",
     "sampleUserMsg": "Why am I so tired this week?",
-    "sampleBotMsg": "Oh dear, that makes sense. You're on day 18, when progesterone rises and many of us feel slower. You slept 6 hours too, so be gentle with yourself tonight."
+    "sampleBotMsg": "Oh dear, that makes sense. You're on day 18, when progesterone rises and many of us feel slower. You slept 6 hours too, so be gentle with yourself tonight.",
+    "signedInAs": "Signed in as"
   },
   "relief": {
     "painRelief": "Pain relief",
