@@ -138,6 +138,7 @@ function StageModePreview({
   onChange: (m: PreviewMode) => void;
   reduce: boolean;
 }) {
+  const { t } = useLanguage();
   const isHer = mode === "her";
 
   return (
@@ -149,8 +150,8 @@ function StageModePreview({
       >
         {(
           [
-            { id: "her", label: "Her Mode" },
-            { id: "mom", label: "Mom Mode" },
+            { id: "her", label: t("landing.herMode", "Her Mode") },
+            { id: "mom", label: t("landing.momMode", "Mom Mode") },
           ] as const
         ).map((tab) => {
           const active = mode === tab.id;
@@ -178,81 +179,15 @@ function StageModePreview({
         initial={reduce ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 rounded-[26px] bg-plum-800 p-6 sm:p-7 text-cream"
+        className="mt-6 overflow-hidden rounded-[26px] bg-plum-800/80 border border-white/10 p-3 sm:p-4 text-cream shadow-xl backdrop-blur flex flex-col items-center justify-center"
       >
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-lavender-200">
-              {isHer ? "Cycle & hormone rhythm" : "Maternal & fetal vitals"}
-            </p>
-            <p className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-cream">
-              {isHer ? "Day 18 of 29" : "Week 24 · Day 3"}
-            </p>
-          </div>
-
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 64 64"
-            aria-hidden="true"
-            className="shrink-0"
-          >
-            <circle
-              cx="32"
-              cy="32"
-              r="25"
-              fill="none"
-              stroke="rgba(251, 246, 243, 0.16)"
-              strokeWidth="6"
-            />
-            <circle
-              cx="32"
-              cy="32"
-              r="25"
-              fill="none"
-              stroke={isHer ? "#c3a3e4" : "#ee9fb1"}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={`${isHer ? 98 : 94} 160`}
-              transform="rotate(-90 32 32)"
-            />
-            <text
-              x="32"
-              y="36"
-              textAnchor="middle"
-              fill="#fbf6f3"
-              fontSize="13"
-              fontWeight="600"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {isHer ? "62%" : "60%"}
-            </text>
-          </svg>
-        </div>
-
-        <p className="mt-4 text-base leading-relaxed text-cream/85">
-          {isHer
-            ? "Early luteal window. Sleep and mood logs calibrate your personal PMS, PCOS, and thyroid screening baselines."
-            : "Second trimester check-ins track fasting glucose, blood pressure trends, kick counts, and OB-GYN visit notes."}
-        </p>
-
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-plum-900/70 p-3.5">
-            <p className="text-sm text-cream/75">
-              {isHer ? "Screening focus" : "Latest vitals"}
-            </p>
-            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
-              {isHer ? "PCOS & Thyroid" : "118/76 mmHg"}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-plum-900/70 p-3.5">
-            <p className="text-sm text-cream/75">
-              {isHer ? "Clinical export" : "Fasting glucose"}
-            </p>
-            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
-              {isHer ? "90-day PDF brief" : "86 mg/dL · Optimal"}
-            </p>
-          </div>
+        <div className="relative w-full max-w-[340px] aspect-square rounded-2xl overflow-hidden bg-[#fdf7fb] flex items-center justify-center shadow-inner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={isHer ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
+            alt={isHer ? "Her Mode — Cycles, hormones and everyday health" : "Mom Mode — Pregnancy and after the birth"}
+            className="w-full h-full object-contain"
+          />
         </div>
       </motion.div>
     </div>
