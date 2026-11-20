@@ -13,8 +13,12 @@ import {
   EyeSlash,
   Lock,
   WarningCircle,
+  Globe,
+  Check,
 } from "@phosphor-icons/react";
 import { PetalWind } from "@/components/PetalWind";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 type AuthTab = "signin" | "signup";
 type PreviewMode = "her" | "mom";
@@ -260,11 +264,13 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
   const searchParams = useSearchParams();
   const reduce = Boolean(useReducedMotion());
   const { data: session, status } = useSession();
+  const { language, setLanguage, t, languages } = useLanguage();
 
   const urlTab = searchParams.get("tab") === "signup" ? "signup" : searchParams.get("tab") === "signin" ? "signin" : null;
   const callbackUrl = resolveSafeCallback(searchParams.get("callbackUrl"));
 
   const [tab, setTab] = useState<AuthTab>(urlTab || initialTab);
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("her");
 
   // Form fields
@@ -342,6 +348,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
   const switchTab = (next: AuthTab) => {
     setTab(next);
     setError(null);
+    if (next === "signup") setSignupStep(1);
   };
 
   const handleManualSubmit = async (e: React.FormEvent) => {
@@ -353,24 +360,24 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
 
     if (tab === "signup") {
       if (trimmedName.length < 2) {
-        setError("Please enter your name (at least 2 characters).");
+        setError(t("auth.nameTooShort"));
         return;
       }
       if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-        setError("Please enter a valid email address.");
+        setError(t("auth.validEmailRequired"));
         return;
       }
       if (password.length < 8) {
-        setError("Password must be at least 8 characters long.");
+        setError(t("auth.passwordTooShort"));
         return;
       }
       if (password !== confirmPassword) {
-        setError("Passwords do not match. Please re-enter to confirm.");
+        setError(t("auth.passwordsDoNotMatch"));
         return;
       }
     } else {
       if (!trimmedEmail || !password) {
-        setError("Please enter both your email address and password.");
+        setError(t("auth.invalidCredentials"));
         return;
       }
     }
@@ -385,11 +392,12 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
             name: trimmedName,
             email: trimmedEmail,
             password,
+            language,
           }),
         });
         const regData = await regRes.json().catch(() => ({}));
         if (!regRes.ok) {
-          setError(regData.error || "Could not create your account.");
+          setError(regData.error || t("auth.genericError"));
           setSubmitting(false);
           return;
         }
@@ -549,6 +557,18 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 mx-auto w-full max-w-[460px]"
         >
+          {/* Header language switcher */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-semibold text-plum-900/60 uppercase tracking-wider">
+              {tab === "signup" && signupStep === 1
+                ? t("auth.step1")
+                : tab === "signup" && signupStep === 2
+                ? t("auth.step2")
+                : t("common.appName")}
+            </span>
+            <LanguageSelector variant="pill" />
+          </div>
+
           {/* Mode tabs: Sign In / Create Account */}
           <div
             role="tablist"
@@ -566,7 +586,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                   : "text-plum-800/80 hover:text-plum-900"
               }`}
             >
-              Sign in
+              {t("auth.signIn")}
             </button>
             <button
               type="button"
@@ -579,186 +599,247 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                   : "text-plum-800/80 hover:text-plum-900"
               }`}
             >
-              Create account
+              {t("auth.createAccount")}
             </button>
           </div>
 
-          <header className="mb-5">
-            <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-plum-900">
-              {tab === "signin" ? "Sign in to your Sakhi space" : "Create your Sakhi account"}
-            </h1>
-            <p className="mt-1.5 text-base leading-relaxed text-plum-800">
-              {tab === "signin"
-                ? "Enter your email and password, or continue with Google."
-                : "Set up a private space for cycle, maternal, and mood logs."}
-            </p>
-          </header>
+          {tab === "signup" && signupStep === 1 ? (
+            <div className="space-y-4">
+              <header className="mb-2">
+                <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-plum-900">
+                  {t("auth.welcome")}
+                </h1>
+                <p className="mt-1.5 text-base leading-relaxed text-plum-800">
+                  {t("auth.selectLanguagePrompt")}
+                </p>
+              </header>
 
-          {error && (
-            <div
-              role="alert"
-              className="mb-5 flex items-start gap-2.5 rounded-xl bg-blush-50 border border-blush-300 px-4 py-3 text-sm text-plum-900"
-            >
-              <WarningCircle size={18} weight="fill" aria-hidden="true" className="text-blush-500 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleManualSubmit} noValidate className="space-y-3.5">
-            {tab === "signup" && (
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="auth-name" className="text-sm font-medium text-plum-800">
-                  Full name
-                </label>
-                <input
-                  id="auth-name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Priya Sharma"
-                  disabled={busy}
-                  className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
-                />
+              <div className="grid grid-cols-2 gap-2.5">
+                {languages.map((l) => {
+                  const isSelected = l.code === language;
+                  return (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => setLanguage(l.code)}
+                      className={`flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all duration-150 cursor-pointer ${
+                        isSelected
+                          ? "bg-plum-900 text-cream border-plum-900 shadow-md ring-2 ring-lavender-400"
+                          : "bg-white hover:bg-cream-deep/60 text-plum-900 border-plum-900/15"
+                      }`}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className="text-lg font-bold tracking-tight">{l.nativeName}</span>
+                        {isSelected && <Check size={18} weight="bold" className="text-cream" />}
+                      </div>
+                      <span className={`text-xs mt-0.5 ${isSelected ? "text-cream/75" : "text-ink-soft"}`}>
+                        {l.name}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="auth-email" className="text-sm font-medium text-plum-800">
-                Email address
-              </label>
-              <input
-                id="auth-email"
-                name="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                disabled={busy}
-                className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
-              />
+              <button
+                type="button"
+                onClick={() => setSignupStep(2)}
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-full bg-plum-900 px-6 py-3.5 text-sm font-medium text-cream hover:bg-plum-800 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer shadow-sm"
+              >
+                <span>{t("common.continue")}</span>
+                <ArrowRight size={16} weight="bold" aria-hidden="true" />
+              </button>
             </div>
+          ) : (
+            <>
+              {tab === "signup" && (
+                <div className="mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setSignupStep(1)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-lavender-700 hover:text-plum-900 transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft size={14} weight="bold" />
+                    <span>{t("auth.selectLanguageTitle")} ({languages.find((l) => l.code === language)?.nativeName})</span>
+                  </button>
+                </div>
+              )}
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="auth-password" className="text-sm font-medium text-plum-800">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="auth-password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={tab === "signup" ? "new-password" : "current-password"}
-                  required
-                  minLength={tab === "signup" ? 8 : undefined}
-                  aria-describedby={tab === "signup" ? "auth-password-hint" : undefined}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={tab === "signup" ? "Minimum 8 characters" : "Enter your password"}
-                  disabled={busy}
-                  className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 pl-4 pr-12 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-ink-soft hover:text-plum-900 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
+              <header className="mb-5">
+                <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-plum-900">
+                  {tab === "signin" ? t("auth.signInTitle") : t("auth.signUpTitle")}
+                </h1>
+                <p className="mt-1.5 text-base leading-relaxed text-plum-800">
+                  {tab === "signin" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
+                </p>
+              </header>
+
+              {error && (
+                <div
+                  role="alert"
+                  className="mb-5 flex items-start gap-2.5 rounded-xl bg-blush-50 border border-blush-300 px-4 py-3 text-sm text-plum-900"
                 >
-                  {showPassword ? (
-                    <EyeSlash size={18} weight="regular" aria-hidden="true" />
+                  <WarningCircle size={18} weight="fill" aria-hidden="true" className="text-blush-500 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleManualSubmit} noValidate className="space-y-3.5">
+                {tab === "signup" && (
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="auth-name" className="text-sm font-medium text-plum-800">
+                      {t("auth.fullName")}
+                    </label>
+                    <input
+                      id="auth-name"
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t("auth.fullNamePlaceholder")}
+                      disabled={busy}
+                      className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="auth-email" className="text-sm font-medium text-plum-800">
+                    {t("auth.email")}
+                  </label>
+                  <input
+                    id="auth-email"
+                    name="email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t("auth.emailPlaceholder")}
+                    disabled={busy}
+                    className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="auth-password" className="text-sm font-medium text-plum-800">
+                    {t("auth.password")}
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="auth-password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={tab === "signup" ? "new-password" : "current-password"}
+                      required
+                      minLength={tab === "signup" ? 8 : undefined}
+                      aria-describedby={tab === "signup" ? "auth-password-hint" : undefined}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={t("auth.passwordPlaceholder")}
+                      disabled={busy}
+                      className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 pl-4 pr-12 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-ink-soft hover:text-plum-900 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
+                    >
+                      {showPassword ? (
+                        <EyeSlash size={18} weight="regular" aria-hidden="true" />
+                      ) : (
+                        <Eye size={18} weight="regular" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
+                  {tab === "signup" && (
+                    <p id="auth-password-hint" className="text-sm text-ink-soft">
+                      {t("auth.passwordHint")}
+                    </p>
+                  )}
+                </div>
+
+                {tab === "signup" && (
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="auth-confirm" className="text-sm font-medium text-plum-800">
+                      {t("auth.confirmPassword")}
+                    </label>
+                    <input
+                      id="auth-confirm"
+                      name="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder={t("auth.confirmPasswordPlaceholder")}
+                      disabled={busy}
+                      className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
+                    />
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={busy}
+                  aria-busy={submitting}
+                  className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-plum-900 px-6 py-3.5 text-sm font-medium text-cream hover:bg-plum-800 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+                >
+                  {submitting ? (
+                    <>
+                      <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
+                      <span>{tab === "signin" ? t("common.loading") : t("common.saving")}</span>
+                    </>
                   ) : (
-                    <Eye size={18} weight="regular" aria-hidden="true" />
+                    <>
+                      <span>{tab === "signin" ? t("auth.signInCta") : t("auth.signUpCta")}</span>
+                      <ArrowRight size={16} weight="bold" aria-hidden="true" />
+                    </>
                   )}
                 </button>
-              </div>
-              {tab === "signup" && (
-                <p id="auth-password-hint" className="text-sm text-ink-soft">
-                  Use at least 8 characters. Mix letters and numbers for stronger protection.
-                </p>
-              )}
-            </div>
+              </form>
 
-            {tab === "signup" && (
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="auth-confirm" className="text-sm font-medium text-plum-800">
-                  Confirm password
-                </label>
-                <input
-                  id="auth-confirm"
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter your password"
-                  disabled={busy}
-                  className="w-full rounded-xl border border-plum-900/15 bg-cream-deep/65 px-4 py-3 text-base text-plum-900 placeholder:text-ink-soft/60 focus:bg-white focus:border-lavender-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500/40 transition-colors duration-150 disabled:opacity-60"
-                />
-              </div>
-            )}
+              {/* Alternative sign-in */}
+              <p className="my-4 text-center text-sm text-plum-800/80">{t("auth.or")}</p>
 
-            <button
-              type="submit"
-              disabled={busy}
-              aria-busy={submitting}
-              className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-plum-900 px-6 py-3.5 text-sm font-medium text-cream hover:bg-plum-800 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-            >
-              {submitting ? (
-                <>
+              {/* Google OAuth */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={busy}
+                aria-busy={googleBusy}
+                className="w-full inline-flex items-center justify-center gap-3 rounded-full border border-plum-900/15 bg-white px-5 py-3 text-sm font-medium text-plum-900 hover:bg-cream-deep/60 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              >
+                {googleBusy ? (
                   <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
-                  <span>{tab === "signin" ? "Signing in…" : "Creating account…"}</span>
-                </>
-              ) : (
-                <>
-                  <span>{tab === "signin" ? "Sign in with email" : "Create account"}</span>
-                  <ArrowRight size={16} weight="bold" aria-hidden="true" />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Alternative sign-in */}
-          <p className="my-4 text-center text-sm text-plum-800/80">or</p>
-
-          {/* Google OAuth */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={busy}
-            aria-busy={googleBusy}
-            className="w-full inline-flex items-center justify-center gap-3 rounded-full border border-plum-900/15 bg-white px-5 py-3 text-sm font-medium text-plum-900 hover:bg-cream-deep/60 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
-          >
-            {googleBusy ? (
-              <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
-            ) : (
-              <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-            )}
-            <span>{googleBusy ? "Connecting to Google…" : "Continue with Google"}</span>
-          </button>
+                ) : (
+                  <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                )}
+                <span>{googleBusy ? t("common.loading") : t("auth.continueWithGoogle")}</span>
+              </button>
+            </>
+          )}
 
           {/* Guest sample exploration */}
           <div id="sample" className="mt-6 scroll-mt-6 rounded-2xl bg-cream-deep/55 p-4 sm:p-5">

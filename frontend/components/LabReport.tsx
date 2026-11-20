@@ -9,6 +9,7 @@ import {
   type LabKey, type LabResult, type LabStatus, type LabValue,
 } from "@/lib/labs";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const STATUS_CLS: Record<LabStatus, string> = {
   ok: "bg-emerald-100 text-emerald-800",
@@ -351,6 +352,7 @@ export function LabResultsCard({ mode, pregnant, className = "", onChanged }: {
   className?: string;
   onChanged?: () => void;
 }) {
+  const { t } = useLanguage();
   const [results, setResults] = useState<LabResult[] | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -372,19 +374,19 @@ export function LabResultsCard({ mode, pregnant, className = "", onChanged }: {
     <div className={`${panelCard} ${className}`}>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-xl font-semibold tracking-tight text-plum-900">Lab results</h3>
-          <p className="text-xs text-ink-soft">Snap a report and Sakhi reads the numbers for you.</p>
+          <h3 className="text-xl font-semibold tracking-tight text-plum-900">{t("labs.title")}</h3>
+          <p className="text-xs text-ink-soft">{t("labs.subtitle")}</p>
         </div>
         <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-2 rounded-full bg-plum-900 px-4 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 cursor-pointer">
-          <Camera className="h-4 w-4" weight="bold" /> Add a lab report
+          <Camera className="h-4 w-4" weight="bold" /> {t("labs.addReport")}
         </button>
       </div>
 
       {results === null ? (
-        <p className="text-sm text-ink-soft">Loading…</p>
+        <p className="text-sm text-ink-soft">{t("common.loading")}</p>
       ) : ranked.length === 0 ? (
         <p className="rounded-2xl bg-lavender-50 p-4 text-sm text-ink-soft">
-          No lab results yet. Add your last blood test{mode === "pregnancy" ? " (haemoglobin, sugar, thyroid)" : ""} and Sakhi will explain each number in plain words.
+          {t("labs.noResults")}
         </p>
       ) : (
         <ul className="grid gap-2.5 sm:grid-cols-2">

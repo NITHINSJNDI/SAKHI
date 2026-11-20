@@ -8,6 +8,7 @@ import {
   SignOut, SignIn, GearSix, FileText, House, ArrowsLeftRight, DownloadSimple, WarningCircle,
 } from "@phosphor-icons/react";
 import { sakhiSignOut } from "@/lib/clientSignOut";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   mode: "her" | "pregnancy";
@@ -17,6 +18,7 @@ interface Props {
 
 /** Avatar button with a menu: who is signed in, switch mode, settings, sign out. */
 export default function AccountMenu({ mode, displayName, onOpenSettings }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
@@ -34,7 +36,9 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
     return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
   }, [open]);
 
-  const other = mode === "her" ? { label: "Switch to Mom Mode", href: "/pregnancy-mode", key: "pregnancy" } : { label: "Switch to Her Mode", href: "/her-mode", key: "her" };
+  const other = mode === "her"
+    ? { label: t("menu.switchToMom"), href: "/pregnancy-mode", key: "pregnancy" }
+    : { label: t("menu.switchToHer"), href: "/her-mode", key: "her" };
 
   const doSignOut = async (eraseGuest = false) => {
     setBusy(true);
@@ -73,7 +77,7 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
             <div className="px-3 py-3 border-b border-plum-900/5 mb-1">
               <p className="text-sm font-semibold text-plum-900 truncate">{session?.user?.name || displayName}</p>
               <p className="text-xs text-plum-900/55 truncate">
-                {signedIn ? session?.user?.email : "Guest session on this device"}
+                {signedIn ? session?.user?.email : t("menu.guestSession")}
               </p>
             </div>
 
@@ -83,44 +87,44 @@ export default function AccountMenu({ mode, displayName, onOpenSettings }: Props
                   <ArrowsLeftRight className="w-4 h-4" /> {other.label}
                 </button>
                 <a role="menuitem" className={item} href={`/doctor-summary?mode=${mode}`}>
-                  <FileText className="w-4 h-4" /> Doctor summary (PDF)
+                  <FileText className="w-4 h-4" /> {t("menu.doctorSummary")}
                 </a>
                 <button role="menuitem" className={item} onClick={() => { setOpen(false); onOpenSettings(); }}>
-                  <GearSix className="w-4 h-4" /> Settings & privacy
+                  <GearSix className="w-4 h-4" /> {t("menu.settingsAndPrivacy")}
                 </button>
                 <a role="menuitem" className={item} href="/api/export-data">
-                  <DownloadSimple className="w-4 h-4" /> Download my data
+                  <DownloadSimple className="w-4 h-4" /> {t("menu.downloadData")}
                 </a>
                 <button role="menuitem" className={item} onClick={() => { try { sessionStorage.setItem("sakhi-intro-played", "true"); } catch {} router.push("/"); }}>
-                  <House className="w-4 h-4" /> Home page
+                  <House className="w-4 h-4" /> {t("menu.homePage")}
                 </button>
 
                 <div className="h-px bg-plum-900/5 my-1" />
                 {signedIn ? (
                   <button role="menuitem" disabled={busy} className={`${item} text-rose-600 hover:text-rose-700 hover:bg-rose-50`} onClick={() => doSignOut()}>
-                    <SignOut className="w-4 h-4" /> {busy ? "Signing out…" : "Sign out"}
+                    <SignOut className="w-4 h-4" /> {busy ? t("common.loading") : t("header.signOut")}
                   </button>
                 ) : (
                   <>
                     <button role="menuitem" className={item} onClick={() => { setOpen(false); router.push(`/login?callbackUrl=${encodeURIComponent(mode === "her" ? "/her-mode" : "/pregnancy-mode")}`); }}>
-                      <SignIn className="w-4 h-4" /> Sign in to save across devices
+                      <SignIn className="w-4 h-4" /> {t("menu.signInPrompt")}
                     </button>
                     <button role="menuitem" className={`${item} text-rose-600 hover:text-rose-700 hover:bg-rose-50`} onClick={() => setConfirmGuest(true)}>
-                      <SignOut className="w-4 h-4" /> End guest session
+                      <SignOut className="w-4 h-4" /> {t("menu.endGuestSession")}
                     </button>
                   </>
                 )}
               </>
             ) : (
               <div className="p-3">
-                <p className="text-sm font-semibold text-plum-900 flex items-center gap-2"><WarningCircle className="w-4 h-4 text-rose-500" /> End guest session?</p>
+                <p className="text-sm font-semibold text-plum-900 flex items-center gap-2"><WarningCircle className="w-4 h-4 text-rose-500" /> {t("menu.endGuestTitle")}</p>
                 <p className="text-xs text-plum-900/65 mt-1.5 leading-relaxed">
-                  Guest data lives only in this browser. Ending the session permanently erases it. Download it first, or sign in to keep it.
+                  {t("menu.endGuestDesc")}
                 </p>
                 <div className="mt-3 flex gap-2">
-                  <button onClick={() => setConfirmGuest(false)} className="flex-1 rounded-xl py-2 text-sm text-plum-900/70 bg-plum-900/5 hover:bg-plum-900/10 cursor-pointer">Cancel</button>
+                  <button onClick={() => setConfirmGuest(false)} className="flex-1 rounded-xl py-2 text-sm text-plum-900/70 bg-plum-900/5 hover:bg-plum-900/10 cursor-pointer">{t("common.cancel")}</button>
                   <button disabled={busy} onClick={() => doSignOut(true)} className="flex-1 rounded-xl py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 cursor-pointer disabled:opacity-60">
-                    {busy ? "Ending…" : "Erase & exit"}
+                    {busy ? t("common.loading") : t("menu.eraseAndExit")}
                   </button>
                 </div>
               </div>

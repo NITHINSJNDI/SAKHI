@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, WifiSlash, Microphone, ShieldCheck } from "@phosphor-icons/react";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * Hero: the product itself is the picture. Left, the promise; right, what a
@@ -10,6 +11,7 @@ import { ArrowRight, WifiSlash, Microphone, ShieldCheck } from "@phosphor-icons/
  * Headline, sub-copy and both actions fit within 1280x800 without scrolling.
  */
 export function Hero() {
+  const { t } = useLanguage();
   const reduce = useReducedMotion();
 
   const rise = (delay: number) => ({
@@ -31,21 +33,19 @@ export function Hero() {
       {/* The promise */}
       <div className="max-w-xl">
         <motion.p {...rise(0.05)} className="text-sm font-medium text-blush-500">
-          For your cycle, and for your pregnancy
+          {t("landing.heroSub")}
         </motion.p>
 
         <motion.h1
           {...rise(0.12)}
           className="mt-4 text-balance text-[2.6rem] font-semibold leading-[1.04] tracking-tight text-plum-900 sm:text-6xl lg:text-[4.2rem]"
         >
-          Your body speaks.{" "}
-          <span className="display-serif font-normal text-lavender-600">Sakhi listens.</span>
+          {t("landing.heroTitle1")}{" "}
+          <span className="display-serif font-normal text-lavender-600">{t("landing.heroTitle2")}</span>
         </motion.h1>
 
         <motion.p {...rise(0.2)} className="mt-6 max-w-lg text-pretty text-base leading-relaxed text-ink-soft sm:text-lg">
-          A gentle companion that learns your real rhythm, not a 28-day template.
-          Log how you feel in a sentence, ask anything like you would a friend,
-          and know early when something needs a doctor.
+          {t("landing.heroDesc")}
         </motion.p>
 
         <motion.div {...rise(0.28)} className="mt-8 flex flex-wrap items-center gap-3">
@@ -53,29 +53,29 @@ export function Hero() {
             href="/signup"
             className="inline-flex items-center gap-2 rounded-full bg-plum-900 px-7 py-3.5 text-sm font-semibold text-cream shadow-[0_12px_30px_-12px_rgb(42_21_47/0.6)] transition-[background-color,transform] duration-150 hover:bg-plum-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
-            Start free
+            {t("landing.startFree")}
             <ArrowRight size={16} weight="bold" aria-hidden="true" />
           </Link>
           <Link
             href="/login#sample"
             className="inline-flex items-center rounded-full border border-plum-700/20 bg-white/70 px-6 py-3.5 text-sm font-semibold text-plum-900 transition-[background-color,border-color,transform] duration-150 hover:border-plum-700/40 hover:bg-white active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
-            Try it with sample data
+            {t("landing.sampleData")}
           </Link>
         </motion.div>
 
         <motion.ul {...rise(0.36)} className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
           <li className="inline-flex items-center gap-2">
             <Microphone size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
-            Talk or type
+            {t("landing.talkOrType")}
           </li>
           <li className="inline-flex items-center gap-2">
             <WifiSlash size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
-            Still answers offline
+            {t("landing.answersOffline")}
           </li>
           <li className="inline-flex items-center gap-2">
             <ShieldCheck size={16} weight="duotone" className="text-lavender-500" aria-hidden="true" />
-            You control what AI sees
+            {t("landing.controlAI")}
           </li>
         </motion.ul>
       </div>
@@ -104,8 +104,8 @@ export function Hero() {
           transition={{ duration: 0.4, delay: reduce ? 0 : 1.1 }}
           className="absolute -left-4 -top-10 hidden rounded-2xl border border-white/70 bg-white/90 px-3.5 py-2.5 text-xs shadow-[0_14px_30px_-14px_rgb(74_42_82/0.35)] backdrop-blur sm:block lg:-left-10"
         >
-          <p className="font-semibold text-plum-900">Saved from chat</p>
-          <p className="mt-0.5 text-ink-soft">cramps 3/10 · slept 6 h</p>
+          <p className="font-semibold text-plum-900">{t("landing.savedFromChat")}</p>
+          <p className="mt-0.5 text-ink-soft">{t("landing.todayExample")}</p>
         </motion.div>
       </motion.div>
     </div>
@@ -113,6 +113,7 @@ export function Hero() {
 }
 
 function TodayCard() {
+  const { t } = useLanguage();
   // A 28-day ring: period, follicular, ovulation, luteal. Today is day 18.
   const r = 38;
   const c = 2 * Math.PI * r;
@@ -126,8 +127,8 @@ function TodayCard() {
   return (
     <div className="glass-strong rounded-[28px] p-5 sm:p-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-plum-900">Today</p>
-        <p className="text-xs text-ink-soft">Cycle day 18 of about 29</p>
+        <p className="text-sm font-semibold text-plum-900">{t("common.today")}</p>
+        <p className="text-xs text-ink-soft">{t("landing.cycleDayOf")}</p>
       </div>
       <div className="mt-4 flex items-center gap-5">
         <div className="relative h-28 w-28 shrink-0">
@@ -143,21 +144,21 @@ function TodayCard() {
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-semibold tabular-nums text-plum-900">18</span>
-            <span className="text-[11px] text-ink-soft">luteal</span>
+            <span className="text-[11px] text-ink-soft">{t("cycle.luteal")}</span>
           </div>
         </div>
         <div className="min-w-0">
-          <p className="text-lg font-semibold leading-snug text-plum-900">Period in about 11 days</p>
+          <p className="text-lg font-semibold leading-snug text-plum-900">{t("landing.periodInAbout", { days: 11 })}</p>
           <p className="mt-1 text-sm leading-snug text-ink-soft">
-            Energy often dips this week. Iron-rich food and an earlier night help.
+            {t("landing.sampleTip")}
           </p>
         </div>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-2 text-center">
         {[
-          ["Mood", "Calm"],
-          ["Sleep", "6 h"],
-          ["Pain", "3/10"],
+          [t("chat.mood"), t("chat.moods.calm")],
+          [t("chat.sleep"), `6 ${t("cycle.hoursAbbr", "h")}`],
+          [t("chat.pain"), "3/10"],
         ].map(([k, v]) => (
           <div key={k} className="rounded-2xl bg-cream/80 px-2 py-2.5">
             <p className="text-[11px] text-ink-soft">{k}</p>
@@ -170,18 +171,17 @@ function TodayCard() {
 }
 
 function ChatPreview() {
+  const { t } = useLanguage();
   return (
     <div className="rounded-[26px] border border-white/70 bg-white/92 p-4 shadow-[0_24px_50px_-24px_rgb(74_42_82/0.4)] backdrop-blur">
       <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-plum-900 px-3.5 py-2 text-sm text-cream">
-        Why am I so tired this week?
+        {t("landing.sampleUserMsg")}
       </p>
       <div className="mt-3 flex items-start gap-2.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/sakhi-doll.png" alt="" className="h-8 w-8 shrink-0 rounded-full bg-blush-100 object-cover" />
         <p className="rounded-2xl rounded-tl-md bg-blush-50 px-3.5 py-2 text-sm leading-relaxed text-plum-900">
-          Oh dear, that makes sense. You&rsquo;re on day 18, when progesterone rises
-          and many of us feel slower. You slept 6 hours too, so be gentle with yourself
-          tonight.
+          {t("landing.sampleBotMsg")}
         </p>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { WarningCircle, WhatsappLogo, ChatText, MapPin, Plus, Trash, UsersThree, Phone } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserDoc } from "@/hooks/useUserDoc";
 
 export interface Contact { name: string; relation: string; phone: string }
@@ -159,6 +160,7 @@ export function RedFlagBanner({ mode }: { mode: "her" | "pregnancy" }) {
 
 /** Care tab: who to alert, and an "I need help" button. */
 export function FamilyContactsCard({ className = "" }: { className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = useUserDoc<FamilyDoc>("family", EMPTY);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState<Contact>({ name: "", relation: "", phone: "" });
@@ -182,17 +184,17 @@ export function FamilyContactsCard({ className = "" }: { className?: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <UsersThree weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-          <h3 id="family-title" className="text-xl font-semibold tracking-tight text-plum-900">Family alert</h3>
+          <h3 id="family-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("family.title")}</h3>
         </div>
         {doc.contacts.length > 0 && (
           <button type="button" onClick={() => setSending(s => !s)} aria-expanded={sending}
             className="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300">
-            I need help
+            {t("family.iNeedHelp")}
           </button>
         )}
       </div>
       <p className="text-xs text-ink-soft mb-3">
-        If Sakhi spots a warning sign, you can message these people in one tap. Nothing is sent without you pressing send.
+        {t("family.description")}
       </p>
 
       {sending && (
@@ -219,13 +221,13 @@ export function FamilyContactsCard({ className = "" }: { className?: string }) {
           </div>
           {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
           <div className="flex gap-2">
-            <button type="button" onClick={add} className="rounded-xl bg-plum-900 px-4 py-2 text-sm font-semibold text-cream hover:bg-plum-800 cursor-pointer">Save contact</button>
-            <button type="button" onClick={() => { setAdding(false); setError(null); }} className="rounded-xl px-3 py-2 text-sm text-ink-soft hover:bg-white cursor-pointer">Cancel</button>
+            <button type="button" onClick={add} className="rounded-xl bg-plum-900 px-4 py-2 text-sm font-semibold text-cream hover:bg-plum-800 cursor-pointer">{t("common.save")}</button>
+            <button type="button" onClick={() => { setAdding(false); setError(null); }} className="rounded-xl px-3 py-2 text-sm text-ink-soft hover:bg-white cursor-pointer">{t("common.cancel")}</button>
           </div>
         </div>
       ) : doc.contacts.length < 3 && (
         <button type="button" onClick={() => setAdding(true)} className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 hover:underline cursor-pointer">
-          <Plus className="h-4 w-4" /> {doc.contacts.length ? "Add another person" : "Add a family member"}
+          <Plus className="h-4 w-4" /> {doc.contacts.length ? t("family.addAnother") : t("family.addPerson")}
         </button>
       )}
     </section>

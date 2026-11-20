@@ -5,6 +5,7 @@ import { dayNum, dayToIso, type PhaseInfo } from "@/lib/cyclePhase";
 import { planFertility } from "@/lib/fertility";
 import { Target, Plant, Thermometer, Check } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { dayKey } from "@/hooks/useUserDoc";
 import {
   PERI_SIGNS, monthsTrying, periRedFlags, periSummary, ttcAdvice,
@@ -29,22 +30,31 @@ export default function GoalCard({ cycle, goal, className = "" }: {
   goal: { doc: GoalDoc; save: Save; loaded: boolean };
   className?: string;
 }) {
+  const { t } = useLanguage();
   const { doc, save, loaded } = goal;
+
+  const goalDefs: Record<HerGoal, { label: string; hint: string }> = {
+    track: { label: t("goals.tracking"), hint: t("goals.trackingHint") },
+    ttc: { label: t("goals.ttc"), hint: t("goals.ttcHint") },
+    peri: { label: t("goals.peri"), hint: t("goals.periHint") },
+  };
+
   if (!loaded) return null;
   return (
     <section className={`${panelCard} ${className}`} aria-labelledby="goal-title">
       <div className="flex items-center gap-2 mb-1">
         <Target weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="goal-title" className="text-xl font-semibold tracking-tight text-plum-900">Your goal right now</h3>
+        <h3 id="goal-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("goals.title")}</h3>
       </div>
       <div role="radiogroup" aria-label="Your goal" className="mt-3 grid gap-2 sm:grid-cols-3">
         {GOALS.map(g => {
           const on = doc.goal === g.id;
+          const def = goalDefs[g.id] || g;
           return (
             <button key={g.id} type="button" role="radio" aria-checked={on} onClick={() => save(d => ({ ...d, goal: g.id }))}
               className={`rounded-2xl border px-4 py-3 text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 ${on ? "border-plum-900 bg-plum-900 text-cream" : "border-plum-900/10 bg-white/80 text-plum-900 hover:bg-lavender-50"}`}>
-              <span className="block text-sm font-semibold">{g.label}</span>
-              <span className={`block text-xs ${on ? "text-cream/75" : "text-ink-soft"}`}>{g.hint}</span>
+              <span className="block text-sm font-semibold">{def.label}</span>
+              <span className={`block text-xs ${on ? "text-cream/75" : "text-ink-soft"}`}>{def.hint}</span>
             </button>
           );
         })}

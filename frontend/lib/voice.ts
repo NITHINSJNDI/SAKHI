@@ -98,8 +98,13 @@ export function pickVoice(lang: string, style: VoiceStyle = 'woman'): SpeechSynt
     const pool = exact.length ? exact : family;
     return pool.find(v => PREFERRED.test(v.name) && /natural|online/i.test(v.name)) || pool.find(v => PREFERRED.test(v.name)) || pool[0];
   }
-  const english = voices.filter(v => norm(v.lang).startsWith('en'));
-  return english.find(v => PREFERRED.test(v.name)) || voices[0] || null;
+  // If target language is English, find best English voice
+  if (norm(lang).startsWith('en')) {
+    const english = voices.filter(v => norm(v.lang).startsWith('en'));
+    return english.find(v => PREFERRED.test(v.name)) || voices[0] || null;
+  }
+  // For non-English target languages, NEVER fall back to an English voice!
+  return null;
 }
 
 function delivery(style: VoiceStyle, voice: SpeechSynthesisVoice | null) {
@@ -215,6 +220,11 @@ function speakBrowser(
   const lang = getVoiceLang();
   const style = getVoiceStyle();
   const voice = pickVoice(lang, style);
+  if (!voice && !norm(lang).startsWith('en')) {
+    // Unsupported voice locale in user's browser: handle gracefully without speaking in wrong language
+    handlers.onEnd?.();
+    return Promise.resolve();
+  }
   const { pitch, rate } = delivery(style, voice);
   const chunks = splitSentences(cleanForSpeech(text));
   if (!chunks.length) return Promise.resolve();

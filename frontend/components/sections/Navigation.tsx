@@ -7,6 +7,8 @@ import { Button } from "@/components/kokonut";
 import { useSession } from "next-auth/react";
 import { sakhiSignOut } from "@/lib/clientSignOut";
 import { List, X } from "@phosphor-icons/react";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * Navigation — single line at desktop, height capped under 80px.
@@ -14,6 +16,7 @@ import { List, X } from "@phosphor-icons/react";
  */
 export function Navigation() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const reduce = useReducedMotion();
   const { data: session, status } = useSession();
@@ -146,10 +149,10 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { label: "Her & Mom", href: "#modes" },
-    { label: "Insights", href: "#insights" },
-    { label: "Talk to Sakhi", href: "#talk" },
-    { label: "Privacy", href: "#privacy" },
+    { label: t("landing.herMode"), href: "#modes" },
+    { label: t("landing.insights"), href: "#insights" },
+    { label: t("landing.talkToSakhi"), href: "#talk" },
+    { label: t("landing.privacy"), href: "#privacy" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -192,8 +195,9 @@ export function Navigation() {
           ))}
         </div>
 
-        {/* Right side: Auth status, CTA, and Mobile menu button */}
+        {/* Right side: Auth status, LanguageSelector, CTA, and Mobile menu button */}
         <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          <LanguageSelector variant="pill" />
           {status === "authenticated" ? (
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 rounded-full overflow-hidden bg-white/95 border border-pink-300/50 shadow-[0_2px_8px_rgba(244,114,182,0.15)] shrink-0 flex items-center justify-center">
@@ -212,7 +216,7 @@ export function Navigation() {
                 )}
               </div>
               <span className="hidden text-xs font-medium text-plum-900 sm:inline">
-                Hi, {userName || (session?.user?.name ? session.user.name.split(" ")[0] : "there")}
+                {t("landing.hi", { name: userName || (session?.user?.name ? session.user.name.split(" ")[0] : t("common.friend")) })}
               </span>
               <Button
                 variant="primary"
@@ -220,13 +224,13 @@ export function Navigation() {
                 className="px-3.5 py-1.5 text-xs font-semibold"
                 glow
               >
-                Open Portal
+                {t("landing.openPortal")}
               </Button>
               <button
                 onClick={handleSignOut}
                 className="hidden text-xs font-medium text-ink-soft hover:text-plum-900 transition-colors cursor-pointer sm:inline"
               >
-                Sign Out
+                {t("landing.signOut")}
               </button>
             </div>
           ) : (
@@ -236,7 +240,7 @@ export function Navigation() {
               className="px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
               glow
             >
-              Sign In
+              {t("landing.signIn")}
             </Button>
           )}
 

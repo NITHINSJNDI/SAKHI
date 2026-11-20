@@ -20,7 +20,7 @@ function mentions(t: string, re: RegExp): boolean {
 
 const CRISIS = /\b(suicid\w*|kill (?:myself|me)|end (?:my|it all)|want to die|self[- ]?harm|hurt myself|no reason to live)\b/i;
 
-export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: string, opts: { afterBirth?: boolean } = {}): SafetyHit | null {
+export function checkSafety(message: string, mode: 'her' | 'pregnancy', name: string, opts: { afterBirth?: boolean; lang?: string } = {}): SafetyHit | null {
   const t = message.toLowerCase();
   // Gentle opening, but the action always comes right after it
   const who = `Dear ${name || (mode === 'pregnancy' ? 'mama' : 'friend')}`;

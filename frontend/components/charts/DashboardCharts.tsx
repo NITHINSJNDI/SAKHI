@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell, ReferenceLine
 } from "recharts";
@@ -79,21 +80,25 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const EmptyChartState = ({ message }: { message?: string }) => (
-  <div className="h-[230px] flex flex-col items-center justify-center text-center p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-    <span className="text-3xl mb-1.5 opacity-80 animate-bounce">📊</span>
-    <p className="text-xs font-semibold text-plum-900/80">
-      {message || "No logs recorded yet."}
-    </p>
-    <p className="text-[11px] text-plum-900/50 mt-1">
-      Complete your daily check-in to generate animated live analytics!
-    </p>
-  </div>
-);
+const EmptyChartState = ({ message }: { message?: string }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="h-[230px] flex flex-col items-center justify-center text-center p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <span className="text-3xl mb-1.5 opacity-80 animate-bounce">📊</span>
+      <p className="text-xs font-semibold text-plum-900/80">
+        {message || t("charts.noLogs")}
+      </p>
+      <p className="text-[11px] text-plum-900/50 mt-1">
+        {t("charts.completeDailyCheckIn")}
+      </p>
+    </div>
+  );
+};
 
 // 1. Cycle Length Trend
 export const CycleLengthChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No cycle length history yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noCycleLengthHistory")} />;
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.96 }}
@@ -111,7 +116,7 @@ export const CycleLengthChart = ({ data }: { data: any[] }) => {
           <Line 
             type="monotone" 
             dataKey="cycleLength" 
-            name="Cycle Length (Days)" 
+            name={t("charts.cycleLengthDays")} 
             stroke="url(#pinkLineGrad)" 
             strokeWidth={3.5} 
             dot={{ r: 5, fill: "#ec4899", stroke: "#ffffff", strokeWidth: 2 }} 
@@ -128,7 +133,8 @@ export const CycleLengthChart = ({ data }: { data: any[] }) => {
 
 // 2. Period Duration Trend
 export const PeriodDurationChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No bleeding duration history yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noPeriodDurationHistory")} />;
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.96 }}
@@ -146,7 +152,7 @@ export const PeriodDurationChart = ({ data }: { data: any[] }) => {
           <Line 
             type="stepAfter" 
             dataKey="periodDuration" 
-            name="Bleeding Days" 
+            name={t("charts.bleedingDays")} 
             stroke="url(#stepLineGrad)" 
             strokeWidth={3.5} 
             dot={{ r: 5, fill: "#f43f5e", stroke: "#ffffff", strokeWidth: 2 }}
@@ -163,6 +169,7 @@ export const PeriodDurationChart = ({ data }: { data: any[] }) => {
 
 // 3. Symptom Frequency
 export const SymptomFrequencyChart = ({ data }: { data: any[] }) => {
+  const { t } = useLanguage();
   const symMap: any = {};
   if (data && data.length > 0) {
     data.forEach(log => {
@@ -175,7 +182,7 @@ export const SymptomFrequencyChart = ({ data }: { data: any[] }) => {
   }
   const chartData = Object.keys(symMap).map(k => ({ name: k, count: symMap[k] })).sort((a,b) => b.count - a.count).slice(0, 5);
 
-  if (chartData.length === 0) return <EmptyChartState message="No physical symptoms reported yet." />;
+  if (chartData.length === 0) return <EmptyChartState message={t("charts.noSymptoms")} />;
 
   return (
     <motion.div 
@@ -193,7 +200,7 @@ export const SymptomFrequencyChart = ({ data }: { data: any[] }) => {
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(244,114,182,0.12)' }} />
           <Bar 
             dataKey="count" 
-            name="Days Experienced" 
+            name={t("charts.daysExperienced")} 
             fill="url(#barPurpleGrad)" 
             radius={[8, 8, 0, 0]}
             isAnimationActive={true}
@@ -214,7 +221,8 @@ const formatChartDate = (dateStr: string) => {
 
 // 4. Mood vs Cycle Phase
 export const MoodCycleChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No emotional logs recorded yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noMoodLogs")} />;
   const moodScore: any = { "Happy": 5, "Calm": 4, "Energetic": 4, "Fatigued": 3, "Anxious": 2, "Irritable": 1, "Sad": 0 };
   const moodColors: any = { 5: "#34d399", 4: "#60a5fa", 3: "#fbbf24", 2: "#f97316", 1: "#ef4444", 0: "#64748b" };
   
@@ -262,7 +270,8 @@ export const MoodCycleChart = ({ data }: { data: any[] }) => {
 
 // 5. Flow Intensity
 export const FlowIntensityChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No flow entries logged yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noFlowLogs")} />;
   const flowScore: any = { "None": 0, "Spotting": 1, "Light": 2, "Moderate": 3, "Heavy": 4, "Very Heavy": 5 };
   
   const sorted = [...data].sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
@@ -288,7 +297,7 @@ export const FlowIntensityChart = ({ data }: { data: any[] }) => {
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(244,114,182,0.12)' }} />
           <Bar 
             dataKey="intensity" 
-            name="Flow" 
+            name={t("charts.flow")} 
             fill="#fda4af" 
             radius={[8, 8, 0, 0]}
             isAnimationActive={true}
@@ -307,7 +316,8 @@ export const FlowIntensityChart = ({ data }: { data: any[] }) => {
 
 // 6. Pain Trend
 export const PainTrendChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No pain logs recorded yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noPainLogs")} />;
   
   const sorted = [...data].sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
   const chartData = sorted.slice(-14).map(log => ({
@@ -332,7 +342,7 @@ export const PainTrendChart = ({ data }: { data: any[] }) => {
           <Area 
             type="monotone" 
             dataKey="pain" 
-            name="Pain Score" 
+            name={t("charts.painScore")} 
             stroke="#f43f5e" 
             strokeWidth={3}
             fillOpacity={1} 
@@ -349,13 +359,14 @@ export const PainTrendChart = ({ data }: { data: any[] }) => {
 
 // 7. Weight Trend
 export const WeightTrendChart = ({ data }: { data: any[] }) => {
+  const { t } = useLanguage();
   const sorted = [...(data || [])].sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
   const chartData = sorted.slice(-30).filter(log => log && log.weight).map(log => ({
     date: formatChartDate(log.log_date),
     weight: log.weight
   }));
 
-  if (chartData.length === 0) return <EmptyChartState message="No weight logs recorded yet." />;
+  if (chartData.length === 0) return <EmptyChartState message={t("charts.noLogs")} />;
 
   const minW = Math.max(0, Math.min(...chartData.map(d => d.weight)) - 1);
   const maxW = Math.max(...chartData.map(d => d.weight)) + 1;
@@ -377,7 +388,7 @@ export const WeightTrendChart = ({ data }: { data: any[] }) => {
           <Line 
             type="monotone" 
             dataKey="weight" 
-            name="Weight (kg)" 
+            name={t("charts.weightKg")} 
             stroke="url(#cyanLineGrad)" 
             strokeWidth={3.5} 
             dot={{ r: 4, fill: "#0ea5e9", stroke: "#ffffff", strokeWidth: 2 }} 
@@ -394,7 +405,8 @@ export const WeightTrendChart = ({ data }: { data: any[] }) => {
 
 // 8. Sleep Hours
 export const SleepHoursChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return <EmptyChartState message="No sleep hours logged yet." />;
+  const { t } = useLanguage();
+  if (!data || data.length === 0) return <EmptyChartState message={t("charts.noSleepLogs")} />;
   
   const sorted = [...data].sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
   const chartData = sorted.slice(-14).map(log => ({
@@ -420,7 +432,7 @@ export const SleepHoursChart = ({ data }: { data: any[] }) => {
           <Area 
             type="monotone" 
             dataKey="sleep" 
-            name="Sleep (Hours)" 
+            name={t("charts.sleepHours")} 
             stroke="#8b5cf6" 
             strokeWidth={3}
             fillOpacity={1} 

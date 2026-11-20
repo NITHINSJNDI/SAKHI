@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Heart, Phone } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
 import { ANSWERS, EMPTY_MOOD, MOOD_QUESTIONS, bandOf, moodDue, moodMessage, scoreMood, type MoodDoc } from "@/lib/mood";
 
@@ -11,6 +12,7 @@ const shortDate = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("e
 
 /** Two-weekly mood check (PHQ-4 + safety question) with Tele-MANAS when it matters. */
 export default function MoodCheckCard({ pregnant, className = "" }: { pregnant: boolean; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save, loaded } = useUserDoc<MoodDoc>("mood_checks", EMPTY_MOOD);
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(MOOD_QUESTIONS.map(() => null));
@@ -35,12 +37,12 @@ export default function MoodCheckCard({ pregnant, className = "" }: { pregnant: 
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <Heart weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-          <h3 id="mood-title" className="text-xl font-semibold tracking-tight text-plum-900">How you&apos;ve been feeling</h3>
+          <h3 id="mood-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("moodCheck.title")}</h3>
         </div>
         {loaded && !open && (
           <button type="button" onClick={() => setOpen(true)}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 ${due ? "bg-plum-900 text-cream hover:bg-plum-800" : "border border-plum-900/15 bg-white text-plum-900 hover:bg-lavender-50"}`}>
-            {due ? (last ? "Time for your check-in" : "Take the 1-minute check") : "Check in again"}
+            {due ? (last ? t("moodCheck.timeForCheckIn") : t("moodCheck.take1MinCheck")) : t("moodCheck.checkInAgain")}
           </button>
         )}
       </div>
@@ -97,8 +99,7 @@ export default function MoodCheckCard({ pregnant, className = "" }: { pregnant: 
         </div>
       ) : (
         <p className="text-sm text-ink-soft">
-          Five quick questions every two weeks{pregnant ? ", because mood changes in pregnancy and after birth are common and treatable" : ""}. Need to talk now? Tele-MANAS{" "}
-          <a href="tel:14416" className="font-semibold text-plum-900 underline underline-offset-2">14416</a> is free and 24/7.
+          {t("moodCheck.description")}
         </p>
       )}
     </section>

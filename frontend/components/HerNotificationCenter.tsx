@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Clock, BellRinging, Trash, WarningCircle, Drop, Heartbeat, Brain, BellZ, Flower, Calendar } from '@phosphor-icons/react';
+import { useLanguage } from '@/context/LanguageContext';
 import { HerReminder, HerNotificationPreferences } from '@/hooks/useHerNotifications';
 
 interface NotificationCenterProps {
@@ -21,7 +22,15 @@ export default function HerNotificationCenter({
   isOpen, onClose, preferences, reminders,
   onToggleMaster, onUpdatePref, onMarkCompleted, onSnooze, onDelete
 }: NotificationCenterProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'missed' | 'completed' | 'settings'>('upcoming');
+
+  const tabNames: Record<string, string> = {
+    upcoming: t("notifications.upcoming"),
+    missed: t("notifications.missed"),
+    completed: t("notifications.completed"),
+    settings: t("notifications.settings"),
+  };
 
   const filteredReminders = reminders.filter(r => {
     if (activeTab === 'upcoming') return r.status === 'upcoming' || r.status === 'snoozed';
@@ -64,7 +73,7 @@ export default function HerNotificationCenter({
           >
             {/* Header */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-purple-50/50">
-              <h2 className="text-2xl font-semibold text-plum-900">Cycle Notifications</h2>
+              <h2 className="text-2xl font-semibold text-plum-900">{t("notifications.cycleNotifications")}</h2>
               <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60">
                 <X weight="bold" className="w-6 h-6" />
               </button>
@@ -73,7 +82,7 @@ export default function HerNotificationCenter({
             {/* Master Toggle */}
             <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white">
               <div>
-                <h3 className="font-medium text-plum-900">Enable Notifications</h3>
+                <h3 className="font-medium text-plum-900">{t("notifications.enableNotifications")}</h3>
                 <p className="text-sm text-plum-900/60">Receive cycle & fertile reminders.</p>
               </div>
               <button 
@@ -94,7 +103,7 @@ export default function HerNotificationCenter({
                       onClick={() => setActiveTab(tab as any)}
                       className={`flex-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-purple-500 text-purple-600' : 'border-transparent text-plum-900/60 hover:text-plum-900'}`}
                     >
-                      {tab}
+                      {tabNames[tab] || tab}
                       {(tab === 'missed' && reminders.filter(r => r.status === 'missed').length > 0) && (
                         <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs">{reminders.filter(r => r.status === 'missed').length}</span>
                       )}
@@ -121,7 +130,7 @@ export default function HerNotificationCenter({
                   ) : filteredReminders.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-plum-900/40">
                       <BellZ className="w-16 h-16 mb-4 opacity-20" />
-                      <p>No {activeTab} notifications.</p>
+                      <p>{t("notifications.noNotifications", { tab: tabNames[activeTab] || activeTab })}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -167,7 +176,7 @@ export default function HerNotificationCenter({
             {!preferences.enabled && (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-plum-900/50">
                 <BellRinging className="w-16 h-16 mb-4 opacity-20" />
-                <p>Notifications are disabled. Turn them on to receive personalized menstrual tracking reminders.</p>
+                <p>{t("notifications.disabledHintHer")}</p>
               </div>
             )}
           </motion.div>

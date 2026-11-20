@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BowlFood, Drop, Minus, Plus } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
 import {
   EMPTY_MEALS, FOODS, FOOD_BY_ID, GROUP_LABEL, NUTRIENT_LABEL, TARGETS, WATER_GLASSES,
@@ -22,6 +23,7 @@ const STAGE_NOTE: Record<Stage, string> = {
 
 /** Food log in everyday servings, turned into the nutrients that matter now. */
 export default function MealsCard({ stage, className = "" }: { stage: Stage; className?: string }) {
+  const { t: tr } = useLanguage();
   const { doc, save, reload } = useUserDoc<MealsDoc>("meals", EMPTY_MEALS);
   const [showAll, setShowAll] = useState(false);
   const today = dayKey();
@@ -59,7 +61,7 @@ export default function MealsCard({ stage, className = "" }: { stage: Stage; cla
       <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
           <BowlFood weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-          <h3 id="meals-title" className="text-xl font-semibold tracking-tight text-plum-900">What you ate today</h3>
+          <h3 id="meals-title" className="text-xl font-semibold tracking-tight text-plum-900">{tr("mom.mealsTitle")}</h3>
         </div>
         <span className="text-xs text-ink-soft">{STAGE_NOTE[stage]} (ICMR-NIN)</span>
       </div>

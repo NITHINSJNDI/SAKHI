@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Sparkle } from "@phosphor-icons/react";
 import PregnancyDailyCheckIn from "./PregnancyDailyCheckIn";
 import { useSakhiChat } from "@/hooks/useSakhiChat";
+import { useLanguage } from "@/context/LanguageContext";
 import SakhiDoll from "./chat/SakhiDoll";
 import SakhiChatPanel, { type QuickReply } from "./chat/SakhiChatPanel";
 
@@ -50,9 +51,23 @@ export default function PregnancyAvatar({
   babyName,
   afterBirth = false,
 }: PregnancyAvatarProps) {
+  const { t } = useLanguage();
   const [name, setName] = useState(profileName || pregnancyContext?.profile?.preferred_name || "Mama");
   const [isCompletedToday, setIsCompletedToday] = useState(false);
   const chat = useSakhiChat({ mode: "pregnancy", onChartUpdate, profileName: name });
+
+  const momQuick: QuickReply[] = [
+    { label: t("chat.quickMomBP"), text: t("chat.quickMomBPMsg") },
+    { label: t("chat.quickMomKicks"), text: t("chat.quickMomKicksMsg") },
+    { label: t("chat.quickMomFood"), text: t("chat.quickMomFoodMsg"), send: true },
+    { label: t("chat.quickMomNormal"), text: t("chat.quickMomNormalMsg") },
+  ];
+  const postnatalQuick: QuickReply[] = [
+    { label: t("chat.quickMomBP"), text: t("chat.quickMomBPMsg") },
+    { label: t("chat.quickPostnatalFeed"), text: t("chat.quickPostnatalFeedMsg") },
+    { label: t("chat.quickPostnatalBaby"), text: t("chat.quickPostnatalBabyMsg") },
+    { label: t("chat.quickPostnatalFood"), text: t("chat.quickPostnatalFoodMsg"), send: true },
+  ];
 
   useEffect(() => {
     setName(storedName() || profileName || pregnancyContext?.profile?.preferred_name || "Mama");
@@ -104,22 +119,22 @@ export default function PregnancyAvatar({
         ) : (
           <SakhiChatPanel
             chat={chat}
-            quickReplies={afterBirth ? POSTNATAL_QUICK : MOM_QUICK}
-            headerText="Ask Sakhi anything about your baby or health"
+            quickReplies={afterBirth ? postnatalQuick : momQuick}
+            headerText={t("chat.askSakhiAnything")}
             headerAction={!afterBirth && !isCompletedToday && onToggleCheckInMode ? (
               <button
                 type="button"
                 onClick={onToggleCheckInMode}
                 className="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-pink-100/70 hover:bg-pink-100 text-pink-700 font-medium transition-colors cursor-pointer flex items-center gap-1"
               >
-                <Sparkle weight="fill" size={12} className="text-pink-500" /> Daily Check-in
+                <Sparkle weight="fill" size={12} className="text-pink-500" /> {t("chat.dailyCheckIn")}
               </button>
             ) : undefined}
             emptyState={
               <div className="max-w-[88%] sm:max-w-[85%] p-3 sm:p-4 rounded-2xl text-sm sm:text-base shadow-sm border border-white/40 bg-white/90 text-plum-900 self-start rounded-tl-sm">
                 {afterBirth
-                  ? <>Hi {name} 👋! How are you and {babyName || "baby"} doing today? Ask me about feeding, sleep, your recovery, or anything that worries you.</>
-                  : <>Hi {name} 👋! I&apos;m here to support you and your baby. How are you feeling today?</>}
+                  ? t("chat.emptyPostnatalPrompt", { name, babyName: babyName || "baby" })
+                  : t("chat.emptyMomPrompt", { name })}
               </div>
             }
           />

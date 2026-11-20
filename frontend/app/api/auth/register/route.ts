@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createManualAccount } from "@/lib/userAccounts";
-import { claimGuestDocuments } from "@/lib/store";
+import { claimGuestDocuments, writeDoc } from "@/lib/store";
 import { rateLimit, clientKey } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
@@ -29,6 +29,23 @@ export async function POST(req: Request) {
 
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    // Automatically save user's selected language in PostgreSQL preferences
+    if (result.user?.email && body.language) {
+      try {
+        const userOwner = {
+          key: `user:${result.user.email.toLowerCase()}`,
+          cookieId: result.user.email.replace(/[^a-zA-Z0-9]/g, '_'),
+          email: result.user.email,
+          name: result.user.name,
+          isGuest: false,
+          userId: Number(result.user.id),
+        };
+        await writeDoc('preferences', { language: body.language, updatedAt: new Date().toISOString() }, userOwner);
+      } catch (err: any) {
+        console.warn("Could not save initial language preference during registration:", err?.message);
+      }
     }
 
     // Automatically associate any onboarding/demo session data with the new account

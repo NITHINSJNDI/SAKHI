@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Flower } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import type { PhaseInfo } from "@/lib/cyclePhase";
 
 const SIGNS = [
@@ -26,6 +27,7 @@ const LEVEL = {
  * gives a screening result. Never a diagnosis.
  */
 export default function PcosCheckCard({ phase, profile, className = "" }: { phase: PhaseInfo; profile: any; className?: string }) {
+  const { t } = useLanguage();
   const [answers, setAnswers] = useState<Record<SignKey, boolean>>({ hair_growth: false, pimples: false, skin_darkening: false, hair_loss: false, weight_gain: false });
   const [result, setResult] = useState<any>(null);
   const [busy, setBusy] = useState(false);
@@ -34,6 +36,14 @@ export default function PcosCheckCard({ phase, profile, className = "" }: { phas
     || profile?.cycle_regularity === "No" || profile?.cycle_regularity === "Irregular";
   const age = Number(profile?.age) || null;
   const bmi = Number(profile?.bmi) || null;
+
+  const signLabels: Record<SignKey, string> = {
+    hair_growth: t("pcos.facialHair"),
+    pimples: t("pcos.acne"),
+    skin_darkening: t("pcos.moodSwings"),
+    hair_loss: t("pcos.hairThinning"),
+    weight_gain: t("pcos.weightGain"),
+  };
 
   const check = async () => {
     setBusy(true);
@@ -65,21 +75,21 @@ export default function PcosCheckCard({ phase, profile, className = "" }: { phas
     <section className={`${panelCard} ${className}`} aria-labelledby="pcos-title">
       <div className="flex items-center gap-2">
         <Flower weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-        <h3 id="pcos-title" className="text-xl font-semibold tracking-tight text-plum-900">PCOS check</h3>
+        <h3 id="pcos-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("pcos.title")}</h3>
       </div>
       <p className="mt-2 text-sm text-ink-soft">
-        From your logs: cycles look <b className="text-plum-900">{irregular ? "irregular" : "regular"}</b>, periods last about <b className="text-plum-900">{phase.usualPeriodLength} days</b>. Tick anything that applies to you:
+        {irregular ? t("pcos.fromLogsIrregular") : t("pcos.fromLogsRegular")}, {t("pcos.periodsLastAbout", { days: phase.usualPeriodLength })}
       </p>
       <div className="mt-3 space-y-2">
         {SIGNS.map(s => (
           <label key={s.key} className="flex items-center gap-3 rounded-xl border border-plum-900/[0.07] bg-white/75 px-3 py-2 text-sm text-plum-900 cursor-pointer">
             <input type="checkbox" checked={answers[s.key]} onChange={e => { setAnswers(a => ({ ...a, [s.key]: e.target.checked })); setResult(null); }} />
-            {s.label}
+            {signLabels[s.key] || s.label}
           </label>
         ))}
       </div>
       <button type="button" onClick={check} disabled={busy} className="mt-4 rounded-full bg-plum-900 px-4 py-2 text-sm font-medium text-cream hover:bg-plum-900/90 disabled:opacity-60 cursor-pointer">
-        {busy ? "Checking…" : "Check"}
+        {busy ? t("pcos.checking") : t("pcos.checkButton")}
       </button>
 
       {result?.error && <p className="mt-3 text-sm text-rose-700">Couldn&apos;t check right now. Please try again.</p>}
@@ -89,13 +99,13 @@ export default function PcosCheckCard({ phase, profile, className = "" }: { phas
           {drivers.length > 0 && <p className="mt-2 text-sm text-plum-900">Mostly because of: {drivers.map(d => d.label.toLowerCase()).join(", ")}.</p>}
           <p className="mt-2 text-sm text-plum-900">
             {level === "Low"
-              ? "Your answers don't point to PCOS. Check again if things change."
-              : "PCOS is common and treatable. A doctor can confirm it with a hormone blood test and an ultrasound. Take your doctor summary with you."}
+              ? t("pcos.negative")
+              : t("pcos.positive")}
           </p>
         </div>
       )}
       <p className="mt-3 text-[11px] text-ink-faint">
-        Screening only, not a diagnosis. Learned from 541 women in Kerala hospitals: it finds about 85 in 100 women with PCOS and wrongly flags about 1 in 4 without it.
+        {t("pcos.disclaimer")}
       </p>
     </section>
   );

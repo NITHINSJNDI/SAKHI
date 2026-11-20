@@ -12,6 +12,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { panelCard } from "@/components/her/HerPanels";
 import { sizeFor } from "@/lib/chat/offline/knowledge";
 import DashboardTabs, { useHashTab, type TabDef } from "@/components/DashboardTabs";
+import { useLanguage } from "@/context/LanguageContext";
 
 type MomTab = "today" | "vitals" | "plan" | "care";
 const MOM_TAB_IDS = ["today", "vitals", "plan", "care"] as const;
@@ -366,7 +367,14 @@ function LatestVitalsCard({ logs, onOpenVitals, afterBirth = false }: { logs: an
 
 export default function PregnancyModePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { data: session } = useSession();
+  const momTabs: TabDef<MomTab>[] = [
+    { id: "today", label: t("tabs.today"), icon: Sun },
+    { id: "vitals", label: t("tabs.vitals"), icon: Heartbeat },
+    { id: "plan", label: t("tabs.plan"), icon: CalendarCheck },
+    { id: "care", label: t("tabs.care"), icon: Heart },
+  ];
   const [mounted, setMounted] = useState(false);
   const [isCheckingData, setIsCheckingData] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -663,7 +671,7 @@ export default function PregnancyModePage() {
       <ConsentGate />
       <DashboardHeader
         mode="pregnancy"
-        modeLabel={born ? `Mom Mode · Baby ${babyAge(pp.doc.birth_date!, new Date().toISOString().slice(0, 10)).replace(" old", "")}` : `Mom Mode · Week ${weeks}`}
+        modeLabel={born ? `${t("header.momMode")} · ${t("mom.newbornTitle")} ${babyAge(pp.doc.birth_date!, new Date().toISOString().slice(0, 10)).replace(" old", "")}` : `${t("header.momMode")} · ${t("pregnancy.week")} ${weeks}`}
         displayName={displayName}
         reminderCount={(reminders || []).filter((r: any) => r.status === "upcoming").length}
         onOpenReminders={() => setIsNotificationOpen(true)}
@@ -674,7 +682,7 @@ export default function PregnancyModePage() {
         <RedFlagBanner mode="pregnancy" />
 
         {/* After the birth the Plan tab becomes the baby's tab: growth, milestones, vaccines */}
-        <DashboardTabs tabs={born ? MOM_TABS.map(t => (t.id === "plan" ? { ...t, label: "Baby", icon: Baby } : t)) : MOM_TABS} active={tab} onChange={setTab} />
+        <DashboardTabs tabs={born ? momTabs.map(tabItem => (tabItem.id === "plan" ? { ...tabItem, label: t("mom.newbornTitle"), icon: Baby } : tabItem)) : momTabs} active={tab} onChange={setTab} />
 
         {/* VISUAL DASHBOARD */}
         <motion.div
@@ -714,7 +722,7 @@ export default function PregnancyModePage() {
           {!born && weeks >= 28 && (
             <div className={`${cardClass} md:col-span-12 order-4`}>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-semibold tracking-tight text-plum-900">Contraction timer</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.contractionTitle")}</h3>
             </div>
             <p className="text-xs text-plum-900/55 mb-4">Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are.</p>
             <ContractionTimer weeks={weeks} />
@@ -724,14 +732,14 @@ export default function PregnancyModePage() {
           {!born && <div className={`${cardClass} md:col-span-12 order-1`}>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-6">
               <div>
-                <p className="text-sm text-ink-soft">{weeks <= 13 ? "First trimester" : weeks <= 27 ? "Second trimester" : "Third trimester"}</p>
+                <p className="text-sm text-ink-soft">{weeks <= 13 ? t("pregnancy.trimester1") : weeks <= 27 ? t("pregnancy.trimester2") : t("pregnancy.trimester3")}</p>
                 <h2 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-plum-900">
-                  Week {weeks}. Baby is about the size of <span className="display-serif font-normal text-blush-500">{sizeFor(weeks)}</span>.
+                  {t("pregnancy.week")} {weeks}. Baby is about the size of <span className="display-serif font-normal text-blush-500">{sizeFor(weeks)}</span>.
                 </h2>
               </div>
               {daysToGo !== null && (
                 <p className="text-sm text-ink-soft sm:text-right shrink-0">
-                  <span className="text-2xl font-semibold tabular-nums text-plum-900">{daysToGo}</span> days to your due date
+                  <span className="text-2xl font-semibold tabular-nums text-plum-900">{daysToGo}</span> {t("pregnancy.daysToDue")}
                 </p>
               )}
             </div>

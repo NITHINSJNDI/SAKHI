@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * AhaChart — the "Aha" moment visualization.
@@ -50,6 +51,7 @@ const lutealX0 = xFor(14);
 const lutealX1 = xFor(27);
 
 export function AhaChart() {
+  const { t } = useLanguage();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -221,10 +223,10 @@ export function AhaChart() {
         >
           <div className="glass-strong rounded-2xl px-4 py-3">
             <p className="text-xs font-medium text-ink-soft">
-              Sample cycle
+              {t("landing.sampleCycle")}
             </p>
             <p className="text-sm font-semibold text-plum-900">
-              Low days cluster after ovulation
+              {t("landing.lowDaysCluster")}
             </p>
           </div>
         </motion.div>

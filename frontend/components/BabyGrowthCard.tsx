@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChartLineUp, Trash } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { dayKey } from "@/hooks/useUserDoc";
 import type { PP } from "@/components/Postpartum";
 import { effectiveAgeStart } from "@/lib/postpartum";
@@ -19,6 +20,7 @@ const fmt = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("en-IN",
 
 /** Baby's weight on the WHO lines, coloured like the MCP card growth chart. */
 export default function BabyGrowthCard({ pp, dueDate, className = "" }: { pp: PP; dueDate?: string | null; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = pp;
   const today = dayKey();
   const [date, setDate] = useState(today);
@@ -50,7 +52,7 @@ export default function BabyGrowthCard({ pp, dueDate, className = "" }: { pp: PP
       <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
           <ChartLineUp weight="duotone" className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-          <h3 id="growth-title" className="text-xl font-semibold tracking-tight text-plum-900">{doc.baby_name ? `${doc.baby_name}'s growth` : "Baby's growth"}</h3>
+          <h3 id="growth-title" className="text-xl font-semibold tracking-tight text-plum-900">{doc.baby_name ? `${doc.baby_name}'s growth` : t("mom.growthTitle")}</h3>
         </div>
         <span className="text-xs text-ink-soft">WHO growth standards, as on the MCP card</span>
       </div>
@@ -104,7 +106,7 @@ export default function BabyGrowthCard({ pp, dueDate, className = "" }: { pp: PP
           <input inputMode="decimal" value={kg} onChange={e => setKg(e.target.value)} placeholder="e.g. 4.6"
             className="w-28 rounded-xl border border-plum-900/12 bg-cream/60 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500" />
         </label>
-        <button type="submit" className="rounded-full bg-plum-900 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">Add weight</button>
+        <button type="submit" className="rounded-full bg-plum-900 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">{t("mom.addWeight")}</button>
         {error && <p role="alert" className="w-full text-sm text-rose-700">{error}</p>}
       </form>
 

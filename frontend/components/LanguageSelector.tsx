@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Globe, MagnifyingGlass, Check, Microphone, Waveform, X } from '@phosphor-icons/react';
+import { Globe, MagnifyingGlass, Check, X } from '@phosphor-icons/react';
 import { INDIAN_LANGUAGES, getLanguage, type LanguageInfo } from '@/lib/languages';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LanguageSelectorProps {
   currentCode?: string;
@@ -17,42 +18,12 @@ export default function LanguageSelector({
   variant = 'pill',
   className = '',
 }: LanguageSelectorProps) {
-  const [selectedCode, setSelectedCode] = useState<string>(currentCode || 'en');
+  const { language, setLanguage } = useLanguage();
+  const selectedCode = currentCode || language;
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Sync with prop, localStorage, or server preferences
-  useEffect(() => {
-    if (currentCode) {
-      setSelectedCode(currentCode);
-      return;
-    }
-
-    const saved = localStorage.getItem('sakhi_preferred_language') || localStorage.getItem('sakhi_voice_lang');
-    if (saved) {
-      setSelectedCode(getLanguage(saved).code);
-    } else {
-      fetch('/api/preferences')
-        .then(r => r.json())
-        .then(data => {
-          if (data?.preferences?.language) {
-            setSelectedCode(data.preferences.language);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [currentCode]);
-
-  // Sync RTL / LTR on root html element
-  useEffect(() => {
-    const lang = getLanguage(selectedCode);
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = lang.code;
-      document.documentElement.dir = lang.direction;
-    }
-  }, [selectedCode]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -84,51 +55,9 @@ export default function LanguageSelector({
   }, [search]);
 
   const handleSelectLanguage = async (lang: LanguageInfo) => {
-    setSelectedCode(lang.code);
     setIsOpen(false);
     setSearch('');
-
-    // Save locally
-    try {
-      localStorage.setItem('sakhi_preferred_language', lang.code);
-      localStorage.setItem('sakhi_voice_lang', lang.bcp47);
-    } catch {
-      // ignore
-    }
-
-    // Apply document direction
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = lang.code;
-      document.documentElement.dir = lang.direction;
-    }
-
-    // Notify other components
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('sakhi-language-changed', {
-          detail: {
-            language: lang.code,
-            bcp47: lang.bcp47,
-            name: lang.name,
-            nativeName: lang.nativeName,
-            direction: lang.direction,
-            voiceTier: lang.voiceTier,
-          },
-        })
-      );
-    }
-
-    // Persist to backend / database
-    try {
-      await fetch('/api/preferences', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: lang.code }),
-      });
-    } catch (e) {
-      console.warn('Could not persist language preference to database:', e);
-    }
-
+    await setLanguage(lang.code);
     onSelect?.(lang);
   };
 
@@ -142,7 +71,7 @@ export default function LanguageSelector({
           aria-haspopup="listbox"
           aria-expanded={isOpen}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 hover:bg-white text-plum-900 border border-plum-900/10 hover:border-pink-300 shadow-sm transition-all text-xs sm:text-sm font-medium backdrop-blur-sm"
-          title="Change language (22 Indian languages + English)"
+          title="Change language"
         >
           <Globe className="text-pink-600 w-4 h-4 shrink-0" weight="duotone" />
           <span className="font-semibold text-pink-700">{selectedLang.nativeName.split(' ')[0]}</span>
@@ -179,7 +108,6 @@ export default function LanguageSelector({
           >
             <div>
               <p className="font-medium text-plum-900">{selectedLang.nativeName} — {selectedLang.name}</p>
-              <p className="text-xs text-plum-900/50">{selectedLang.tierDescription}</p>
             </div>
             <span className="text-xs text-pink-600 font-medium">Change</span>
           </button>
@@ -200,7 +128,7 @@ export default function LanguageSelector({
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search 23 Indian languages…"
+              placeholder="Search languages…"
               className="w-full pl-9 pr-8 py-2 rounded-xl bg-plum-50/50 border border-plum-900/10 focus:border-pink-400 focus:bg-white text-xs sm:text-sm text-plum-900 placeholder:text-plum-900/40 outline-none"
             />
             {search && (
@@ -215,7 +143,7 @@ export default function LanguageSelector({
           </div>
 
           <div className="flex items-center justify-between px-2 py-1 text-[11px] text-plum-900/50 border-b border-black/5 mb-1">
-            <span>22 Scheduled Languages + English</span>
+            <span>8 Supported Languages</span>
             <span className="text-pink-600 font-medium">{filteredLanguages.length} available</span>
           </div>
 
@@ -248,17 +176,6 @@ export default function LanguageSelector({
                         {lang.direction === 'rtl' && (
                           <span className={`text-[9px] px-1 py-0.2 rounded uppercase ${isSelected ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
                             RTL
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        {lang.voiceTier === 'live' ? (
-                          <span className={`inline-flex items-center gap-0.5 text-[10px] ${isSelected ? 'text-pink-100' : 'text-emerald-700'}`}>
-                            <Waveform size={10} weight="bold" /> Gemini Live Voice
-                          </span>
-                        ) : (
-                          <span className={`inline-flex items-center gap-0.5 text-[10px] ${isSelected ? 'text-pink-100' : 'text-plum-900/50'}`}>
-                            <Microphone size={10} /> Voice Assisted
                           </span>
                         )}
                       </div>

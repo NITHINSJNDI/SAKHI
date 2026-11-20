@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, ReferenceLine
 } from "recharts";
@@ -67,17 +68,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+const EmptyChartState = ({ icon = "📊", message, sub }: { icon?: string; message?: string; sub?: string }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
+      <span className="text-3xl mb-1.5 opacity-80 animate-bounce">{icon}</span>
+      <p className="text-sm font-medium">{message || t("charts.noLogs")}</p>
+      <p className="text-xs text-plum-900/40 mt-1">{sub || t("charts.completeDailyCheckIn")}</p>
+    </div>
+  );
+};
+
 // A. Pregnancy Week Progress
 export const PregnancyWeekProgress = ({ weeks }: { weeks: number }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.min((weeks / 40) * 100, 100);
   return (
     <div className="w-full">
       <div className="flex justify-between text-sm font-semibold text-plum-900 mb-2">
         <span className="flex items-center gap-1.5 font-bold text-pink-700">
           <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
-          Week {weeks} of 40
+          {t("pregnancy.week")} {weeks} {t("cycle.ofAbout")} 40
         </span>
-        <span className="text-xs text-ink-soft">{Math.round(progressPercent)}% Completed</span>
+        <span className="text-xs text-ink-soft">{Math.round(progressPercent)}% {t("notifications.completed")}</span>
       </div>
       <div className="h-4 w-full bg-pink-50/80 rounded-full overflow-hidden border border-pink-200/70 shadow-[inset_0_2px_4px_rgba(244,114,182,0.15)] relative">
         <motion.div 
@@ -95,6 +108,7 @@ export const PregnancyWeekProgress = ({ weeks }: { weeks: number }) => {
 
 // B. Baby Growth Timeline
 export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
+  const { t } = useLanguage();
   const fruits = [
     // Matches sizeFor() in lib/chat/offline/knowledge.ts so the chat and the timeline agree
     { w: 8, fruit: "🫘 Rajma bean" },
@@ -127,7 +141,7 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
                   : "border-black/5 bg-black/5 opacity-40 grayscale"
             }`}
           >
-            <span className={`text-[11px] sm:text-xs font-bold ${isCurrent ? "text-pink-700" : "text-plum-900/60"}`}>Week {f.w}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${isCurrent ? "text-pink-700" : "text-plum-900/60"}`}>{t("pregnancy.week")} {f.w}</span>
             <span className="text-2xl sm:text-3xl mt-0.5 sm:mt-1 select-none">{f.fruit.split(" ")[0]}</span>
             <span className="text-[10px] sm:text-[11px] font-semibold text-plum-900/55 mt-0.5 sm:mt-1 truncate max-w-[72px] sm:max-w-[86px]">{f.fruit.split(" ").slice(1).join(" ")}</span>
           </motion.div>
@@ -141,13 +155,7 @@ export const BabyGrowthTimeline = ({ weeks }: { weeks: number }) => {
 export const WeightGainChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.weight === 'number' && !isNaN(l.weight));
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">⚖️</span>
-        <p className="text-sm font-medium">No weight logs recorded yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Complete your daily check-in or log weight with Sakhi.</p>
-      </div>
-    );
+    return <EmptyChartState icon="⚖️" />;
   }
 
   const chartData = validLogs.slice(-30).map(log => ({
@@ -195,13 +203,7 @@ export const WeightGainChart = ({ data }: { data: any[] }) => {
 export const BloodPressureChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.blood_pressure_systolic === 'number' && typeof l.blood_pressure_diastolic === 'number');
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩺</span>
-        <p className="text-sm font-medium">No blood pressure logs recorded yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Log your first BP measurement in daily check-in.</p>
-      </div>
-    );
+    return <EmptyChartState icon="🩺" />;
   }
 
   const chartData = validLogs.slice(-14).map(log => ({
@@ -259,13 +261,7 @@ export const BloodPressureChart = ({ data }: { data: any[] }) => {
 export const BloodSugarChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => typeof l.blood_sugar === 'number');
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🩸</span>
-        <p className="text-sm font-medium">No fasting blood sugar logs yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Log your blood sugar reading to monitor trends.</p>
-      </div>
-    );
+    return <EmptyChartState icon="🩸" />;
   }
 
   const chartData = validLogs.slice(-14).map(log => ({
@@ -319,13 +315,7 @@ export const BabyMovementChart = ({ data }: { data: any[] }) => {
   });
 
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">👣</span>
-        <p className="text-sm font-medium">No fetal kick counts recorded yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Record baby movement in morning check-in or chat with Sakhi.</p>
-      </div>
-    );
+    return <EmptyChartState icon="👣" />;
   }
 
   const chartData = validLogs.slice(-7).map(log => {
@@ -408,12 +398,7 @@ export const AppointmentTimeline = ({
   onToggleAppointment?: (index: number) => void;
 }) => {
   if (!appointments || appointments.length === 0) {
-    return (
-      <div className="py-8 flex flex-col items-center justify-center text-center text-plum-900/50">
-        <p className="text-sm font-medium">No upcoming appointments scheduled.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Tell Sakhi about your next ANC visit to set a reminder.</p>
-      </div>
-    );
+    return <EmptyChartState icon="📅" />;
   }
 
   return (
@@ -478,13 +463,7 @@ export const AppointmentTimeline = ({
 export const MoodTrackerChart = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => l.mood);
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🌸</span>
-        <p className="text-sm font-medium">No mood logs recorded yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Check in daily to track emotional wellness.</p>
-      </div>
-    );
+    return <EmptyChartState icon="🌸" />;
   }
 
   const moodScore: any = { "Happy": 4, "Calm": 3, "Fatigued": 2, "Anxious": 1, "Irritable": 0, "Nauseous": 1 };
@@ -533,13 +512,7 @@ export const MoodTrackerChart = ({ data }: { data: any[] }) => {
 // I. Nutrition Score
 export const NutritionScoreChart = ({ nutrition }: { nutrition: any }) => {
   if (!nutrition || Object.values(nutrition).every(v => !v || v === 0)) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🥗</span>
-        <p className="text-sm font-medium">No nutrition logged for today.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Track balanced meals, water, and iron intake.</p>
-      </div>
-    );
+    return <EmptyChartState icon="🥗" />;
   }
 
   const data = [
@@ -583,13 +556,7 @@ export const NutritionScoreChart = ({ nutrition }: { nutrition: any }) => {
 export const PregnancySleepGraph = ({ data }: { data: any[] }) => {
   const validLogs = (data || []).filter(l => l.sleep_hours !== null && l.sleep_hours !== undefined && !isNaN(Number(l.sleep_hours)));
   if (validLogs.length === 0) {
-    return (
-      <div className="h-[250px] flex flex-col items-center justify-center text-center text-plum-900/50 p-4 bg-white/30 rounded-2xl border border-dashed border-pink-200/80 shadow-[inset_0_2px_8px_rgba(244,114,182,0.05)]">
-        <span className="text-3xl mb-1.5 opacity-80 animate-bounce">🌙</span>
-        <p className="text-sm font-medium">No sleep logs recorded yet.</p>
-        <p className="text-xs text-plum-900/40 mt-1">Log your sleep hours in daily check-in or chat with Sakhi.</p>
-      </div>
-    );
+    return <EmptyChartState icon="🌙" />;
   }
 
   const chartData = validLogs.slice(-14).map(log => ({

@@ -2,27 +2,26 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { Microphone, ClockCounterClockwise, WifiSlash, Siren } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
 import { Reveal } from "@/components/Reveal";
-
-const POINTS: { icon: Icon; title: string; body: string }[] = [
-  { icon: Microphone, title: "Talk or type", body: "Speak in English with an Indian accent. Sakhi can read its replies aloud, and hands-free mode keeps listening." },
-  { icon: ClockCounterClockwise, title: "Remembers the conversation", body: "Mention cramps on Monday and it asks how you are on Tuesday. What you say is saved to your log for you." },
-  { icon: WifiSlash, title: "Still there offline", body: "No signal, or AI switched off? Sakhi answers from its built-in guidance and keeps logging." },
-  { icon: Siren, title: "Knows when it's urgent", body: "Warning signs get a clear answer to call your doctor or 112 now. For hard days, Tele-MANAS is one tap away at 14416." },
-];
-
-type Bubble = { from: "me" | "sakhi"; text: string; alert?: boolean };
-
-const CHAT: Bubble[] = [
-  { from: "me", text: "Kicks feel less today, and I have a bad headache with blurry vision" },
-  { from: "sakhi", alert: true, text: "Dear mama, please don't wait on this. A strong headache with blurry vision can be a sign of high blood pressure in pregnancy. Call your doctor or 112 now. Less movement is a reason to be checked today too." },
-  { from: "me", text: "ok calling now. thank you" },
-  { from: "sakhi", text: "You're doing exactly the right thing. I'm here when you're back, sweet mama." },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export function TalkToSakhi() {
+  const { t } = useLanguage();
   const reduce = useReducedMotion();
+
+  const points = [
+    { icon: Microphone, title: t("landing.talkFeature1Title"), body: t("landing.talkFeature1Body") },
+    { icon: ClockCounterClockwise, title: t("landing.talkFeature2Title"), body: t("landing.talkFeature2Body") },
+    { icon: WifiSlash, title: t("landing.talkFeature3Title"), body: t("landing.talkFeature3Body") },
+    { icon: Siren, title: t("landing.talkFeature4Title"), body: t("landing.talkFeature4Body") },
+  ];
+
+  const chat = [
+    { from: "me" as const, text: t("landing.talkSampleUser") },
+    { from: "sakhi" as const, alert: true, text: t("landing.talkSampleBot1") },
+    { from: "me" as const, text: t("landing.talkSampleUser2") },
+    { from: "sakhi" as const, text: t("landing.talkSampleBot2") },
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-24 sm:px-6 sm:py-32">
@@ -34,19 +33,18 @@ export function TalkToSakhi() {
           <div>
             <Reveal>
               <h2 className="max-w-md text-balance text-3xl font-semibold leading-[1.1] tracking-tight sm:text-[2.7rem]">
-                Ask her anything.{" "}
-                <span className="display-serif font-normal text-lavender-200">She answers like a friend.</span>
+                {t("landing.talkTitle1")}{" "}
+                <span className="display-serif font-normal text-lavender-200">{t("landing.talkTitle2")}</span>
               </h2>
             </Reveal>
             <Reveal delay={0.08}>
               <p className="mt-5 max-w-md text-pretty leading-relaxed text-cream/75">
-                Warm, plain-spoken and never preachy. Sakhi reads your own logs before
-                it replies, so the answer is about you, not women in general.
+                {t("landing.talkDesc")}
               </p>
             </Reveal>
 
             <ul className="mt-10 grid gap-6 sm:grid-cols-2">
-              {POINTS.map(({ icon: PointIcon, title, body }, i) => (
+              {points.map(({ icon: PointIcon, title, body }, i) => (
                 <Reveal key={title} delay={0.1 + i * 0.06}>
                   <li className="list-none">
                     <PointIcon size={22} weight="duotone" className="text-lavender-300" aria-hidden="true" />
@@ -64,11 +62,11 @@ export function TalkToSakhi() {
               <img src="/sakhi-doll.png" alt="" className="h-10 w-10 rounded-full bg-blush-100 object-cover" />
               <div>
                 <p className="text-sm font-semibold">Sakhi</p>
-                <p className="text-xs text-ink-soft">Mom Mode · week 33</p>
+                <p className="text-xs text-ink-soft">{t("landing.talkSampleMom")}</p>
               </div>
             </div>
             <div className="flex flex-col gap-3 pt-4">
-              {CHAT.map((b, i) => (
+              {chat.map((b, i) => (
                 <motion.div
                   key={i}
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12 }}
@@ -90,7 +88,7 @@ export function TalkToSakhi() {
                   </p>
                   {b.alert && (
                     <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white">
-                      <Siren size={13} weight="fill" aria-hidden="true" /> Call 112
+                      <Siren size={13} weight="fill" aria-hidden="true" /> {t("landing.call112")}
                     </span>
                   )}
                 </motion.div>

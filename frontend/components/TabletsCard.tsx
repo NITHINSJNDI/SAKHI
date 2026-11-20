@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Pill, Plus, Trash, Fire, ClockCounterClockwise, CaretDown, SunHorizon, Sun, CloudSun, Moon, PencilSimple } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserDoc, dayKey } from "@/hooks/useUserDoc";
 import { discreetNotice, isDiscreet } from "@/lib/discreet";
 import {
@@ -107,6 +108,7 @@ export default function TabletsCard({ mode, weeks = 0, className = "" }: { mode:
     }
   }, [plan, doc, today, clock]);
 
+  const { t } = useLanguage();
   const todays = plan.filter(p => !p.tablet.since || today >= p.tablet.since);
   const allDone = todays.length > 0 && todays.every(p => doseOf(doc, today, p.key));
   const bySlot = SLOTS.map(slot => ({ slot, doses: todays.filter(p => p.slot === slot) })).filter(g => g.doses.length);
@@ -116,13 +118,13 @@ export default function TabletsCard({ mode, weeks = 0, className = "" }: { mode:
     <div className={`${panelCard} ${className}`}>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-xl font-semibold tracking-tight text-plum-900">Tablets today</h3>
-          <p className="text-xs text-ink-soft">{allDone ? "All taken today. Well done." : "Tap each one as you take it. Sakhi notes the time."}</p>
+          <h3 className="text-xl font-semibold tracking-tight text-plum-900">{t("tablets.title")}</h3>
+          <p className="text-xs text-ink-soft">{allDone ? t("tablets.allDone") : t("tablets.tapPrompt")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {run > 0 && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
-              <Fire weight="fill" className="h-4 w-4 text-amber-500" aria-hidden="true" /> {run} {run === 1 ? "day" : "days"} in a row
+              <Fire weight="fill" className="h-4 w-4 text-amber-500" aria-hidden="true" /> {t("tablets.streak", { days: run })}
             </span>
           )}
           {book.rate !== null && <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800">{book.rate}% on time</span>}
@@ -131,7 +133,7 @@ export default function TabletsCard({ mode, weeks = 0, className = "" }: { mode:
 
       {list.length === 0 && !adding && (
         <p className="mb-3 rounded-2xl bg-lavender-50 p-4 text-sm text-ink-soft">
-          Add the tablets on your prescription, morning, afternoon or night, before or after food. Sakhi reminds you and keeps a record of when you took each one.
+          {t("tablets.emptyHint")}
         </p>
       )}
 
@@ -253,10 +255,10 @@ export default function TabletsCard({ mode, weeks = 0, className = "" }: { mode:
       ) : (
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
           <button type="button" onClick={() => setAdding(true)} className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 hover:underline cursor-pointer">
-            <Plus className="h-4 w-4" /> Add a tablet
+            <Plus className="h-4 w-4" /> {t("tablets.addTablet")}
           </button>
           <button type="button" onClick={() => setShowMeals(s => !s)} aria-expanded={showMeals} className="inline-flex items-center gap-1.5 text-xs text-ink-soft hover:text-plum-900 cursor-pointer">
-            <PencilSimple className="h-3.5 w-3.5" /> Meal times: breakfast {fmtHm(meals.breakfast)}, lunch {fmtHm(meals.lunch)}, dinner {fmtHm(meals.dinner)}
+            <PencilSimple className="h-3.5 w-3.5" /> {t("tablets.mealTimes")}: breakfast {fmtHm(meals.breakfast)}, lunch {fmtHm(meals.lunch)}, dinner {fmtHm(meals.dinner)}
           </button>
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { Check, Footprints } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { dayKey } from "@/hooks/useUserDoc";
 import type { PP } from "@/components/Postpartum";
 import { effectiveAgeStart } from "@/lib/postpartum";
@@ -13,6 +14,7 @@ const ageText = (m: number) => (m < 1 ? "the first month" : m < 2 ? "about 6 wee
 
 /** What baby can do, what's coming next, and which ones are worth a check-up. */
 export default function MilestonesCard({ pp, dueDate, className = "" }: { pp: PP; dueDate?: string | null; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = pp;
   if (!doc.birth_date) return null;
   const today = dayKey();
@@ -50,7 +52,7 @@ export default function MilestonesCard({ pp, dueDate, className = "" }: { pp: PP
     <section className={`${panelCard} ${className}`} aria-labelledby="milestones-title">
       <div className="flex items-center gap-2 mb-1">
         <Footprints weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="milestones-title" className="text-xl font-semibold tracking-tight text-plum-900">What {baby} can do</h3>
+        <h3 id="milestones-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.milestonesTitle")}</h3>
       </div>
       <p className="text-xs text-ink-soft mb-4">
         Tick each one the first time you see it. Every baby goes at their own pace.

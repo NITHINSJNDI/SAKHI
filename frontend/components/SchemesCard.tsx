@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bank, CaretDown } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Answer = "yes" | "no" | null;
 interface Scheme { id: string; name: string; what: string; who: string; how: string[]; link?: { href: string; label: string }; fits: (a: Answers) => boolean | null }
@@ -63,6 +64,7 @@ const QUESTIONS: { key: keyof Answers; q: string }[] = [
 
 /** Which government schemes she can claim, and what to do for each. */
 export default function SchemesCard({ className = "" }: { className?: string }) {
+  const { t } = useLanguage();
   const [a, setA] = useState<Answers>({ first: null, girl2: null, govt: null, card: null });
   const [open, setOpen] = useState<string | null>(null);
   const shown = QUESTIONS.filter(q => !(q.key === "girl2" && a.first !== "no"));
@@ -72,7 +74,7 @@ export default function SchemesCard({ className = "" }: { className?: string }) 
     <section className={`${panelCard} ${className}`} aria-labelledby="schemes-title">
       <div className="flex items-center gap-2 mb-1">
         <Bank weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="schemes-title" className="text-xl font-semibold tracking-tight text-plum-900">Government help you can claim</h3>
+        <h3 id="schemes-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.schemesTitle")}</h3>
       </div>
       <p className="text-xs text-ink-soft mb-4">Answer a few questions to see which schemes fit you. Nothing here is saved or sent anywhere.</p>
 

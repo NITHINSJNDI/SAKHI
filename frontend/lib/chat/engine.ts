@@ -187,7 +187,7 @@ export async function runSakhiChat(input: {
     // After the birth the safety rules change: lochia is normal, the newborn's danger signs are not
     const pp = mode === 'pregnancy' ? await readDoc<any>('postpartum', null, owner).catch(() => null) : null;
     const afterBirth = Boolean(pp?.birth_date);
-    const hit = checkSafety(message, mode, name, { afterBirth });
+    const hit = checkSafety(message, mode, name, { afterBirth, lang });
     if (hit) {
       const saved = await offline(message, owner, name).catch(() => null);
       const chartUpdates = saved?.chartData ? [saved.chartData] : [];

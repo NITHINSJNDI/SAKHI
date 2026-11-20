@@ -3,6 +3,7 @@
 import { Check } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
 import { useUserDoc } from "@/hooks/useUserDoc";
+import { useLanguage } from "@/context/LanguageContext";
 
 const GROUPS: { title: string; items: string[] }[] = [
   {
@@ -46,6 +47,7 @@ interface Lists { hospital_bag: string[] }
 
 /** Packing list that opens in the third trimester. */
 export default function HospitalBagCard({ weeks, className = "" }: { weeks: number; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = useUserDoc<Lists>("checklists", { hospital_bag: [] });
   const packed = doc.hospital_bag || [];
   const toggle = (item: string) => save(d => {
@@ -58,7 +60,7 @@ export default function HospitalBagCard({ weeks, className = "" }: { weeks: numb
     <div className={`${panelCard} ${className}`}>
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-xl font-semibold tracking-tight text-plum-900">Hospital bag</h3>
+          <h3 className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.hospitalBagTitle")}</h3>
           <p className="text-xs text-ink-soft">
             {weeks >= 36 ? "Keep it by the door now." : `Aim to have it packed by week 36${weeks < 36 ? ` (${36 - weeks} weeks to go)` : ""}.`}
           </p>

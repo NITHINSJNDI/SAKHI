@@ -5,6 +5,7 @@ import { Drop } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
 import { anaemiaWatch, IRON_FOODS, type AnaemiaLevel } from "@/lib/anaemia";
 import type { LabResult } from "@/lib/labs";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserDoc } from "@/hooks/useUserDoc";
 import { EMPTY_TABLETS, type TabletsDoc } from "@/lib/tablets";
 import { EMPTY_HYGIENE, pbacByPeriod, type HygieneDoc } from "@/lib/hygiene";
@@ -18,6 +19,7 @@ const BADGE: Record<AnaemiaLevel, { text: string; cls: string }> = {
 
 /** Iron check from her flow, tiredness and lab results. */
 export default function AnaemiaCard({ logs, className = "" }: { logs: any[]; className?: string }) {
+  const { t } = useLanguage();
   const [labs, setLabs] = useState<LabResult[]>([]);
   const { doc: tablets } = useUserDoc<TabletsDoc>("tablets", EMPTY_TABLETS);
   const { doc: hygiene } = useUserDoc<HygieneDoc>("hygiene", EMPTY_HYGIENE);
@@ -36,24 +38,25 @@ export default function AnaemiaCard({ logs, className = "" }: { logs: any[]; cla
     return scored.length ? Math.max(...scored.map(p => p.score)) : null;
   }, [hygiene.pads]);
   const w = useMemo(() => anaemiaWatch(logs, labs, takingIron, pbac), [logs, labs, takingIron, pbac]);
-  const badge = BADGE[w.level];
+  const badgeCls = w.level === "clear" ? "bg-emerald-100 text-emerald-800" : w.level === "watch" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-700";
+  const badgeText = w.level === "clear" ? t("anaemia.looksFine") : w.level === "watch" ? t("anaemia.watch") : t("anaemia.seeDoctor");
 
   return (
     <section className={`${panelCard} ${className}`} aria-labelledby="iron-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Drop weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-          <h3 id="iron-title" className="text-xl font-semibold tracking-tight text-plum-900">Iron check</h3>
+          <h3 id="iron-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("anaemia.title")}</h3>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badge.cls}`}>{badge.text}</span>
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeCls}`}>{badgeText}</span>
       </div>
-      <p className="mt-3 text-base font-medium text-plum-900">{w.headline}</p>
+      <p className="mt-3 text-base font-medium text-plum-900">{w.level === "clear" && logs.length < 2 ? t("anaemia.notEnoughData") : w.headline}</p>
       {w.reasons.length > 0 && (
         <ul className="mt-2 space-y-1 text-sm text-ink-soft">
           {w.reasons.map(r => <li key={r} className="flex gap-2"><span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blush-400" />{r}</li>)}
         </ul>
       )}
-      <p className="mt-3 rounded-2xl bg-lavender-50 p-3 text-sm text-plum-900">{w.next}</p>
+      <p className="mt-3 rounded-2xl bg-lavender-50 p-3 text-sm text-plum-900">{logs.length < 2 ? t("anaemia.logFlowPrompt") : w.next}</p>
       {w.level !== "clear" && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-plum-900/65 mb-2">Iron-rich food to add</p>
@@ -63,7 +66,7 @@ export default function AnaemiaCard({ logs, className = "" }: { logs: any[]; cla
           <p className="mt-2 text-[11px] text-ink-faint">Skip tea or coffee for an hour around meals: it blocks iron.</p>
         </div>
       )}
-      <p className="mt-3 text-[11px] text-ink-faint">Based on your check-ins and lab results. Sakhi can&apos;t diagnose anaemia; a blood test can.</p>
+      <p className="mt-3 text-[11px] text-ink-faint">{t("anaemia.disclaimer")}</p>
     </section>
   );
 }

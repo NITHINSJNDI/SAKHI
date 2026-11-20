@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Baby, Clock, CheckCircle, ArrowsLeftRight, ShieldCheck, DownloadSimple, Trash } from '@phosphor-icons/react';
 import DiscreetSettings from '@/components/DiscreetSettings';
 import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/context/LanguageContext';
 import { VOICE_LANGS, VOICE_LANG_KEY, VOICE_STYLES, VOICE_STYLE_KEY, getVoiceLang, getVoiceStyle, speak, type VoiceStyle } from '@/lib/voice';
 
 interface SettingsModalProps {
@@ -16,6 +17,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose, mode, currentData }: SettingsModalProps) {
+  const { language, t } = useLanguage();
   const router = useRouter();
   const [formData, setFormData] = useState<any>({});
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -140,7 +142,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] sm:w-full max-w-lg bg-white border-2 border-pink-200/90 shadow-[0_20px_60px_rgba(244,114,182,0.22)] z-50 rounded-3xl md:rounded-[2.5rem] overflow-hidden max-h-[90vh] flex flex-col"
           >
             <div className="p-4 sm:p-6 border-b border-black/5 flex items-center justify-between bg-pink-50/50 shrink-0">
-              <h2 className="text-xl sm:text-2xl font-semibold text-plum-900">Settings</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold text-plum-900">{t("settings.title")}</h2>
               <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60">
                 <X weight="bold" className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
@@ -153,12 +155,12 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
               {/* Voice Settings */}
               <div>
                 <h3 className="text-base sm:text-lg font-medium text-plum-900 flex items-center gap-2 mb-3 sm:mb-4">
-                  <User weight="duotone" className="text-pink-500" /> Sakhi Voice
+                  <User weight="duotone" className="text-pink-500" /> {t("settings.voiceSection")}
                 </h3>
                 <div className="flex items-center justify-between p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
                   <div>
-                    <p className="font-medium text-sm sm:text-base text-plum-900">Auto-Play Voice</p>
-                    <p className="text-xs sm:text-sm text-plum-900/60">Sakhi will read her replies aloud.</p>
+                    <p className="font-medium text-sm sm:text-base text-plum-900">{t("settings.voiceReplies")}</p>
+                    <p className="text-xs sm:text-sm text-plum-900/60">{t("settings.voiceAloudHint")}</p>
                   </div>
                   <button 
                     type="button"
@@ -186,20 +188,20 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                     }}
                   />
                   <div className="flex items-center justify-between pt-1 border-t border-black/5">
-                    <span className="text-xs text-plum-900/60">Preview voice greeting in selected language</span>
+                    <span className="text-xs text-plum-900/60">{t("settings.previewVoiceGreeting")}</span>
                     <button
                       type="button"
-                      onClick={() => speak(`Hi ${formData.preferred_name || 'dear'}, this is how I sound.`)}
-                      className="rounded-xl border border-pink-200 bg-white px-3 py-1.5 text-xs font-medium text-pink-700 hover:bg-pink-50 transition-colors shadow-sm"
+                      onClick={() => speak(t("settings.testVoiceGreeting", { name: formData.preferred_name || t("common.friend") }))}
+                      className="rounded-xl border border-pink-200 bg-white px-3 py-1.5 text-xs font-medium text-pink-700 hover:bg-pink-50 transition-colors shadow-sm cursor-pointer"
                     >
-                      Test Voice
+                      {t("settings.testVoice")}
                     </button>
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 p-3.5 sm:p-4 bg-gray-50 rounded-2xl border border-black/5">
                   <div className="min-w-0">
-                    <p id="voice-style-label" className="font-medium text-sm sm:text-base text-plum-900">Sakhi sounds like</p>
-                    <p className="text-xs sm:text-sm text-plum-900/60">Tap Test above to hear it.</p>
+                    <p id="voice-style-label" className="font-medium text-sm sm:text-base text-plum-900">{t("settings.voiceStyle")}</p>
+                    <p className="text-xs sm:text-sm text-plum-900/60">{t("settings.tapTestHint")}</p>
                   </div>
                   <div role="radiogroup" aria-labelledby="voice-style-label" className="inline-flex shrink-0 rounded-xl border border-black/10 bg-white p-1">
                     {VOICE_STYLES.map(s => {
@@ -228,21 +230,21 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
               <div>
                 <h3 className="text-base sm:text-lg font-medium text-plum-900 flex items-center gap-2 mb-3 sm:mb-4">
                   <User weight="duotone" className="text-pink-500" /> 
-                  Personal Profile
+                  {t("settings.personalProfile")}
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-plum-900/80 mb-1">Preferred Name</label>
+                    <label className="block text-xs sm:text-sm font-medium text-plum-900/80 mb-1">{t("settings.preferredName")}</label>
                     <input 
                       type="text" name="preferred_name"
                       value={formData.preferred_name || ''} 
                       onChange={handleChange}
-                      placeholder="Enter your name"
+                      placeholder={t("auth.fullNamePlaceholder")}
                       className="w-full p-3 rounded-xl border border-black/10 focus:ring-2 focus:ring-pink-300 outline-none text-sm sm:text-base"
                     />
                     <p className="text-[11px] sm:text-xs text-plum-900/50 mt-1">
-                      Sakhi will address you with this name in your conversations and dashboards.
+                      {t("settings.preferredNameHint")}
                     </p>
                   </div>
                 </div>
@@ -254,13 +256,13 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                   <div className="flex items-center gap-2 mb-1.5">
                     <ArrowsLeftRight weight="bold" className="text-pink-600 w-5 h-5" />
                     <h3 className="text-sm sm:text-base font-semibold text-plum-900">
-                      {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
+                      {mode === 'her' ? t("settings.switchMomTitle") : t("settings.switchHerTitle")}
                     </h3>
                   </div>
                   <p className="text-xs sm:text-sm text-plum-900/70 mb-3 sm:mb-4 leading-relaxed">
                     {mode === 'her' 
-                      ? 'Transition your dashboard to pregnancy wellness tracking, weekly baby progress, and maternal care.' 
-                      : 'Transition back to cycle rhythm, ovulation prediction, and hormonal balance.'}
+                      ? t("settings.switchMomDesc")
+                      : t("settings.switchHerDesc")}
                   </p>
                   <button 
                     type="button"
@@ -276,7 +278,7 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                   >
                     <Baby weight="bold" className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     <span className="tracking-wide">
-                      {mode === 'her' ? 'Switch to Mom Mode' : 'Switch to Her Mode'}
+                      {mode === 'her' ? t("settings.switchMomTitle") : t("settings.switchHerTitle")}
                     </span>
                   </button>
                 </div>
@@ -285,12 +287,12 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                 <div className="rounded-2xl border border-plum-900/10 bg-white/70 p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-1">
                     <ShieldCheck weight="duotone" className="w-5 h-5 text-pink-500" />
-                    <h3 className="font-semibold text-plum-900 text-sm sm:text-base">Privacy &amp; your data</h3>
+                    <h3 className="font-semibold text-plum-900 text-sm sm:text-base">{t("settings.privacySection")}</h3>
                   </div>
                   <div className="flex items-center justify-between gap-3 mb-3 p-3 rounded-xl bg-pink-50/60 border border-pink-100">
                     <div>
-                      <p className="font-medium text-sm text-plum-900">Private mode</p>
-                      <p className="text-xs text-plum-900/60">Chats are never sent to Google. Sakhi uses a private model if one is set up, otherwise simple mode.</p>
+                      <p className="font-medium text-sm text-plum-900">{t("settings.privateMode")}</p>
+                      <p className="text-xs text-plum-900/60">{t("settings.privateModeHint")}</p>
                     </div>
                     <button
                       type="button"
@@ -305,25 +307,25 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
                   </div>
                   {privacyMsg && <p className="text-xs text-plum-900/70 mb-3" aria-live="polite">{privacyMsg}</p>}
                   <p className="text-xs sm:text-sm text-plum-900/60 mb-3">
-                    Download a copy of everything Sakhi stores about you, or permanently delete it.
+                    {t("settings.downloadDeleteHint")}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <a
                       href="/api/export-data"
                       className="flex items-center justify-center gap-2 rounded-xl border border-plum-900/15 py-2.5 text-sm font-medium text-plum-900 hover:bg-plum-900/5"
                     >
-                      <DownloadSimple weight="bold" className="w-4 h-4" /> Download my data
+                      <DownloadSimple weight="bold" className="w-4 h-4" /> {t("settings.downloadData")}
                     </a>
                     <button
                       type="button"
                       onClick={() => {
-                        if (window.confirm('Permanently delete all your Sakhi data (profiles, check-ins, pregnancy logs)? This cannot be undone.')) {
+                        if (window.confirm(t("settings.confirmDeleteAll"))) {
                           window.location.href = '/reset';
                         }
                       }}
                       className="flex items-center justify-center gap-2 rounded-xl border border-red-200 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50 cursor-pointer"
                     >
-                      <Trash weight="bold" className="w-4 h-4" /> Delete all my data
+                      <Trash weight="bold" className="w-4 h-4" /> {t("settings.deleteAllData")}
                     </button>
                   </div>
                 </div>
@@ -333,10 +335,10 @@ export default function SettingsModal({ isOpen, onClose, mode, currentData }: Se
             <div className="p-4 sm:p-6 border-t border-black/5 bg-gray-50 flex items-center justify-end shrink-0">
               <div className="flex gap-2">
                 <button onClick={onClose} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-plum-900/70 hover:bg-black/5 transition-colors cursor-pointer">
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button onClick={handleSave} disabled={isSaving || showSuccess} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-white bg-pink-500 hover:bg-pink-600 transition-colors flex items-center gap-2 cursor-pointer">
-                  {showSuccess ? <><CheckCircle weight="bold" /> Saved!</> : (isSaving ? "Saving..." : "Save Changes")}
+                  {showSuccess ? <><CheckCircle weight="bold" /> {t("settings.savedSuccess")}</> : (isSaving ? t("common.saving") : t("settings.saveSettings"))}
                 </button>
               </div>
             </div>

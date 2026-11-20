@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ShieldCheck, Lock, Robot, DownloadSimple, Trash, Stethoscope } from "@phosphor-icons/react";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * First-use privacy consent. Shown over Her Mode / Mom Mode until the user (or
@@ -9,6 +10,7 @@ import { ShieldCheck, Lock, Robot, DownloadSimple, Trash, Stethoscope } from "@p
  * the AI processing, and the user's export/delete rights.
  */
 export default function ConsentGate() {
+  const { t } = useLanguage();
   const [required, setRequired] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,11 +39,11 @@ export default function ConsentGate() {
   };
 
   const points = [
-    { icon: Lock, text: "Your check-ins, cycle and pregnancy data are stored privately for your account only, never sold or shared." },
-    { icon: Robot, text: "Chat messages are processed by Google Gemini to understand what you share. Risk scores run on Sakhi's own models." },
-    { icon: Stethoscope, text: "Sakhi is a wellness companion and screening aid, not a doctor. It never diagnoses or prescribes." },
-    { icon: DownloadSimple, text: "You can download all your data at any time from Settings." },
-    { icon: Trash, text: "You can permanently delete everything with one tap from Settings." },
+    { icon: Lock, text: t("consent.point1") },
+    { icon: Robot, text: t("consent.point2") },
+    { icon: Stethoscope, text: t("consent.point3") },
+    { icon: DownloadSimple, text: t("consent.point4") },
+    { icon: Trash, text: t("consent.point5") },
   ];
 
   return (
@@ -50,8 +52,8 @@ export default function ConsentGate() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-pink-100 text-pink-600">
           <ShieldCheck weight="duotone" className="w-7 h-7" />
         </div>
-        <h2 id="consent-title" className="text-xl font-semibold text-center text-plum-900">Your health data, your control</h2>
-        <p className="mt-1 text-sm text-center text-plum-900/60">Before we begin, here&apos;s how Sakhi handles your information.</p>
+        <h2 id="consent-title" className="text-xl font-semibold text-center text-plum-900">{t("consent.title")}</h2>
+        <p className="mt-1 text-sm text-center text-plum-900/60">{t("consent.subtitle")}</p>
 
         <ul className="mt-5 space-y-3">
           {points.map(({ icon: Icon, text }) => (
@@ -69,7 +71,7 @@ export default function ConsentGate() {
             onChange={e => setAiProcessing(e.target.checked)}
             className="mt-0.5 h-4 w-4 accent-pink-500"
           />
-          <span>I agree that my chat messages may be processed by Google Gemini to provide Sakhi&apos;s conversational features.</span>
+          <span>{t("consent.checkbox")}</span>
         </label>
 
         <div className="mt-6 flex flex-col gap-2">
@@ -78,10 +80,10 @@ export default function ConsentGate() {
             disabled={saving}
             className="w-full rounded-full bg-plum-900 text-white font-medium py-3 disabled:opacity-50 cursor-pointer"
           >
-            {saving ? "Saving…" : "I understand and agree"}
+            {saving ? t("common.saving") : t("consent.agreeBtn")}
           </button>
           <a href="/" className="w-full text-center rounded-full py-2.5 text-sm text-plum-900/60 hover:text-plum-900">
-            Not now
+            {t("consent.notNow")}
           </a>
         </div>
       </div>

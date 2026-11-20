@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Sparkle } from "@phosphor-icons/react";
 import DailyCheckInChat, { type CheckInContext } from "./DailyCheckInChat";
 import { useSakhiChat } from "@/hooks/useSakhiChat";
+import { useLanguage } from "@/context/LanguageContext";
 import SakhiDoll from "./chat/SakhiDoll";
 import SakhiChatPanel, { type QuickReply } from "./chat/SakhiChatPanel";
 
@@ -20,20 +21,21 @@ interface SakhiAvatarProps {
 }
 
 /** Suggestions that fit where she is in her cycle. */
-function herQuickReplies(ctx?: CheckInContext): QuickReply[] {
+function herQuickReplies(t: (k: string, p?: any) => string, ctx?: CheckInContext): QuickReply[] {
   const out: QuickReply[] = [];
-  if (ctx?.bleedingDay) out.push({ label: "My cramps are bad", text: "My cramps are bad today", send: true });
-  if (ctx?.late) out.push({ label: "My period is late", text: `My period is ${ctx.daysLate} days late. Is that okay?`, send: true });
-  out.push({ label: "Log how I feel", text: "Today I'm feeling " });
-  out.push({ label: "When is my next period?", text: "When is my next period?", send: true });
-  if (ctx?.phase === "luteal" && !ctx.late) out.push({ label: "PMS tips", text: "Any tips for PMS this week?", send: true });
-  else out.push({ label: "Why am I so tired?", text: "Why am I feeling so tired lately?", send: true });
+  if (ctx?.bleedingDay) out.push({ label: t("chat.quickCramps"), text: t("chat.quickCrampsMsg"), send: true });
+  if (ctx?.late) out.push({ label: t("chat.quickPeriodLate"), text: t("chat.quickPeriodLateMsg", { days: ctx.daysLate }), send: true });
+  out.push({ label: t("chat.quickLogFeel"), text: t("chat.quickLogFeelMsg") });
+  out.push({ label: t("chat.quickNextPeriod"), text: t("chat.quickNextPeriod"), send: true });
+  if (ctx?.phase === "luteal" && !ctx.late) out.push({ label: t("chat.quickPmsTips"), text: t("chat.quickPmsTipsMsg"), send: true });
+  else out.push({ label: t("chat.quickTired"), text: t("chat.quickTiredMsg"), send: true });
   return out.slice(0, 4);
 }
 
 export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInComplete, onChartUpdate, profileName, checkInContext }: SakhiAvatarProps) {
+  const { t } = useLanguage();
   const chat = useSakhiChat({ mode: "her", onChartUpdate, profileName });
-  const quick = useMemo(() => herQuickReplies(checkInContext), [checkInContext]);
+  const quick = useMemo(() => herQuickReplies(t, checkInContext), [t, checkInContext]);
 
   // The page can still mark Sakhi as talking (e.g. during a check-in) without speech
   const [flap, setFlap] = useState(false);
@@ -45,7 +47,7 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
   }, [pageTalking]);
 
   const talking = chat.isSpeaking || pageTalking;
-  const status = chat.listening ? "Listening…" : chat.isLoading ? "Thinking…" : chat.isSpeaking ? "Speaking…" : undefined;
+  const status = chat.listening ? t("chat.listening") : chat.isLoading ? t("chat.thinking") : chat.isSpeaking ? t("chat.speaking") : undefined;
 
   return (
     <div className="w-full bg-white/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] border border-pink-200/80 shadow-[0_8px_30px_rgba(244,114,182,0.14)] p-4 sm:p-6 md:p-8 flex flex-col md:flex-row gap-5 sm:gap-6 md:gap-8 mb-6 sm:mb-8 overflow-hidden relative">
@@ -68,9 +70,9 @@ export default function SakhiAvatar({ aiState, checkInMode = false, onCheckInCom
                   <Sparkle weight="duotone" className="w-8 h-8" />
                 </div>
                 <h4 className="text-2xl font-medium text-plum-900 flex items-center justify-center gap-2">
-                  Hi {profileName || "there"} <span className="inline-block animate-bounce">👋</span>
+                  {t("chat.emptyGreeting", { name: profileName || t("common.friend") })} <span className="inline-block animate-bounce">👋</span>
                 </h4>
-                <p className="mt-2 text-sm text-plum-900/60 max-w-xs">Tell me how you feel, ask about your cycle, or tap the mic and talk to me.</p>
+                <p className="mt-2 text-sm text-plum-900/60 max-w-xs">{t("chat.emptyHerPrompt")}</p>
               </div>
             }
           />

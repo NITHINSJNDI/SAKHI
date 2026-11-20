@@ -3,11 +3,13 @@
 import { motion, useReducedMotion } from "motion/react";
 import { AhaChart } from "@/components/AhaChart";
 import { Reveal } from "@/components/Reveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * AhaMoment: mood laid against the cycle, shown with sample data.
  */
 export function AhaMoment() {
+  const { t } = useLanguage();
   const reduce = useReducedMotion();
 
   return (
@@ -31,25 +33,23 @@ export function AhaMoment() {
             <div>
               <Reveal>
                 <h2 className="text-balance text-3xl font-semibold leading-[1.1] tracking-tight text-plum-900 sm:text-4xl lg:text-[2.7rem]">
-                  Feeling heavier before your period?{" "}
-                  <span className="display-serif font-normal text-blush-500">Now you&rsquo;ll know why.</span>
+                  {t("landing.ahaTitle1")}{" "}
+                  <span className="display-serif font-normal text-blush-500">{t("landing.ahaTitle2")}</span>
                 </h2>
               </Reveal>
 
               <Reveal delay={0.08}>
                 <p className="mt-6 max-w-md text-pretty leading-relaxed text-ink-soft">
-                  Most apps keep your cycle and your mood in separate boxes. Sakhi lays
-                  them side by side, so the low days stop feeling random and start
-                  feeling expected, and easier to plan around.
+                  {t("landing.ahaDesc")}
                 </p>
               </Reveal>
 
               <Reveal delay={0.16}>
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-3">
                   {[
-                    ["Period", "Rest, warmth, iron"],
-                    ["Follicular", "Energy climbs"],
-                    ["Luteal", "Slower, more sensitive"],
+                    [t("cycle.period"), t("landing.ahaPeriodHint")],
+                    [t("cycle.follicular"), t("landing.ahaFollicularHint")],
+                    [t("cycle.luteal"), t("landing.ahaLutealHint")],
                   ].map(([phase, hint]) => (
                     <div key={phase} className="rounded-2xl bg-white/60 px-3 py-3">
                       <dt className="text-sm font-semibold text-plum-900">{phase}</dt>
@@ -61,7 +61,7 @@ export function AhaMoment() {
 
               <Reveal delay={0.24}>
                 <p className="mt-6 text-xs text-ink-faint">
-                  Sample chart. Yours fills in from your own check-ins over a couple of cycles.
+                  {t("landing.ahaSampleNote")}
                 </p>
               </Reveal>
             </div>
@@ -78,11 +78,11 @@ export function AhaMoment() {
                 <div className="flex items-center gap-4 text-[11px] text-ink-soft">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-2 w-4 rounded-full bg-gradient-to-r from-lavender-400 to-blush-400" />
-                    low mood
+                    {t("landing.ahaLowMood")}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-0.5 w-4 rounded-full bg-blush-300" style={{ borderTop: "1px dashed" }} />
-                    progesterone (rises after ovulation)
+                    {t("landing.ahaProgesterone")}
                   </span>
                 </div>
               </div>

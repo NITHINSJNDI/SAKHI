@@ -33,6 +33,7 @@ import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 import { sendOrQueue } from "@/lib/outbox";
 import NearbyHelpCard from "@/components/NearbyHelpCard";
 import { FamilyContactsCard, RedFlagBanner } from "@/components/FamilyAlert";
+import { useLanguage } from "@/context/LanguageContext";
 import MoodCheckCard from "@/components/MoodCheckCard";
 import ReliefSheet from "@/components/her/ReliefSheet";
 import {
@@ -77,6 +78,7 @@ function ChartCard({ title, children, span = 6, active, glow }: { title: string;
 
 export default function HerModePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [isCheckingData, setIsCheckingData] = useState(true);
@@ -344,24 +346,24 @@ export default function HerModePage() {
 
           {tab === "cycle" && (
             <>
-              <ChartCard title={goal.doc.goal === "ttc" ? "Your fertility calendar" : "Your cycle calendar"} span={12} active={pulsingChart === "calendar"} glow="rgba(16,185,129,0.4)">
+              <ChartCard title={goal.doc.goal === "ttc" ? t("cycle.fertilityCalendar") : t("cycle.cycleCalendar")} span={12} active={pulsingChart === "calendar"} glow="rgba(16,185,129,0.4)">
                 <FertilityCalendar phase={phase} profile={profile} logs={logs} cycleHistory={cycleHistory} tried={goal.doc.intimacy} trying={goal.doc.goal === "ttc"} />
               </ChartCard>
               <NextPeriodCard phase={phase} profile={profile} logs={logs} cycleHistory={cycleHistory} className="md:col-span-12" />
-              <ChartCard title="Cycle length trend" active={pulsingChart === "cycle_length"}><CycleLengthChart data={cycleHistory} /></ChartCard>
-              <ChartCard title="Period duration trend" active={pulsingChart === "cycle_length"} glow="rgba(244,63,94,0.4)"><PeriodDurationChart data={cycleHistory} /></ChartCard>
-              <ChartCard title="Flow intensity" span={12} active={pulsingChart === "flow"} glow="rgba(244,63,94,0.4)"><FlowIntensityChart data={logs} /></ChartCard>
+              <ChartCard title={t("cycle.cycleLengthTrend")} active={pulsingChart === "cycle_length"}><CycleLengthChart data={cycleHistory} /></ChartCard>
+              <ChartCard title={t("cycle.periodDurationTrend")} active={pulsingChart === "cycle_length"} glow="rgba(244,63,94,0.4)"><PeriodDurationChart data={cycleHistory} /></ChartCard>
+              <ChartCard title={t("cycle.flowIntensity")} span={12} active={pulsingChart === "flow"} glow="rgba(244,63,94,0.4)"><FlowIntensityChart data={logs} /></ChartCard>
             </>
           )}
 
           {tab === "insights" && (
             <>
               <PhaseInsightsCard stats={stats} highlights={highlights} />
-              <ChartCard title="Common symptoms" active={pulsingChart === "symptoms"} glow="rgba(168,85,247,0.4)"><SymptomFrequencyChart data={logs} /></ChartCard>
-              <ChartCard title="Mood across your cycle" active={pulsingChart === "mood"} glow="rgba(99,102,241,0.4)"><MoodCycleChart data={logs} /></ChartCard>
-              <ChartCard title="Pain trend" active={pulsingChart === "pain"} glow="rgba(244,63,94,0.5)"><PainTrendChart data={logs} /></ChartCard>
-              <ChartCard title="Sleep hours" active={pulsingChart === "sleep"} glow="rgba(139,92,246,0.4)"><SleepHoursChart data={logs} /></ChartCard>
-              <ChartCard title="Weight" span={12}><WeightTracker mode="her" logs={logs} /></ChartCard>
+              <ChartCard title={t("cycle.commonSymptoms")} active={pulsingChart === "symptoms"} glow="rgba(168,85,247,0.4)"><SymptomFrequencyChart data={logs} /></ChartCard>
+              <ChartCard title={t("cycle.moodAcrossCycle")} active={pulsingChart === "mood"} glow="rgba(99,102,241,0.4)"><MoodCycleChart data={logs} /></ChartCard>
+              <ChartCard title={t("cycle.painTrend")} active={pulsingChart === "pain"} glow="rgba(244,63,94,0.5)"><PainTrendChart data={logs} /></ChartCard>
+              <ChartCard title={t("cycle.sleepHours")} active={pulsingChart === "sleep"} glow="rgba(139,92,246,0.4)"><SleepHoursChart data={logs} /></ChartCard>
+              <ChartCard title={t("cycle.weight")} span={12}><WeightTracker mode="her" logs={logs} /></ChartCard>
             </>
           )}
 

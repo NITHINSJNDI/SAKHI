@@ -16,42 +16,43 @@ import {
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { Reveal } from "@/components/Reveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Feature = { icon: Icon; title: string; body: string };
-
-const MODES = {
-  her: {
-    label: "Her Mode",
-    note: "For your monthly cycle",
-    features: [
-      { icon: CalendarDots, title: "A cycle that adapts", body: "Late period, longer bleed, early stop: Sakhi notices and resets its predictions instead of pretending." },
-      { icon: ChatCircleText, title: "Check-ins that fit the day", body: "Pain questions on your period, energy and mood the rest of the month. Never a long form." },
-      { icon: FirstAidKit, title: "Pain relief that works for you", body: "Heat, stretches, food and rest ideas, and it remembers which ones helped last time." },
-      { icon: Scales, title: "Weight, without the pressure", body: "A smoothed trend line that ignores day-to-day water weight." },
-      { icon: FileText, title: "A summary for your doctor", body: "Cycles, symptoms and pain in one printable page, so the visit starts with facts." },
-    ] as Feature[],
-  },
-  mom: {
-    label: "Mom Mode",
-    note: "For every week of pregnancy",
-    features: [
-      { icon: Baby, title: "Your baby, this week", body: "Size, milestones and what to expect next, matched to the week you're in." },
-      { icon: Footprints, title: "Kick counts", body: "Log movements in a tap and see if today looks different from usual." },
-      { icon: Heartbeat, title: "BP and sugar, watched", body: "Readings that need attention get a clear, calm alert and what to do next." },
-      { icon: Scales, title: "Healthy weight gain", body: "Your gain against the range for your starting weight, week by week." },
-      { icon: Timer, title: "Contraction timer", body: "Tap start and stop. Sakhi tells you when the pattern means it's time to go." },
-      { icon: CalendarCheck, title: "Appointments and scans", body: "Every visit in one place, added just by mentioning it in chat." },
-    ] as Feature[],
-  },
-} as const;
-
-type ModeKey = keyof typeof MODES;
+type ModeKey = "her" | "mom";
 const ORDER: ModeKey[] = ["her", "mom"];
 
 export function Modes() {
+  const { t } = useLanguage();
   const reduce = useReducedMotion();
   const [mode, setMode] = useState<ModeKey>("her");
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const modesData: Record<ModeKey, { label: string; note: string; features: Feature[] }> = {
+    her: {
+      label: t("landing.herMode"),
+      note: t("landing.herModeNote"),
+      features: [
+        { icon: CalendarDots, title: t("landing.herFeature1Title"), body: t("landing.herFeature1Body") },
+        { icon: ChatCircleText, title: t("landing.herFeature2Title"), body: t("landing.herFeature2Body") },
+        { icon: FirstAidKit, title: t("landing.herFeature3Title"), body: t("landing.herFeature3Body") },
+        { icon: Scales, title: t("landing.herFeature4Title"), body: t("landing.herFeature4Body") },
+        { icon: FileText, title: t("landing.herFeature5Title"), body: t("landing.herFeature5Body") },
+      ],
+    },
+    mom: {
+      label: t("landing.momMode"),
+      note: t("landing.momModeNote"),
+      features: [
+        { icon: Baby, title: t("landing.momFeature1Title"), body: t("landing.momFeature1Body") },
+        { icon: Footprints, title: t("landing.momFeature2Title"), body: t("landing.momFeature2Body") },
+        { icon: Heartbeat, title: t("landing.momFeature3Title"), body: t("landing.momFeature3Body") },
+        { icon: Scales, title: t("landing.momFeature4Title"), body: t("landing.momFeature4Body") },
+        { icon: Timer, title: t("landing.momFeature5Title"), body: t("landing.momFeature5Body") },
+        { icon: CalendarCheck, title: t("landing.momFeature6Title"), body: t("landing.momFeature6Body") },
+      ],
+    },
+  };
 
   const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
@@ -61,19 +62,18 @@ export function Modes() {
     tabs.current[next]?.focus();
   };
 
-  const current = MODES[mode];
+  const current = modesData[mode];
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-24 sm:px-6 sm:py-32">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <Reveal>
           <h2 className="max-w-xl text-balance text-3xl font-semibold leading-[1.1] tracking-tight text-plum-900 sm:text-[2.7rem]">
-            One companion for two{" "}
-            <span className="display-serif font-normal text-lavender-600">seasons of life.</span>
+            {t("landing.modesTitle1")}{" "}
+            <span className="display-serif font-normal text-lavender-600">{t("landing.modesTitle2")}</span>
           </h2>
           <p className="mt-4 max-w-lg text-pretty leading-relaxed text-ink-soft">
-            Start with your cycle. When you&rsquo;re expecting, switch to Mom Mode and
-            Sakhi changes with you, keeping everything in one place.
+            {t("landing.modesDesc")}
           </p>
         </Reveal>
 
@@ -102,7 +102,7 @@ export function Modes() {
                     />
                   )}
                   <span className={`relative ${selected ? "text-cream" : "text-ink-soft hover:text-plum-900"}`}>
-                    {MODES[key].label}
+                    {modesData[key].label}
                   </span>
                 </button>
               );
@@ -158,6 +158,7 @@ export function Modes() {
 
 /** A month at a glance, including the case most apps ignore: a late period. */
 function CycleStrip() {
+  const { t } = useLanguage();
   const days = Array.from({ length: 33 }, (_, i) => i + 1);
   const kind = (d: number) =>
     d <= 5 ? "period" : d >= 12 && d <= 16 ? "fertile" : d > 29 ? "late" : "other";
@@ -170,11 +171,10 @@ function CycleStrip() {
   return (
     <div className="mt-6">
       <p className="text-2xl font-semibold leading-snug text-plum-900 sm:text-3xl">
-        Period is 3 days late.
+        {t("landing.periodLate3Days")}
       </p>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-soft">
-        Sakhi doesn&rsquo;t just move on to the next &ldquo;cycle&rdquo;. It waits with you,
-        asks gently, and suggests a test or a doctor if it goes on.
+        {t("landing.periodLateDesc")}
       </p>
       <div className="mt-8 grid grid-cols-[repeat(33,minmax(0,1fr))] gap-[3px]" aria-hidden="true">
         {days.map((d) => (
@@ -182,38 +182,39 @@ function CycleStrip() {
         ))}
       </div>
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-ink-soft">
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blush-400" />Period</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-lavender-400" />Fertile window</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full border border-dashed border-blush-400" />Late days</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full ring-2 ring-plum-900" />Today</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blush-400" />{t("cycle.period")}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-lavender-400" />{t("cycle.fertile")}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full border border-dashed border-blush-400" />{t("landing.lateDays")}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full ring-2 ring-plum-900" />{t("common.today")}</span>
       </div>
     </div>
   );
 }
 
 function PregnancyGlance() {
+  const { t } = useLanguage();
   return (
     <div className="mt-6">
       <p className="text-2xl font-semibold leading-snug text-plum-900 sm:text-3xl">
-        Week 32. Baby is about the size of a coconut.
+        {t("landing.week32Coconut")}
       </p>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-soft">
-        Around 1.7 kg and practising breathing. Kicks may feel more like rolls now.
+        {t("landing.week32Desc")}
       </p>
       <div className="mt-7 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-white/80 p-4">
-          <p className="text-xs text-ink-soft">Kicks today</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-plum-900">10 <span className="text-sm font-normal text-ink-soft">in 42 min</span></p>
+          <p className="text-xs text-ink-soft">{t("landing.kicksToday")}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-plum-900">10 <span className="text-sm font-normal text-ink-soft">{t("landing.in42Min")}</span></p>
         </div>
         <div className="rounded-2xl bg-white/80 p-4">
-          <p className="text-xs text-ink-soft">Blood pressure</p>
+          <p className="text-xs text-ink-soft">{t("landing.bloodPressure")}</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-plum-900">118/76</p>
-          <p className="text-xs font-medium text-emerald-700">In a healthy range</p>
+          <p className="text-xs font-medium text-emerald-700">{t("landing.inHealthyRange")}</p>
         </div>
         <div className="col-span-2 rounded-2xl bg-white/80 p-4">
           <div className="flex items-baseline justify-between">
-            <p className="text-xs text-ink-soft">Weight gained</p>
-            <p className="text-xs text-ink-soft">Healthy range 8.6 to 12.4 kg</p>
+            <p className="text-xs text-ink-soft">{t("landing.weightGained")}</p>
+            <p className="text-xs text-ink-soft">{t("landing.healthyRangeWeight")}</p>
           </div>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-plum-900">9.8 kg</p>
           <div className="relative mt-3 h-2.5 rounded-full bg-lavender-100" aria-hidden="true">

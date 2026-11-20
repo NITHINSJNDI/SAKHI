@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Baby, Drop, FirstAid, Syringe, Check, ArrowCounterClockwise, Flower } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { dayKey } from "@/hooks/useUserDoc";
 import {
   UNDO_DAYS, VACCINES, VISITS, ageDays, babyAge, babyToday, checkRecovery, dueDate, nextVaccine, stageOf,
@@ -134,6 +135,7 @@ export function BabyHeader({ pp, className = "" }: { pp: PP; className?: string 
 
 /** One-tap feed and diaper log. */
 export function NewbornCard({ pp, className = "" }: { pp: PP; className?: string }) {
+  const { t: tr } = useLanguage();
   const { doc, save } = pp;
   const [, tick] = useState(0);
   const now = new Date();
@@ -154,7 +156,7 @@ export function NewbornCard({ pp, className = "" }: { pp: PP; className?: string
     <section className={`${panelCard} ${className}`} aria-labelledby="newborn-title">
       <div className="flex items-center gap-2 mb-1">
         <Drop weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="newborn-title" className="text-xl font-semibold tracking-tight text-plum-900">Feeds and nappies</h3>
+        <h3 id="newborn-title" className="text-xl font-semibold tracking-tight text-plum-900">{tr("mom.newbornTitle")}</h3>
       </div>
       <p className="text-xs text-ink-soft mb-4">Tap when a feed starts. Most newborns feed 8 to 12 times a day.</p>
 
@@ -212,6 +214,7 @@ const blank = (date: string): Recovery => ({ date, bleeding: "light", fever: fal
 
 /** Daily recovery check for the first 6 weeks, with the postnatal danger signs. */
 export function RecoveryCard({ pp, className = "" }: { pp: PP; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = pp;
   const today = dayKey();
   const saved = doc.recovery.find(r => r.date === today);
@@ -234,7 +237,7 @@ export function RecoveryCard({ pp, className = "" }: { pp: PP; className?: strin
       <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
         <div className="flex items-center gap-2">
           <FirstAid weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-          <h3 id="recovery-title" className="text-xl font-semibold tracking-tight text-plum-900">How your body is healing</h3>
+          <h3 id="recovery-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.recoveryTitle")}</h3>
         </div>
         {saved && !editing && (
           <button type="button" onClick={() => { setForm(saved); setEditing(true); }} className="text-xs text-ink-soft hover:text-plum-900 transition-colors cursor-pointer">Change today&apos;s answers</button>
@@ -285,6 +288,7 @@ export function RecoveryCard({ pp, className = "" }: { pp: PP; className?: strin
 
 /** Baby's vaccines on India's Universal Immunisation Programme schedule. */
 export function VaccineCard({ pp, className = "" }: { pp: PP; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = pp;
   if (!doc.birth_date) return null;
   const today = dayKey();
@@ -295,7 +299,7 @@ export function VaccineCard({ pp, className = "" }: { pp: PP; className?: string
     <section className={`${panelCard} ${className}`} aria-labelledby="vaccine-title">
       <div className="flex items-center gap-2 mb-1">
         <Syringe weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="vaccine-title" className="text-xl font-semibold tracking-tight text-plum-900">Baby&apos;s vaccines</h3>
+        <h3 id="vaccine-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.vaccinesTitle")}</h3>
       </div>
       <p className="text-xs text-ink-soft mb-4">Free at every government health centre and Anganwadi under the Universal Immunisation Programme. Take the MCP card each time.</p>
       {next && (
@@ -407,6 +411,7 @@ export function BackToHerCard({ pp, name, className = "" }: { pp: PP; name: stri
 
 /** After-birth check-ups in place of the pregnancy appointments. */
 export function PostnatalVisitsCard({ pp, className = "" }: { pp: PP; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = pp;
   if (!doc.birth_date) return null;
   const today = dayKey();
@@ -425,7 +430,7 @@ export function PostnatalVisitsCard({ pp, className = "" }: { pp: PP; className?
     <section className={`${panelCard} ${className}`} aria-labelledby="visits-title">
       <div className="flex items-center gap-2 mb-1">
         <FirstAid weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
-        <h3 id="visits-title" className="text-xl font-semibold tracking-tight text-plum-900">Check-ups after the birth</h3>
+        <h3 id="visits-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("mom.postnatalVisits")}</h3>
       </div>
       <p className="text-xs text-ink-soft mb-4">Your ASHA visits you and baby at home on these days, for free. If she hasn&apos;t come, call her or the sub-centre.</p>
       <ol className="space-y-2">

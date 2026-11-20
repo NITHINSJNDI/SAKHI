@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Drop, Timer, Package, Trash, MapPin, Warning, Lightbulb, CaretDown, Minus, Plus } from "@phosphor-icons/react";
+import { useLanguage } from "@/context/LanguageContext";
 import { panelCard } from "@/components/her/HerPanels";
 import { mapsSearch } from "@/components/NearbyHelpCard";
 import { useUserDoc } from "@/hooks/useUserDoc";
@@ -47,6 +48,7 @@ export interface HygieneCycle {
 
 /** Period care: product guidance, change timer, supplies, disposal, low-cost access and myths. */
 export default function HygieneCard({ cycle, compact = false, className = "" }: { cycle: HygieneCycle; compact?: boolean; className?: string }) {
+  const { t } = useLanguage();
   const { doc, save } = useUserDoc<HygieneDoc>("hygiene", EMPTY_HYGIENE);
   const [now, setNow] = useState(() => new Date());
   const [open, setOpen] = useState<"care" | "access" | "signs" | null>(null);
@@ -90,19 +92,19 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Drop weight="duotone" className="h-5 w-5 text-blush-500" aria-hidden="true" />
-          <h3 id="hygiene-title" className="text-xl font-semibold tracking-tight text-plum-900">Period care</h3>
+          <h3 id="hygiene-title" className="text-xl font-semibold tracking-tight text-plum-900">{t("hygiene.title")}</h3>
         </div>
         {cycle.bleeding
-          ? <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">On your period</span>
-          : cycle.daysUntilPeriod <= 5 && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Period in {cycle.daysUntilPeriod} day{cycle.daysUntilPeriod === 1 ? "" : "s"}</span>}
+          ? <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">{t("cycle.period")}</span>
+          : cycle.daysUntilPeriod <= 5 && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">{t("landing.periodInAbout", { days: cycle.daysUntilPeriod })}</span>}
       </div>
 
       {/* What she uses */}
-      <p className="mt-4 text-xs font-semibold text-plum-900/65">What do you use?</p>
+      <p className="mt-4 text-xs font-semibold text-plum-900/65">{t("hygiene.whatDoYouUse")}</p>
       <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Period product">
         {PRODUCT_ORDER.map(p => (
           <button key={p} type="button" aria-pressed={doc.product === p} onClick={() => setProduct(p)} className={pill(doc.product === p)}>
-            {PRODUCTS[p].label}
+            {p === "pad" ? t("hygiene.pad") : p === "tampon" ? t("hygiene.tampon") : p === "cup" ? t("hygiene.cup") : t("hygiene.cloth")}
           </button>
         ))}
       </div>
@@ -111,7 +113,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
         {/* Change timer */}
         <div className="rounded-2xl border border-plum-900/[0.07] bg-white/75 p-4">
           <div className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-2 text-sm font-semibold text-plum-900"><Timer weight="duotone" className="h-4 w-4" aria-hidden="true" />Change timer</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-plum-900"><Timer weight="duotone" className="h-4 w-4" aria-hidden="true" />{t("hygiene.changeTimer")}</span>
             {state !== "unknown" && <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${CHANGE_CHIP[state].cls}`}>{CHANGE_CHIP[state].text}</span>}
           </div>
           {guide ? (
@@ -122,7 +124,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
               </p>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <button type="button" onClick={markChanged} className="rounded-full bg-plum-900 px-4 py-2 text-sm font-medium text-cream hover:bg-plum-900/90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">
-                  I changed just now
+                  {t("common.confirm", "I changed just now")}
                 </button>
                 {todayCount > 0 && <span className="text-xs text-ink-faint">{todayCount} change{todayCount === 1 ? "" : "s"} today</span>}
               </div>
@@ -157,17 +159,17 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
               )}
             </>
           ) : (
-            <p className="mt-2 text-sm text-ink-soft">Choose what you use above to get a change timer and care tips.</p>
+            <p className="mt-2 text-sm text-ink-soft">{t("hygiene.choosePrompt")}</p>
           )}
         </div>
 
         {/* Supplies */}
         <div className="rounded-2xl border border-plum-900/[0.07] bg-white/75 p-4">
-          <span className="flex items-center gap-2 text-sm font-semibold text-plum-900"><Package weight="duotone" className="h-4 w-4" aria-hidden="true" />Supplies</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-plum-900"><Package weight="duotone" className="h-4 w-4" aria-hidden="true" />{t("hygiene.supplies")}</span>
           <p className={`mt-2 rounded-xl p-2.5 text-sm ${SUPPLY_CLS[supply.level]}`}>{supply.message}</p>
           {(!doc.product || PRODUCTS[doc.product].disposable) && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs text-ink-soft">At home:</span>
+              <span className="text-xs text-ink-soft">{t("hygiene.atHome")}</span>
               <button type="button" aria-label="One less" onClick={() => setStock((doc.stock ?? 0) - 1)} className="grid h-8 w-8 place-items-center rounded-full border border-plum-900/15 bg-white cursor-pointer hover:bg-lavender-50"><Minus className="h-3.5 w-3.5" /></button>
               <input
                 type="number" inputMode="numeric" min={0} max={200} aria-label="Pads or tampons at home"
@@ -184,7 +186,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
       {/* Myth of the day */}
       <div className="mt-3 flex gap-3 rounded-2xl bg-lavender-50 p-4">
         <Lightbulb weight="duotone" className="mt-0.5 h-5 w-5 shrink-0 text-plum-900" aria-hidden="true" />
-        <p className="text-sm text-plum-900"><span className="line-through decoration-plum-900/40 text-ink-soft">{myth.myth}</span><br /><span className="font-medium">Fact:</span> {myth.fact}</p>
+        <p className="text-sm text-plum-900"><span className="line-through decoration-plum-900/40 text-ink-soft">{myth.myth}</span><br /><span className="font-medium">{t("hygiene.fact")}</span> {myth.fact}</p>
       </div>
 
       {/* Expandable sections */}
@@ -197,7 +199,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
             <p className="mt-2 rounded-xl bg-lavender-50 p-2.5 text-sm text-plum-900"><span className="font-medium">Disposal:</span> {guide.disposal}</p>
           </Section>
         )}
-        <Section id="access" icon={<MapPin weight="duotone" className="h-4 w-4" />} title="Low-cost and free pads" open={open === "access"} onToggle={() => toggle("access")}>
+        <Section id="access" icon={<MapPin weight="duotone" className="h-4 w-4" />} title={t("hygiene.lowCostPads")} open={open === "access"} onToggle={() => toggle("access")}>
           <ul className="space-y-2.5">
             {LOW_COST.map(o => (
               <li key={o.title} className="text-sm">
@@ -208,7 +210,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
             ))}
           </ul>
         </Section>
-        <Section id="signs" icon={<Warning weight="duotone" className="h-4 w-4" />} title="When to see a doctor" open={open === "signs"} onToggle={() => toggle("signs")}>
+        <Section id="signs" icon={<Warning weight="duotone" className="h-4 w-4" />} title={t("hygiene.whenToSeeDoctor")} open={open === "signs"} onToggle={() => toggle("signs")}>
           <ul className="space-y-1.5 text-sm">
             {WARNING_SIGNS.map(s => (
               <li key={s.text} className={`flex gap-2 ${s.urgent ? "text-rose-700 font-medium" : "text-ink-soft"}`}>
@@ -219,7 +221,7 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
           <p className="mt-2 text-xs text-ink-faint">Emergency: call 112 or 108.</p>
         </Section>
       </div>
-      <p className="mt-3 text-[11px] text-ink-faint">General hygiene guidance. Prices and free schemes vary by state; confirm with your ASHA worker or health centre.</p>
+      <p className="mt-3 text-[11px] text-ink-faint">{t("hygiene.disclaimer")}</p>
     </section>
   );
 }

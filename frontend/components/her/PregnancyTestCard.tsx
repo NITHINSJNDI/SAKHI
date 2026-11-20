@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Baby, TestTube } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
+import { useLanguage } from "@/context/LanguageContext";
 import { dayToIso } from "@/lib/cyclePhase";
 import { dueFromLmp, gestation, todayIso } from "@/lib/pregnancyWeeks";
 import { useUserDoc } from "@/hooks/useUserDoc";
@@ -22,6 +23,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
   lastStart: number; daysLate: number; name: string; className?: string;
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const { doc, save } = useUserDoc<GoalDoc>("her_goal", EMPTY_GOAL);
   const [answer, setAnswer] = useState<"positive" | "negative" | "notyet" | null>(null);
   const [lmp, setLmp] = useState(dayToIso(lastStart));
@@ -73,7 +75,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
       <div className="flex items-center gap-2 mb-1">
         <TestTube weight="duotone" className="h-5 w-5 text-lavender-500" aria-hidden="true" />
         <h3 id="ptest-title" className="text-xl font-semibold tracking-tight text-plum-900">
-          {daysLate > 0 ? `Your period is ${daysLate} day${daysLate === 1 ? "" : "s"} late` : "Could you be pregnant?"}
+          {daysLate > 0 ? t("pregnancyTest.periodLate").replace("{count}", String(daysLate)) : t("pregnancyTest.couldBePregnant")}
         </h3>
       </div>
       <p className="text-sm text-ink-soft mb-4">
@@ -83,9 +85,9 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
       <fieldset>
         <legend className="mb-2 text-sm font-medium text-plum-900">Did you take a test?</legend>
         <div className="flex flex-wrap gap-2">
-          <button type="button" aria-pressed={answer === "positive"} onClick={() => setAnswer("positive")} className={chip(answer === "positive")}>Yes, positive</button>
-          <button type="button" aria-pressed={answer === "negative"} onClick={() => { setAnswer("negative"); record("negative"); }} className={chip(answer === "negative")}>Yes, negative</button>
-          <button type="button" aria-pressed={answer === "notyet"} onClick={() => setAnswer("notyet")} className={chip(answer === "notyet")}>Not yet</button>
+          <button type="button" aria-pressed={answer === "positive"} onClick={() => setAnswer("positive")} className={chip(answer === "positive")}>{t("pregnancyTest.yesPositive")}</button>
+          <button type="button" aria-pressed={answer === "negative"} onClick={() => { setAnswer("negative"); record("negative"); }} className={chip(answer === "negative")}>{t("pregnancyTest.yesNegative")}</button>
+          <button type="button" aria-pressed={answer === "notyet"} onClick={() => setAnswer("notyet")} className={chip(answer === "notyet")}>{t("pregnancyTest.notYet")}</button>
         </div>
       </fieldset>
 
@@ -98,7 +100,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
       {answer === "negative" && (
         <p className="mt-4 rounded-2xl bg-lavender-50 px-4 py-3 text-sm text-plum-900">
           {lastNegative && lastNegative.date < today
-            ? "That's a second negative test. If your period is over 2 weeks late, see a doctor to find out why."
+            ? t("pregnancyTest.negativeTwice")
             : "Tests can be negative if taken too early. If your period still hasn't come in 3 days, test again. See a doctor if it's over 2 weeks late."}
         </p>
       )}

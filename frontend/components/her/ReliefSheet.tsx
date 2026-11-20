@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Timer, ThumbsUp, ThumbsDown, ArrowsClockwise, WarningCircle, Heart, Play, Pause } from "@phosphor-icons/react";
 import type { ReliefTip } from "@/lib/reliefTips";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ReliefData {
   tips: ReliefTip[];
@@ -13,16 +14,10 @@ interface ReliefData {
   urgent: boolean;
 }
 
-const LEVELS = [
-  { label: "Mild", sub: "1–3", value: 3 },
-  { label: "Moderate", sub: "4–6", value: 5 },
-  { label: "Bad", sub: "7–8", value: 7 },
-  { label: "Severe", sub: "9–10", value: 9 },
-];
-
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 function TipTimer({ seconds }: { seconds: number }) {
+  const { t } = useLanguage();
   const [left, setLeft] = useState(seconds);
   const [running, setRunning] = useState(false);
   const ref = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -41,17 +36,25 @@ function TipTimer({ seconds }: { seconds: number }) {
       className="inline-flex items-center gap-1.5 rounded-full bg-plum-900/5 px-3 py-1.5 text-xs font-semibold text-plum-900 hover:bg-plum-900/10 cursor-pointer"
     >
       {running ? <Pause weight="fill" className="w-3.5 h-3.5" /> : left === 0 ? <ArrowsClockwise className="w-3.5 h-3.5" /> : <Play weight="fill" className="w-3.5 h-3.5" />}
-      <Timer className="w-3.5 h-3.5" /> {left === 0 ? "Done, again?" : fmt(left)}
+      <Timer className="w-3.5 h-3.5" /> {left === 0 ? t("relief.doneAgain") : fmt(left)}
     </button>
   );
 }
 
 /** "Pain now" sheet: asks how bad it is, then offers a rotating set of relief steps. */
 export default function ReliefSheet({ open, initialSeverity, onClose }: { open: boolean; initialSeverity?: number | null; onClose: () => void }) {
+  const { t } = useLanguage();
   const [severity, setSeverity] = useState<number | null>(initialSeverity ?? null);
   const [data, setData] = useState<ReliefData | null>(null);
   const [loading, setLoading] = useState(false);
   const [rated, setRated] = useState<Record<string, boolean>>({});
+
+  const levels = [
+    { label: t("relief.levelMild"), sub: "1–3", value: 3 },
+    { label: t("relief.levelModerate"), sub: "4–6", value: 5 },
+    { label: t("relief.levelBad"), sub: "7–8", value: 7 },
+    { label: t("relief.levelSevere"), sub: "9–10", value: 9 },
+  ];
 
   const load = async (sev: number) => {
     setLoading(true);
@@ -101,17 +104,17 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-rose-500">Pain relief</p>
-                <h2 id="relief-title" className="text-xl font-semibold text-plum-900 mt-0.5">Let&apos;s ease this together</h2>
-                <p className="text-sm text-plum-900/60 mt-1">These won&apos;t switch pain off instantly, but they can take the edge off.</p>
+                <p className="text-xs font-semibold text-rose-500">{t("relief.painRelief")}</p>
+                <h2 id="relief-title" className="text-xl font-semibold text-plum-900 mt-0.5">{t("relief.letUsEase")}</h2>
+                <p className="text-sm text-plum-900/60 mt-1">{t("relief.reliefSubtitle")}</p>
               </div>
-              <button onClick={onClose} aria-label="Close" className="p-2 rounded-full hover:bg-black/5 text-plum-900/60 cursor-pointer"><X className="w-5 h-5" /></button>
+              <button onClick={onClose} aria-label={t("common.close")} className="p-2 rounded-full hover:bg-black/5 text-plum-900/60 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             <div className="mt-5">
-              <p className="text-sm font-medium text-plum-900">How bad is it right now?</p>
+              <p className="text-sm font-medium text-plum-900">{t("relief.howBad")}</p>
               <div className="mt-2 grid grid-cols-4 gap-2">
-                {LEVELS.map(l => (
+                {levels.map(l => (
                   <button
                     key={l.value}
                     onClick={() => { setSeverity(l.value); load(l.value); }}
@@ -126,19 +129,19 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
 
             {data?.urgent && (
               <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-                <p className="font-semibold flex items-center gap-2"><WarningCircle weight="fill" className="w-4 h-4" /> Pain this severe needs attention</p>
-                <p className="mt-1">If you feel faint, have a fever, are soaking a pad every hour, or this pain feels different from usual, please get medical care now. You can still try the steps below while you arrange it.</p>
+                <p className="font-semibold flex items-center gap-2"><WarningCircle weight="fill" className="w-4 h-4" /> {t("relief.urgentTitle")}</p>
+                <p className="mt-1">{t("relief.urgentDesc")}</p>
               </div>
             )}
 
-            {loading && <p className="mt-6 text-sm text-plum-900/50">Finding what might help…</p>}
+            {loading && <p className="mt-6 text-sm text-plum-900/50">{t("relief.finding")}</p>}
 
             {data && !loading && (
               <>
                 {data.favourites.length > 0 && (
                   <p className="mt-5 text-xs text-plum-900/60 flex items-center gap-1.5">
                     <Heart weight="fill" className="w-3.5 h-3.5 text-rose-400" />
-                    Helped you before: {data.favourites.map(f => f.title).join(", ")}
+                    {t("relief.helpedBefore", { tips: data.favourites.map(f => f.title).join(", ") })}
                   </p>
                 )}
                 <ol className="mt-4 space-y-3">
@@ -156,11 +159,11 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
                             {tip.seconds && <TipTimer seconds={tip.seconds} />}
                             {rated[tip.id] === undefined ? (
                               <>
-                                <button onClick={() => rate(tip.id, true)} className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 cursor-pointer"><ThumbsUp className="w-3.5 h-3.5" /> Helped</button>
-                                <button onClick={() => rate(tip.id, false)} className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-plum-900/60 bg-black/5 hover:bg-black/10 cursor-pointer"><ThumbsDown className="w-3.5 h-3.5" /> Not really</button>
+                                <button onClick={() => rate(tip.id, true)} className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 cursor-pointer"><ThumbsUp className="w-3.5 h-3.5" /> {t("relief.helped")}</button>
+                                <button onClick={() => rate(tip.id, false)} className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-plum-900/60 bg-black/5 hover:bg-black/10 cursor-pointer"><ThumbsDown className="w-3.5 h-3.5" /> {t("relief.notReally")}</button>
                               </>
                             ) : (
-                              <span className="text-xs text-plum-900/50">{rated[tip.id] ? "Noted, I'll suggest this first next time." : "Thanks, I'll try something else next time."}</span>
+                              <span className="text-xs text-plum-900/50">{rated[tip.id] ? t("relief.notedHelped") : t("relief.notedNotReally")}</span>
                             )}
                           </div>
                         </div>
@@ -172,11 +175,11 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
                   onClick={() => severity && load(severity)}
                   className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-full border border-plum-900/15 py-2.5 text-sm font-medium text-plum-900 hover:bg-white cursor-pointer"
                 >
-                  <ArrowsClockwise className="w-4 h-4" /> Show me other ideas
+                  <ArrowsClockwise className="w-4 h-4" /> {t("relief.otherIdeas")}
                 </button>
 
                 <details className="mt-5 rounded-2xl bg-white/60 border border-plum-900/10 p-4 text-sm" open={data.urgent}>
-                  <summary className="font-semibold text-plum-900 cursor-pointer">When to get help</summary>
+                  <summary className="font-semibold text-plum-900 cursor-pointer">{t("relief.whenToGetHelp")}</summary>
                   <ul className="mt-2 space-y-1.5 text-plum-900/75 list-disc pl-5">
                     {data.redFlags.map(f => <li key={f}>{f}</li>)}
                   </ul>

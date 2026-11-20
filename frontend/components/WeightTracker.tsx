@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Scales, Info, X } from "@phosphor-icons/react";
+import { useLanguage } from "@/context/LanguageContext";
+import { getLanguage } from "@/lib/languages";
 import {
   bmi, expectedGainAt, gainGuide, gainStatus, weekOnDay, weightSeries, weightStats,
 } from "@/lib/weight";
@@ -28,6 +30,10 @@ function Chip({ label, value, tone = "plain" }: { label: string; value: string; 
 }
 
 export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pregnancy"; logs: any[]; weeks?: number | null }) {
+  const { language, t } = useLanguage();
+  const langMeta = getLanguage(language);
+  const locale = langMeta.bcp47 || "en-IN";
+  const fmtDate = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
   const [doc, setDoc] = useState<WeightDoc>({ entries: [] });
   const [kg, setKg] = useState("");
   const [date, setDate] = useState(localToday());
@@ -106,36 +112,36 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
           <span className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center"><Scales weight="duotone" className="w-5 h-5" /></span>
           <div>
             <p className="text-2xl font-semibold text-plum-900 tabular-nums">{stats.latest ? `${stats.latest.kg} kg` : "—"}</p>
-            <p className="text-xs text-plum-900/55">{stats.latest ? `Last logged ${fmtDate(stats.latest.date)}` : "No weight logged yet"}</p>
+            <p className="text-xs text-plum-900/55">{stats.latest ? t("weight.lastLogged", { date: fmtDate(stats.latest.date) }) : t("weight.noWeightLogged")}</p>
           </div>
         </div>
         <form onSubmit={addWeight} className="flex flex-wrap items-center gap-2">
-          <label className="sr-only" htmlFor={`w-kg-${mode}`}>Weight in kg</label>
-          <input id={`w-kg-${mode}`} type="number" inputMode="decimal" step="0.1" min="25" max="250" placeholder="kg" value={kg}
+          <label className="sr-only" htmlFor={`w-kg-${mode}`}>{t("weight.weightKg")}</label>
+          <input id={`w-kg-${mode}`} type="number" inputMode="decimal" step="0.1" min="25" max="250" placeholder={t("charts.weightKg", "kg")} value={kg}
             onChange={e => setKg(e.target.value)} className={`${inputCls} w-24`} />
-          <label className="sr-only" htmlFor={`w-date-${mode}`}>Date</label>
+          <label className="sr-only" htmlFor={`w-date-${mode}`}>{t("weight.date")}</label>
           <input id={`w-date-${mode}`} type="date" max={localToday()} value={date} onChange={e => setDate(e.target.value)} className={`${inputCls} w-[9.5rem]`} />
           <button type="submit" disabled={saving || !kg.trim()}
             className="rounded-xl bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 cursor-pointer">
-            {saving ? "Saving…" : "Log weight"}
+            {saving ? t("weight.saving") : t("weight.logWeight")}
           </button>
         </form>
       </div>
       {error && <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2" role="alert">{error}</p>}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <Chip label="Last 7 days" value={stats.change7 === null ? "—" : signed(stats.change7)} />
-        <Chip label="Last 30 days" value={stats.change30 === null ? "—" : signed(stats.change30)} />
+        <Chip label={t("weight.last7Days")} value={stats.change7 === null ? "—" : signed(stats.change7)} />
+        <Chip label={t("weight.last30Days")} value={stats.change30 === null ? "—" : signed(stats.change30)} />
         {mode === "pregnancy" ? (
           <>
-            <Chip label="Gained so far" value={gained === null ? "—" : signed(gained)}
+            <Chip label={t("weight.gainedSoFar")} value={gained === null ? "—" : signed(gained)}
               tone={status === "within" ? "good" : status ? "watch" : "plain"} />
-            <Chip label={weeks ? `Healthy by week ${weeks}` : "Healthy range"} value={range ? `${range[0]}–${range[1]} kg` : "Set up below"} />
+            <Chip label={weeks ? t("weight.healthyByWeek", { week: weeks }) : t("weight.healthyRange")} value={range ? `${range[0]}–${range[1]} kg` : t("weight.setUpBelow")} />
           </>
         ) : (
           <>
-            <Chip label="Trend" value={stats.perWeek === null ? "—" : `${stats.perWeek > 0 ? "+" : ""}${stats.perWeek.toFixed(2)} kg/wk`} />
-            <Chip label="Since first log" value={stats.sinceFirst === null ? "—" : signed(stats.sinceFirst)} />
+            <Chip label={t("weight.trend")} value={stats.perWeek === null ? "—" : `${stats.perWeek > 0 ? "+" : ""}${stats.perWeek.toFixed(2)} kg/wk`} />
+            <Chip label={t("weight.sinceFirstLog")} value={stats.sinceFirst === null ? "—" : signed(stats.sinceFirst)} />
           </>
         )}
       </div>
@@ -149,7 +155,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
               <YAxis domain={[yMin, yMax]} tick={{ fontSize: 10, fill: "rgba(45,27,54,0.5)" }} tickLine={false} axisLine={false} width={44} unit=" kg" />
               <Tooltip
                 contentStyle={{ borderRadius: 12, border: "1px solid rgba(244,114,182,0.3)", fontSize: 12 }}
-                formatter={(v: any, name: any) => (name === "band" && Array.isArray(v) ? [`${v[0]}–${v[1]} kg`, "Healthy range"] : [`${v} kg`, "Weight"])}
+                formatter={(v: any, name: any) => (name === "band" && Array.isArray(v) ? [`${v[0]}–${v[1]} kg`, t("weight.healthyRange")] : [`${v} kg`, t("weight.title")])}
               />
               {guide && <Area type="monotone" dataKey="band" stroke="none" fill="rgba(16,185,129,0.14)" isAnimationActive={false} />}
               <Line type="monotone" dataKey="kg" stroke="#ec4899" strokeWidth={2.5} dot={{ r: 2.5, fill: "#ec4899" }} activeDot={{ r: 5 }} />
@@ -158,7 +164,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
         </div>
       ) : (
         <div className="h-28 rounded-2xl border border-dashed border-pink-200 flex items-center justify-center text-sm text-plum-900/55 text-center px-4">
-          Log your weight a couple of times to see your trend{mode === "her" ? "." : ", or tell Sakhi \"I weigh 62 kg\"."}
+          {mode === "her" ? t("weight.logWeightHintHer") : t("weight.logWeightHintPregnancy")}
         </div>
       )}
 
@@ -174,19 +180,19 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
               {guide ? ` Your pre-pregnancy BMI of ${bmi(doc.preKg!, doc.heightCm!)} is ${guide.label}, so the total range is ${guide.total[0]}–${guide.total[1]} kg.` : ""}
             </p>
           ) : (
-            <p className="text-xs text-plum-900/70 flex gap-1.5"><Info className="w-4 h-4 shrink-0" /> Add your height and your weight before pregnancy to see your personal healthy gain range on the chart.</p>
+            <p className="text-xs text-plum-900/70 flex gap-1.5"><Info className="w-4 h-4 shrink-0" /> {t("weight.pregnancyPrompt")}</p>
           )}
           <button type="button" onClick={() => setSetup(s => !s)} className="mt-2 text-xs font-medium text-pink-700 underline underline-offset-2 cursor-pointer">
-            {setup ? "Close" : doc.preKg && doc.heightCm ? "Edit height and starting weight" : "Set up healthy gain range"}
+            {setup ? t("weight.close") : doc.preKg && doc.heightCm ? t("weight.editHeightWeight") : t("weight.setUpHealthyGain")}
           </button>
           {setup && (
             <form
               className="mt-2 flex flex-wrap items-center gap-2"
               onSubmit={async e => { e.preventDefault(); if (await save({ heightCm: height, preKg })) setSetup(false); }}
             >
-              <input type="number" inputMode="numeric" placeholder="Height (cm)" value={height} onChange={e => setHeight(e.target.value)} className={`${inputCls} w-32`} aria-label="Height in cm" />
-              <input type="number" inputMode="decimal" step="0.1" placeholder="Before pregnancy (kg)" value={preKg} onChange={e => setPreKg(e.target.value)} className={`${inputCls} w-44`} aria-label="Weight before pregnancy in kg" />
-              <button type="submit" disabled={saving} className="rounded-xl bg-plum-900 text-white text-xs font-medium px-3 py-2 cursor-pointer">Save</button>
+              <input type="number" inputMode="numeric" placeholder={t("weight.heightCm")} value={height} onChange={e => setHeight(e.target.value)} className={`${inputCls} w-32`} aria-label={t("weight.heightCm")} />
+              <input type="number" inputMode="decimal" step="0.1" placeholder={t("weight.beforePregnancyKg")} value={preKg} onChange={e => setPreKg(e.target.value)} className={`${inputCls} w-44`} aria-label={t("weight.beforePregnancyKg")} />
+              <button type="submit" disabled={saving} className="rounded-xl bg-plum-900 text-white text-xs font-medium px-3 py-2 cursor-pointer">{t("weight.save")}</button>
             </form>
           )}
         </div>
@@ -195,7 +201,7 @@ export default function WeightTracker({ mode, logs, weeks }: { mode: "her" | "pr
       {mode === "her" && (
         <p className="text-xs text-plum-900/55 flex gap-1.5">
           <Info className="w-4 h-4 shrink-0" />
-          Weight naturally shifts 0.5–2 kg across your cycle, mostly water in the days before your period. The monthly trend matters more than any single day.
+          {t("weight.herDisclaimer")}
         </p>
       )}
 

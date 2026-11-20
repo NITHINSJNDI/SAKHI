@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Microphone, SpeakerHigh, SpeakerSlash, Trash, Waveform, WifiSlash, LockSimple, ShieldCheck } from "@phosphor-icons/react";
 import ChatMarkdown from "./ChatMarkdown";
-import LanguageSelector from "@/components/LanguageSelector";
+import { useLanguage } from "@/context/LanguageContext";
 import { detectLanguageFromScript, getLanguage } from "@/lib/languages";
 import type { SakhiChat, Engine } from "@/hooks/useSakhiChat";
 
@@ -25,16 +25,16 @@ const NOTICE: Record<string, string> = {
 };
 
 /** "Today", "Yesterday" or "18 Nov" for a message's time; undefined when unknown. */
-function dayLabel(at?: string): string | undefined {
+function formatDayLabel(at: string | undefined, t: (k: string) => string, locale: string): string | undefined {
   if (!at) return undefined;
   const d = new Date(at);
   if (isNaN(d.getTime())) return undefined;
   const key = (x: Date) => x.toDateString();
   const now = new Date();
   const y = new Date(now); y.setDate(now.getDate() - 1);
-  if (key(d) === key(now)) return "Today";
-  if (key(d) === key(y)) return "Yesterday";
-  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
+  if (key(d) === key(now)) return t("common.today");
+  if (key(d) === key(y)) return t("common.yesterday");
+  return d.toLocaleDateString(locale, { day: "numeric", month: "short", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
 }
 
 interface Props {
@@ -46,6 +46,8 @@ interface Props {
 }
 
 export default function SakhiChatPanel({ chat, emptyState, headerText, headerAction, quickReplies = [] }: Props) {
+  const { language, t } = useLanguage();
+  const locale = getLanguage(language).bcp47 || "en-IN";
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -95,16 +97,16 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
-        <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText || "Sakhi AI Multilingual"}</span>
+        <span className="text-[11px] sm:text-xs text-plum-900/55 truncate">{headerText || t("chat.title")}</span>
         <div className="flex items-center gap-1.5 shrink-0">
-          {headerAction || <LanguageSelector variant="pill" />}
+          {headerAction}
           {chat.messages.length > 0 && (
             <button
               type="button"
-              onClick={() => { if (window.confirm("Clear this conversation? Your logged data stays saved.")) chat.clearChat(); }}
+              onClick={() => { if (window.confirm(t("chat.clearConfirm"))) chat.clearChat(); }}
               className="p-1.5 rounded-full text-plum-900/40 hover:text-pink-600 hover:bg-pink-50 transition-colors"
-              title="Clear conversation"
-              aria-label="Clear conversation"
+              title={t("chat.clearChat")}
+              aria-label={t("chat.clearChat")}
             >
               <Trash size={15} />
             </button>
@@ -120,14 +122,14 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
               <span className="w-1 bg-pink-500 rounded-full animate-bounce h-3" style={{ animationDuration: '0.8s', animationDelay: '0.15s' }} />
               <span className="w-1 bg-pink-500 rounded-full animate-bounce h-1.5" style={{ animationDuration: '0.7s', animationDelay: '0.3s' }} />
             </span>
-            <span className="font-medium text-xs">Sakhi is speaking…</span>
+            <span className="font-medium text-xs">{t("chat.speaking")}</span>
           </div>
           <button
             type="button"
             onClick={chat.stopSpeaking}
             className="text-[11px] font-semibold text-pink-600 hover:text-pink-800 underline underline-offset-2"
           >
-            Interrupt
+            {t("chat.interrupt")}
           </button>
         </div>
       )}
@@ -141,8 +143,8 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
         {chat.messages.map((m, i) => {
           const tag = m.role === "assistant" && m.engine ? ENGINE_TAG[m.engine] : undefined;
           const rtl = isTextRtl(m.text);
-          const day = dayLabel(m.at);
-          const showDay = day && day !== dayLabel(chat.messages[i - 1]?.at);
+          const day = formatDayLabel(m.at, t, locale);
+          const showDay = day && day !== formatDayLabel(chat.messages[i - 1]?.at, t, locale);
           return (
             <React.Fragment key={m.id}>
             {showDay && (
@@ -173,7 +175,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
         })}
         {chat.listening && (
           <div className="max-w-[85%] self-end rounded-2xl rounded-tr-sm p-3 text-sm bg-pink-50 border border-dashed border-pink-300 text-pink-800/80 italic">
-            {chat.interim || "Listening…"}
+            {chat.interim || t("chat.listening")}
           </div>
         )}
         {chat.isLoading && (
@@ -214,7 +216,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             if (chat.isSpeaking) chat.stopSpeaking();
             setInput(e.target.value);
           }}
-          placeholder={chat.handsFree ? "Hands-free is on, just talk…" : "Type or tap the mic to talk…"}
+          placeholder={chat.handsFree ? t("chat.placeholderHandsFree") : t("chat.placeholder")}
           aria-label="Message Sakhi"
           className="w-full bg-white/60 border border-plum-900/10 rounded-2xl pl-3.5 sm:pl-5 pr-36 sm:pr-40 py-3 sm:py-4 text-plum-900 placeholder:text-plum-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70 transition-[border-color,background-color,box-shadow] text-xs sm:text-base shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
         />
@@ -223,7 +225,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             type="button"
             onClick={chat.isSpeaking ? chat.stopSpeaking : chat.toggleAutoPlayVoice}
             className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.autoPlayVoice ? "bg-pink-100 text-pink-600 hover:bg-pink-200" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}
-            title={chat.isSpeaking ? "Stop speaking" : chat.autoPlayVoice ? "Voice replies on (tap to mute)" : "Voice replies off (tap to unmute)"}
+            title={chat.isSpeaking ? t("chat.stopListening") : chat.autoPlayVoice ? t("chat.voiceRepliesOn") : t("chat.voiceRepliesOff")}
             aria-label={chat.isSpeaking ? "Stop speaking" : "Toggle voice replies"}
           >
             {chat.autoPlayVoice ? <SpeakerHigh weight="fill" className="w-4 h-4 sm:w-5 sm:h-5" /> : <SpeakerSlash weight="fill" className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -233,7 +235,7 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
               type="button"
               onClick={() => chat.setHandsFree(!chat.handsFree)}
               className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.handsFree ? "bg-pink-500 text-white" : "bg-plum-900/5 text-plum-900/70 hover:bg-pink-100 hover:text-pink-600"}`}
-              title={chat.handsFree ? "Hands-free on: Sakhi listens again after she replies" : "Hands-free conversation"}
+              title={chat.handsFree ? t("chat.handsFreeOn") : t("chat.handsFreeOff")}
               aria-pressed={chat.handsFree}
               aria-label="Hands-free conversation"
             >
@@ -244,15 +246,15 @@ export default function SakhiChatPanel({ chat, emptyState, headerText, headerAct
             type="button"
             onClick={chat.toggleListening}
             className={`p-2 sm:p-2.5 rounded-full transition-colors duration-300 ${chat.listening ? "bg-pink-200 text-pink-600 shadow-[0_0_15px_rgba(244,114,182,0.5)] animate-pulse" : "bg-plum-900/5 text-plum-900 hover:bg-pink-100 hover:text-pink-600"}`}
-            title={chat.listening ? "Stop listening" : "Speak to Sakhi"}
-            aria-label={chat.listening ? "Stop listening" : "Speak to Sakhi"}
+            title={chat.listening ? t("chat.stopListening") : t("chat.speakToSakhi")}
+            aria-label={chat.listening ? t("chat.stopListening") : t("chat.speakToSakhi")}
           >
             <Microphone weight={chat.listening ? "fill" : "regular"} className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             type="submit"
             disabled={!input.trim() || chat.isLoading}
-            aria-label="Send"
+            aria-label={t("chat.send")}
             className="p-2 sm:p-2.5 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:bg-plum-900/10 disabled:text-plum-900/30 shadow-md"
           >
             <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

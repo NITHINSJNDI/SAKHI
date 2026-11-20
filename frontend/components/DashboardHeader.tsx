@@ -5,6 +5,7 @@ import { Bell, EyeSlash } from "@phosphor-icons/react";
 import { DISCREET_CHANGED, isDiscreet, lockNow } from "@/lib/discreet";
 import AccountMenu from "@/components/AccountMenu";
 import LanguageSelector from "@/components/LanguageSelector";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * Shared header for Her Mode and Mom Mode: mode and today's date on one quiet
@@ -25,10 +26,20 @@ export default function DashboardHeader({
   onOpenReminders: () => void;
   onOpenSettings: () => void;
 }) {
+  const { t, currentMeta } = useLanguage();
   const now = new Date();
   const hour = now.getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const date = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
+  const greeting = hour < 12 
+    ? t("header.goodMorning", "Good morning") 
+    : hour < 17 
+    ? t("header.goodAfternoon", "Good afternoon") 
+    : t("header.goodEvening", "Good evening");
+
+  const date = now.toLocaleDateString(currentMeta.bcp47 || "en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
   const dot = mode === "her" ? "bg-lavender-500" : "bg-blush-500";
   const [discreet, setDiscreet] = useState(false);
   useEffect(() => {
@@ -38,12 +49,14 @@ export default function DashboardHeader({
     return () => window.removeEventListener(DISCREET_CHANGED, sync);
   }, []);
 
+  const translatedModeLabel = t(mode === "her" ? "header.herMode" : "header.momMode", modeLabel);
+
   return (
     <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-4 sm:pt-7 sm:pb-6 flex items-center justify-between gap-3 print:hidden">
       <div className="min-w-0">
         <p className="flex items-center gap-2 text-xs sm:text-sm text-ink-soft">
           <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} aria-hidden="true" />
-          <span className="font-semibold text-plum-900">{modeLabel}</span>
+          <span className="font-semibold text-plum-900">{translatedModeLabel}</span>
           <span aria-hidden="true">·</span>
           <span className="truncate">{date}</span>
         </p>
@@ -57,8 +70,8 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={lockNow}
-            aria-label="Hide screen now"
-            title="Hide screen (or press Esc twice)"
+            aria-label={t("header.lockScreen", "Hide screen now")}
+            title={t("header.lockScreen", "Hide screen now")}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-plum-900 flex items-center justify-center text-cream hover:bg-plum-800 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
           >
             <EyeSlash weight="bold" className="w-5 h-5" aria-hidden="true" />
@@ -67,8 +80,8 @@ export default function DashboardHeader({
         <button
           type="button"
           onClick={onOpenReminders}
-          aria-label={reminderCount > 0 ? `Reminders, ${reminderCount} upcoming` : "Reminders"}
-          title="Reminders"
+          aria-label={reminderCount > 0 ? `${t("header.reminders")}, ${reminderCount} upcoming` : t("header.reminders")}
+          title={t("header.reminders")}
           className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/70 border border-plum-900/10 flex items-center justify-center text-plum-900/70 hover:text-plum-900 hover:bg-white transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
         >
           <Bell weight="duotone" className="w-5 h-5" aria-hidden="true" />
