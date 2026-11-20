@@ -20,19 +20,26 @@ import { motion, useReducedMotion, useMotionValue, animate } from "motion/react"
  * it only mounts when the intro should actually play.
  */
 
-const STAGE1 = 0.6; // s — vortex in + reveal
-const HOLD = 0.1; // s — hold revealed state
-const TRANSITION = 0.4; // s — shrink + glide to corner
-const EXIT = 0.2; // s — overlay fade out
+// One clock, in seconds. Dismiss lands at ~2.3s; the failsafe in app/page.tsx (3.4s)
+// is only a backstop and must stay comfortably above this total.
+const ENTER = 1.0; // logo + aura arrive
+const HOLD = 0.35; // settled beat
+const TRANSITION = 0.7; // glide to the corner dock
+const EXIT = 0.35; // overlay dissolve (starts while the glide lands, so the hand-off overlaps)
+const DISSOLVE_AT = 0.85; // fraction of TRANSITION at which the dissolve begins
 
-const PETAL_COUNT = 80;
-const VORTEX_EYE = 70; // px — petals settle into a ring near center
+const EASE_OUT = [0.16, 1, 0.3, 1] as const; // expo-out: fast arrival, long soft settle
+const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const; // symmetric glide
+
+const PETAL_COUNT = 72;
+const VORTEX_EYE = 52; // px — petals cradle the central emblem
 
 type Petal = {
   angle: number;
   radius: number;
   angVel: number;
-  radialVel: number;
+  radialVel: number; // target inward speed, px/s
+  vel: number; // current radial speed, eased toward the target
   size: number;
   rotation: number;
   rotVel: number;
@@ -46,13 +53,66 @@ const PALETTE = [
   ["#fbe5ea", "#f6c6d2", "#ee9fb1", "#e2758d"], // pink
 ];
 
+// Pre-rendered offscreen sprite cache for 60fps petal rendering without canvas gradient allocations per frame
+let spriteCache: HTMLCanvasElement[] | null = null;
+const SPRITE_SIZE = 32;
+
+function getPetalSprites(): HTMLCanvasElement[] {
+  if (spriteCache) return spriteCache;
+  if (typeof document === "undefined") return [];
+
+  spriteCache = [];
+  const tints = [
+    { inner: "rgba(236, 224, 247, 0.95)", mid: "rgba(195, 163, 228, 0.8)", outer: "rgba(169, 130, 214, 0)" },
+    { inner: "rgba(251, 229, 234, 0.95)", mid: "rgba(238, 159, 177, 0.8)", outer: "rgba(226, 117, 141, 0)" },
+  ];
+
+  for (const t of tints) {
+    const c = document.createElement("canvas");
+    c.width = SPRITE_SIZE * 2;
+    c.height = SPRITE_SIZE * 2;
+    const ctx = c.getContext("2d");
+    if (ctx) {
+      const cx = SPRITE_SIZE;
+      const cy = SPRITE_SIZE;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - SPRITE_SIZE * 0.8);
+      ctx.bezierCurveTo(
+        cx + SPRITE_SIZE * 0.6,
+        cy - SPRITE_SIZE * 0.4,
+        cx + SPRITE_SIZE * 0.5,
+        cy + SPRITE_SIZE * 0.6,
+        cx,
+        cy + SPRITE_SIZE * 0.8
+      );
+      ctx.bezierCurveTo(
+        cx - SPRITE_SIZE * 0.5,
+        cy + SPRITE_SIZE * 0.6,
+        cx - SPRITE_SIZE * 0.6,
+        cy - SPRITE_SIZE * 0.4,
+        cx,
+        cy - SPRITE_SIZE * 0.8
+      );
+      ctx.closePath();
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, SPRITE_SIZE);
+      grad.addColorStop(0, t.inner);
+      grad.addColorStop(0.5, t.mid);
+      grad.addColorStop(1, t.outer);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+    spriteCache.push(c);
+  }
+  return spriteCache;
+}
+
 const PARTICLES = [
-  { top: "22%", left: "38%", size: 8, color: "bg-lavender-300", dur: 4 },
-  { top: "30%", left: "60%", size: 6, color: "bg-blush-300", dur: 5 },
-  { top: "55%", left: "44%", size: 10, color: "bg-lavender-200", dur: 6 },
-  { top: "62%", left: "58%", size: 5, color: "bg-blush-200", dur: 4.5 },
-  { top: "40%", left: "50%", size: 7, color: "bg-lavender-300", dur: 5.5 },
-  { top: "48%", left: "34%", size: 6, color: "bg-blush-300", dur: 5 },
+  { top: "20%", left: "36%", size: 8, color: "bg-lavender-300", delay: 0.2 },
+  { top: "28%", left: "62%", size: 6, color: "bg-blush-300", delay: 0.4 },
+  { top: "58%", left: "42%", size: 10, color: "bg-lavender-200", delay: 0.3 },
+  { top: "65%", left: "59%", size: 6, color: "bg-blush-200", delay: 0.5 },
+  { top: "38%", left: "52%", size: 7, color: "bg-lavender-300", delay: 0.25 },
+  { top: "46%", left: "32%", size: 5, color: "bg-blush-300", delay: 0.45 },
 ];
 
 export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
@@ -75,9 +135,17 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
   const groupY = useMotionValue(
     typeof window !== "undefined" ? window.innerHeight / 2 : 0
   );
-  const groupScale = useMotionValue(4.5);
+  const groupScale = useMotionValue(3.4);
   const innerTx = useMotionValue("-50%");
   const innerTy = useMotionValue("-50%");
+  const taglineOpacity = useMotionValue(0);
+
+  // Logo entrance: a short rise + gentle scale-up, no tilt or overshoot
+  const logoY = useMotionValue(16);
+  const logoScale = useMotionValue(0.92);
+  const logoOpacity = useMotionValue(0);
+  const auraScale = useMotionValue(0.6);
+  const auraOpacity = useMotionValue(0);
 
   // ---- Vortex canvas ----
   useEffect(() => {
@@ -108,11 +176,14 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
     const petals: Petal[] = [];
     for (let i = 0; i < PETAL_COUNT; i++) {
       const depth = 0.4 + Math.random() * 0.6;
+      // Speeds scale with screen size so the swirl reaches the eye on any display.
+      const radialVel = maxR * (0.22 + Math.random() * 0.28) * (0.6 + depth * 0.4);
       petals.push({
         angle: Math.random() * Math.PI * 2,
-        radius: (0.55 + Math.random() * 0.7) * maxR,
+        radius: (0.45 + Math.random() * 0.5) * maxR,
         angVel: (Math.random() > 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.8),
-        radialVel: (70 + Math.random() * 130) * depth,
+        radialVel,
+        vel: radialVel * 0.35, // eases up to speed instead of starting at full tilt
         size: (7 + Math.random() * 13) * depth,
         rotation: Math.random() * Math.PI * 2,
         rotVel: (Math.random() - 0.5) * 0.04,
@@ -122,51 +193,60 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
       });
     }
 
+    const sprites = getPetalSprites();
+
+    // One setTransform per petal (no save/restore) keeps 60fps on modest GPUs.
     const drawPetal = (p: Petal) => {
-      const colors = PALETTE[p.hue];
-      const c = colors[Math.floor(p.depth * (colors.length - 1))];
-      const x = cx + Math.cos(p.angle) * p.radius;
-      const y = cy + Math.sin(p.angle) * p.radius;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(p.rotation);
-      const s = p.size;
-      ctx.globalAlpha = Math.max(0, p.alpha);
-      ctx.shadowColor = c;
-      ctx.shadowBlur = 8 * p.depth;
-      ctx.beginPath();
-      ctx.moveTo(0, -s);
-      ctx.bezierCurveTo(s * 0.7, -s * 0.5, s * 0.6, s * 0.7, 0, s);
-      ctx.bezierCurveTo(-s * 0.6, s * 0.7, -s * 0.7, -s * 0.5, 0, -s);
-      ctx.closePath();
-      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s);
-      grad.addColorStop(0, c);
-      grad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.restore();
+      const sprite = sprites[p.hue];
+      if (!sprite) return;
+      const s = ((p.size * 2) / (SPRITE_SIZE * 2)) * dpr;
+      const cos = Math.cos(p.rotation) * s;
+      const sin = Math.sin(p.rotation) * s;
+      ctx.setTransform(
+        cos,
+        sin,
+        -sin,
+        cos,
+        (cx + Math.cos(p.angle) * p.radius) * dpr,
+        (cy + Math.sin(p.angle) * p.radius) * dpr
+      );
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.alpha));
+      ctx.drawImage(sprite, -SPRITE_SIZE, -SPRITE_SIZE);
     };
 
     let raf = 0;
-    let last = performance.now();
+    const start = performance.now();
+    let last = start;
     const tick = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      ctx.clearRect(0, 0, w, h);
-      const stage = stageRef.current;
+      const introRamp = Math.min(1, (now - start) / 600); // petals fade in, never pop
+      const dispersing = stageRef.current === 2;
+      // Frame-rate-independent smoothing factors.
+      const kVel = 1 - Math.exp(-dt * 4);
+      const kAlpha = 1 - Math.exp(-dt * (dispersing ? 5 : 8));
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       for (const p of petals) {
+        // Direction changes ease through zero instead of snapping.
+        const targetVel = dispersing ? -p.radialVel * 1.8 : p.radialVel;
+        p.vel += (targetVel - p.vel) * kVel;
+        p.radius -= p.vel * dt;
         p.angle += p.angVel * dt;
-        if (stage === 1) {
-          p.radius -= p.radialVel * dt;
-          if (p.radius < VORTEX_EYE) p.radius = VORTEX_EYE;
-          p.alpha += dt * 1.6;
-          if (p.alpha > 1) p.alpha = 1;
-          p.alpha *= 0.55 + p.depth * 0.45;
-        } else {
-          p.radius += p.radialVel * 2.4 * dt;
-          p.alpha -= dt * 1.1;
+        p.rotation += (p.rotVel * 60 + p.angVel * 1.2) * dt;
+
+        // Petals that reach the eye are recycled to the rim instead of piling up.
+        if (!dispersing && p.radius < VORTEX_EYE) {
+          p.radius = maxR * (0.9 + Math.random() * 0.4);
+          p.alpha = 0;
         }
-        p.rotation += p.rotVel + p.angVel * 0.02;
+
+        const eyeFade = Math.min(1, Math.max(0, (p.radius - VORTEX_EYE) / (VORTEX_EYE * 2)));
+        const targetAlpha = dispersing ? 0 : (0.45 + p.depth * 0.45) * eyeFade * introRamp;
+        p.alpha += (targetAlpha - p.alpha) * kAlpha;
+
         if (p.alpha > 0.01 && p.radius < maxR * 1.4) drawPetal(p);
       }
       raf = requestAnimationFrame(tick);
@@ -210,17 +290,33 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
 
     const finish = finishRef.current;
 
-    const t1 = setTimeout(() => {
-      stageRef.current = 2;
-      const ease = [0.22, 1, 0.36, 1] as const;
-      animate(groupX, 24, { duration: TRANSITION, ease });
-      animate(groupY, 12, { duration: TRANSITION, ease });
-      animate(groupScale, 1, { duration: TRANSITION, ease });
-      animate(innerTx, "0%", { duration: TRANSITION, ease });
-      animate(innerTy, "0%", { duration: TRANSITION, ease });
-    }, (STAGE1 + HOLD) * 1000);
+    // ── Entrance (0 → ENTER): everything arrives on the same expo-out curve ──
+    const enter = { duration: ENTER, ease: EASE_OUT };
+    animate(logoOpacity, 1, { duration: 0.6, ease: "easeOut" });
+    animate(logoY, 0, enter);
+    animate(logoScale, 1, enter);
+    animate(auraOpacity, 1, { ...enter, delay: 0.1 });
+    animate(auraScale, 1, { ...enter, delay: 0.1 });
+    animate(taglineOpacity, 1, { duration: 0.5, ease: "easeOut", delay: 0.4 });
 
-    const t2 = setTimeout(finish, (STAGE1 + HOLD + TRANSITION) * 1000);
+    // ── Dock (ENTER + HOLD → +TRANSITION): one symmetric glide to the corner ──
+    const t1 = setTimeout(() => {
+      stageRef.current = 2; // petals disperse (velocity eases through zero)
+      const glide = { duration: TRANSITION, ease: EASE_IN_OUT };
+      animate(taglineOpacity, 0, { duration: 0.25, ease: "easeIn" });
+      animate(auraOpacity, 0, { duration: TRANSITION * 0.8, ease: "easeInOut" });
+      // Dock coordinates: aligns precisely with ScrollLogo (top-3, left-6 on mobile, left-8 on sm+)
+      const targetX = typeof window !== "undefined" && window.innerWidth >= 640 ? 32 : 24;
+      const targetY = 12;
+      animate(groupX, targetX, glide);
+      animate(groupY, targetY, glide);
+      animate(groupScale, 1, glide);
+      animate(innerTx, "0%", glide);
+      animate(innerTy, "0%", glide);
+    }, (ENTER + HOLD) * 1000);
+
+    // The backdrop dissolves while the glide is landing, so the hand-off overlaps.
+    const t2 = setTimeout(finish, (ENTER + HOLD + TRANSITION * DISSOLVE_AT) * 1000);
 
     return () => {
       clearTimeout(t1);
@@ -253,34 +349,60 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
           aria-hidden
           className={`pointer-events-none absolute rounded-full ${p.color} blur-[2px]`}
           style={{ top: p.top, left: p.left, width: p.size, height: p.size }}
-          animate={{ y: [0, -14, 0], opacity: [0.25, 0.7, 0.25] }}
-          transition={{ duration: p.dur, repeat: Infinity, ease: "easeInOut" }}
+          initial={{ opacity: 0, y: 0 }}
+          animate={{ opacity: [0, 0.6, 0.3], y: [0, -8, -16] }}
+          transition={{ duration: ENTER + HOLD, delay: p.delay, ease: "easeOut" }}
         />
       ))}
 
       {/* Angel + SAKHI group (center -> corner) */}
       <motion.div
-        className="fixed left-0 top-0"
+        className="fixed left-0 top-0 will-change-transform"
         style={{ x: groupX, y: groupY, scale: groupScale, transformOrigin: "left top" }}
       >
         <motion.div
-          className="flex items-center gap-2"
+          className="relative flex flex-col items-center gap-2"
           style={{ x: innerTx, y: innerTy }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: STAGE1, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* glow behind the figure */}
-          <span
+          {/* Soft luminous aura behind the logo. No CSS animation here: the `breathe`
+              keyframes overrode these motion values and made the aura pop. */}
+          <motion.span
             aria-hidden
-            className="breathe absolute left-1/2 top-1/2 -z-10 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-lavender-300/50 to-blush-300/50 blur-2xl mix-blend-multiply"
+            className="absolute left-1/2 top-1/2 -z-10 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-lavender-300/60 via-blush-200/50 to-pink-300/40 blur-3xl will-change-transform"
+            style={{ opacity: auraOpacity, scale: auraScale }}
           />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/original-logo.png?v=4"
-            alt="Sakhi — Your AI Health Companion"
-            className="h-14 sm:h-16 w-auto object-contain mix-blend-multiply"
+          <motion.span
+            aria-hidden
+            className="absolute left-1/2 top-1/2 -z-10 h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 blur-xl will-change-transform"
+            style={{ opacity: auraOpacity, scale: auraScale }}
           />
+
+          {/* Logo: short rise + gentle scale-up */}
+          <motion.div
+            className="will-change-transform"
+            style={{
+              y: logoY,
+              scale: logoScale,
+              opacity: logoOpacity,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/original-logo.png?v=4"
+              alt="Sakhi — Your AI Health Companion"
+              className="h-14 sm:h-16 w-auto object-contain mix-blend-multiply drop-shadow-sm select-none"
+              draggable={false}
+            />
+          </motion.div>
+
+          {/* Subtle poetic whisper that emerges at center and gently departs before corner dock */}
+          <motion.p
+            aria-hidden
+            className="display-serif pointer-events-none mt-0.5 text-[15px] leading-none text-plum/75"
+            style={{ opacity: taglineOpacity }}
+          >
+            Your AI health companion
+          </motion.p>
         </motion.div>
       </motion.div>
     </motion.div>

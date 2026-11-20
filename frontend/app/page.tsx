@@ -18,35 +18,31 @@ const INTRO_KEY = "sakhi-intro-played";
 export default function Home() {
   const reduce = useReducedMotion();
   const { status } = useSession();
-  const [playIntro, setPlayIntro] = useState(false);
-  const [introDone, setIntroDone] = useState(true);
+  // "pending" is the server render and the first client render: the page is covered, so the
+  // real page and corner logo never flash before the intro mounts after hydration.
+  const [phase, setPhase] = useState<"pending" | "play" | "done">("pending");
+  const playIntro = phase === "play";
+  const introDone = phase === "done";
 
   // Play intro ONLY on first entry/open of application; skip when returning via back button
   useEffect(() => {
     try {
       const hasPlayed = sessionStorage.getItem(INTRO_KEY);
-      if (hasPlayed === "true" || reduce) {
-        setIntroDone(true);
-        setPlayIntro(false);
-      } else {
-        setIntroDone(false);
-        setPlayIntro(true);
-      }
+      setPhase(hasPlayed === "true" || reduce ? "done" : "play");
     } catch (e) {
-      setIntroDone(true);
-      setPlayIntro(false);
+      setPhase("done");
     }
   }, [reduce]);
 
   useEffect(() => {
-    // Absolute failsafe: The landing page must ALWAYS be revealed within 1.5 seconds
+    // Absolute failsafe: the landing page must ALWAYS be revealed. The intro dismisses itself
+    // at ~2.3s (see IntroOverlay timings); this is only a backstop, so keep it well above that.
     const failsafe = setTimeout(() => {
-      setIntroDone(true);
-      setPlayIntro(false);
+      setPhase("done");
       try {
         sessionStorage.setItem(INTRO_KEY, "true");
       } catch {}
-    }, 1500);
+    }, 3400);
     return () => clearTimeout(failsafe);
   }, []);
 
@@ -54,12 +50,14 @@ export default function Home() {
     try {
       sessionStorage.setItem(INTRO_KEY, "true");
     } catch (e) {}
-    setIntroDone(true);
-    setPlayIntro(false);
+    setPhase("done");
   };
 
   return (
     <>
+      {phase === "pending" && (
+        <div aria-hidden="true" className="fixed inset-0 z-[100] bg-cream" />
+      )}
       {playIntro && <IntroOverlay onComplete={handleIntroComplete} />}
 
       <ScrollLogo />
