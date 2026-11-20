@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Lightning, Trash, Heartbeat } from "@phosphor-icons/react";
 import { panelCard } from "@/components/her/HerPanels";
 import { PAIN_WHERE, painEvents, worstPain, type PainEvent } from "@/lib/painLog";
+import { useLanguage } from "@/context/LanguageContext";
 
 const todayKey = () => {
   const d = new Date();
@@ -30,6 +31,7 @@ interface Props {
 
 /** Pain can change through the day: log it as often as it changes. */
 export default function PainTodayCard({ logs, onSaved, onOpenRelief, className = "" }: Props) {
+  const { t } = useLanguage();
   const today = todayKey();
   const entry = useMemo(() => logs.find(l => String(l?.log_date || "").startsWith(today)), [logs, today]);
   const events: PainEvent[] = useMemo(() => painEvents(entry), [entry]);
@@ -77,13 +79,13 @@ export default function PainTodayCard({ logs, onSaved, onOpenRelief, className =
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 id="pain-today-title" className="flex items-center gap-2 text-lg sm:text-xl font-semibold text-plum-900">
-            <Lightning size={20} weight="duotone" className="text-rose-500" aria-hidden="true" /> Pain right now
+            <Lightning size={20} weight="duotone" className="text-rose-500" aria-hidden="true" /> {t("relief.painRightNow", "Pain right now")}
           </h3>
-          <p className="mt-1 text-sm text-plum-900/65">Pain can change through the day. Log it whenever it does.</p>
+          <p className="mt-1 text-sm text-plum-900/65">{t("relief.painCanChange", "Pain can change through the day. Log it whenever it does.")}</p>
         </div>
         {events.length > 0 && (
           <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${tone(worst)}`}>
-            Worst today: {worst}/10
+            {t("relief.worstToday", "Worst today")}: {worst}/10
           </span>
         )}
       </div>
@@ -107,7 +109,7 @@ export default function PainTodayCard({ logs, onSaved, onOpenRelief, className =
           ))}
         </div>
         <div className="mt-1 flex justify-between text-[11px] text-plum-900/55">
-          <span>No pain</span><span>Moderate</span><span>Worst</span>
+          <span>{t("checkin.painNone", "No pain")}</span><span>{t("checkin.painModerate", "Moderate")}</span><span>{t("relief.worst", "Worst")}</span>
         </div>
       </div>
 
