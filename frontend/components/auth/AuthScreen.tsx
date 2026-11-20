@@ -403,42 +403,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
   return (
     <div className="relative min-h-[100dvh] bg-cream text-ink lg:grid lg:grid-cols-[46fr_54fr]">
       {/* Compact header on mobile; full sticky sanctuary stage on desktop */}
-      <aside className="relative overflow-hidden bg-plum-900 text-cream px-6 py-5 lg:sticky lg:top-0 lg:h-[100dvh] lg:px-12 lg:py-9 flex flex-col justify-between">
-        {/* Full-height atmospheric background doll illustration covering the entire left panel */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={previewMode}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.03 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 h-full w-full flex items-center justify-center"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewMode === "her" ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
-                alt=""
-                className="h-full w-full object-cover object-center lg:object-[center_55%]"
-                style={{
-                  opacity: 0.22,
-                  maskImage:
-                    "radial-gradient(ellipse 85% 85% at 50% 55%, black 25%, transparent 85%)",
-                  WebkitMaskImage:
-                    "radial-gradient(ellipse 85% 85% at 50% 55%, black 25%, transparent 85%)",
-                }}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Gentle atmospheric gradient overlays to ensure text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-plum-900/85 via-transparent to-plum-900/90 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-plum-900/40 via-transparent to-plum-900/50 pointer-events-none" />
-        </div>
-
+      <aside className="relative overflow-hidden bg-plum-900 text-cream px-6 py-5 lg:sticky lg:top-0 lg:h-[100dvh] lg:px-12 lg:py-8 flex flex-col justify-between">
         <PetalWind contained className="pointer-events-none absolute inset-0 z-[1] h-full w-full" />
         {/* Soft breathing blooms inside the sanctuary stage */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -449,53 +414,98 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
           />
         </div>
 
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 rounded-full pr-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream p-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/original-logo.png?v=4"
-                alt="Sakhi"
-                className="h-full w-full object-contain"
-              />
-            </span>
-            <span className="text-lg font-semibold tracking-tight text-cream">Sakhi</span>
-          </Link>
+        {/* Top-grouped branding, editorial voice, and care mode toggle */}
+        <div className="relative z-10 flex flex-col gap-6 shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 rounded-full pr-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/original-logo.png?v=4"
+                  alt="Sakhi"
+                  className="h-full w-full object-contain"
+                />
+              </span>
+              <span className="text-lg font-semibold tracking-tight text-cream">Sakhi</span>
+            </Link>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/85 hover:text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 rounded-md px-2 py-1"
-          >
-            <ArrowLeft size={15} weight="bold" aria-hidden="true" />
-            <span>{t("menu.homePage", "Home")}</span>
-          </Link>
-        </div>
-
-        {/* Desktop stage body: floral crest + editorial voice + interactive preview */}
-        <div className="relative z-10 hidden lg:flex flex-col gap-6 my-auto py-4">
-          <div className="flex items-center gap-5">
-            <FloralCrest reduce={reduce} />
-            <div className="max-w-xs">
-              <p className="text-2xl font-medium leading-snug tracking-tight text-cream">
-                Your body speaks.{" "}
-                <span className="display-serif text-[1.85rem] text-lavender-200">
-                  Sakhi listens.
-                </span>
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-cream/75">
-                Every cycle phase and trimester held in one quiet, private timeline.
-              </p>
-            </div>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/85 hover:text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 rounded-md px-2 py-1"
+            >
+              <ArrowLeft size={15} weight="bold" aria-hidden="true" />
+              <span>{t("menu.homePage", "Home")}</span>
+            </Link>
           </div>
 
-          <StageModePreview mode={previewMode} onChange={setPreviewMode} reduce={reduce} />
+          {/* Desktop editorial block + care mode toggle */}
+          <div className="hidden lg:flex flex-col gap-5">
+            <div className="flex items-center gap-5">
+              <FloralCrest reduce={reduce} />
+              <div className="max-w-xs">
+                <p className="text-2xl font-medium leading-snug tracking-tight text-cream">
+                  Your body speaks.{" "}
+                  <span className="display-serif text-[1.85rem] text-lavender-200">
+                    Sakhi listens.
+                  </span>
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-cream/75">
+                  Every cycle phase and trimester held in one quiet, private timeline.
+                </p>
+              </div>
+            </div>
+
+            <StageModePreview mode={previewMode} onChange={setPreviewMode} reduce={reduce} />
+          </div>
         </div>
 
-        <div className="relative z-10 hidden lg:flex items-center gap-2.5 text-sm text-cream/75">
-          <Lock size={16} weight="duotone" aria-hidden="true" className="text-lavender-300 shrink-0" />
+        {/* Repositioned lower doll visual: prominent, borderless, soft pastel/dreamy pale appearance */}
+        <div className="relative z-0 hidden lg:flex flex-1 items-center justify-center overflow-hidden w-full min-h-0 py-2">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={previewMode}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-[370px] xl:max-w-[430px] aspect-square flex items-center justify-center select-none pointer-events-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewMode === "her" ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
+                alt=""
+                className="w-full h-full object-contain"
+                style={{
+                  opacity: 0.82,
+                  filter: "brightness(1.1) contrast(0.96)",
+                  maskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                }}
+              />
+
+              {/* Delicate light pastel / pale dreamy wash overlay */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-full bg-gradient-to-tr from-lavender-200/10 via-blush-200/15 to-white/10 mix-blend-screen pointer-events-none"
+                style={{
+                  maskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom privacy assurance */}
+        <div className="relative z-10 hidden lg:flex items-center gap-2.5 text-xs xl:text-sm text-cream/70 pt-1 shrink-0">
+          <Lock size={15} weight="duotone" aria-hidden="true" className="text-lavender-300 shrink-0" />
           <span>Private workspace per account. Download or delete your records anytime.</span>
         </div>
       </aside>
