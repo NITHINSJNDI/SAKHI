@@ -479,24 +479,24 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 alt=""
                 className="w-full h-full object-contain"
                 style={{
-                  opacity: 0.82,
-                  filter: "brightness(1.1) contrast(0.96)",
+                  opacity: 0.68,
+                  filter: "brightness(1.12) contrast(0.96)",
                   maskImage:
-                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
                   WebkitMaskImage:
-                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
                 }}
               />
 
               {/* Delicate light pastel / pale dreamy wash overlay */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 rounded-full bg-gradient-to-tr from-lavender-200/10 via-blush-200/15 to-white/10 mix-blend-screen pointer-events-none"
+                className="absolute inset-0 rounded-full bg-gradient-to-tr from-lavender-200/10 via-blush-200/15 to-white/10 mix-blend-screen pointer-events-none opacity-80"
                 style={{
                   maskImage:
-                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
                   WebkitMaskImage:
-                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 44%, rgba(0, 0, 0, 0.55) 70%, transparent 95%)",
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
                 }}
               />
             </motion.div>
