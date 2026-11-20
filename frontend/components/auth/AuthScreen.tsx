@@ -843,9 +843,9 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
 
           {/* Guest sample exploration */}
           <div id="sample" className="mt-6 scroll-mt-6 rounded-2xl bg-cream-deep/55 p-4 sm:p-5">
-            <p className="text-sm font-medium text-plum-900">Explore with sample data</p>
+            <p className="text-sm font-medium text-plum-900">{t("auth.exploreSampleData")}</p>
             <p className="mt-0.5 text-sm text-plum-800/85">
-              Try a pre-filled workspace on this device with no sign-up required.
+              {t("auth.exploreSampleDesc")}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <button
@@ -855,9 +855,9 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 className="rounded-xl bg-cream hover:bg-white px-4 py-2.5 text-left transition-colors duration-150 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
               >
                 <span className="block text-sm font-semibold text-plum-900">
-                  {demoBusy === "her" ? "Loading…" : "Her Mode demo"}
+                  {demoBusy === "her" ? t("common.loading") : t("auth.demoHer")}
                 </span>
-                <span className="block text-sm text-plum-800/80">3 months of cycles</span>
+                <span className="block text-sm text-plum-800/80">{t("auth.demoHerCycles")}</span>
               </button>
               <button
                 type="button"
@@ -866,9 +866,9 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 className="rounded-xl bg-cream hover:bg-white px-4 py-2.5 text-left transition-colors duration-150 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
               >
                 <span className="block text-sm font-semibold text-plum-900">
-                  {demoBusy === "pregnancy" ? "Loading…" : "Mom Mode demo"}
+                  {demoBusy === "pregnancy" ? t("common.loading") : t("auth.demoMom")}
                 </span>
-                <span className="block text-sm text-plum-800/80">32 weeks pregnant</span>
+                <span className="block text-sm text-plum-800/80">{t("auth.demoMomWeeks")}</span>
               </button>
             </div>
           </div>

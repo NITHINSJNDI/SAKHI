@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { Printer, ArrowLeft, FirstAidKit, WarningCircle, ChatCircleText } from "@phosphor-icons/react";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 type Mode = "her" | "pregnancy";
 
-const fmtDate = (d?: string | null) =>
-  d ? new Date(`${String(d).split("T")[0]}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—";
+const getLocale = (lang: string) => {
+  const map: Record<string, string> = {
+    en: "en-GB", ta: "ta-IN", hi: "hi-IN", te: "te-IN",
+    ml: "ml-IN", kn: "kn-IN", bn: "bn-IN", mr: "mr-IN"
+  };
+  return map[lang] || "en-GB";
+};
+
+const fmtDate = (d?: string | null, lang = "en") =>
+  d ? new Date(`${String(d).split("T")[0]}T00:00:00`).toLocaleDateString(getLocale(lang), { day: "numeric", month: "short", year: "numeric" }) : "—";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -26,14 +36,14 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function Screen({ title, data, detail }: { title: string; data: any; detail?: string }) {
+function Screen({ title, data, detail, notScoredText, screeningAidText }: { title: string; data: any; detail?: string; notScoredText?: string; screeningAidText?: string }) {
   if (!data) return null;
   if (data.not_scored) {
     return (
       <div className="rounded-lg border border-plum-900/10 p-3 break-inside-avoid">
         <div className="flex items-center justify-between gap-2">
           <span className="text-sm font-semibold text-plum-900">{title}</span>
-          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-plum-900/5 text-plum-900/60 border-plum-900/10">Not scored</span>
+          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-plum-900/5 text-plum-900/60 border-plum-900/10">{notScoredText || "Not scored"}</span>
         </div>
         <p className="text-xs text-plum-900/70 mt-1">{data.reason}</p>
       </div>
@@ -55,7 +65,7 @@ function Screen({ title, data, detail }: { title: string; data: any; detail?: st
       )}
       {data.model && (
         <p className="text-[10px] text-plum-900/45 mt-1">
-          {data.model.name}; {data.model.dataset}, n={data.model.n}, AUC {data.model.roc_auc}. Screening aid, not a diagnosis.
+          {data.model.name}; {data.model.dataset}, n={data.model.n}, AUC {data.model.roc_auc}. {screeningAidText || "Screening aid, not a diagnosis."}
         </p>
       )}
       {data.method && !data.model && <p className="text-[10px] text-plum-900/45 mt-1">Method: {data.method}</p>}
@@ -63,14 +73,15 @@ function Screen({ title, data, detail }: { title: string; data: any; detail?: st
   );
 }
 
-const List = ({ items }: { items: { label: string; count: number }[] }) =>
+const List = ({ items, emptyText }: { items: { label: string; count: number }[]; emptyText?: string }) =>
   items.length ? (
     <p className="text-xs text-plum-900/80">{items.slice(0, 8).map(i => `${i.label} (${i.count})`).join(" · ")}</p>
   ) : (
-    <p className="text-xs text-plum-900/50">None recorded</p>
+    <p className="text-xs text-plum-900/50">{emptyText || "None recorded"}</p>
   );
 
 export default function DoctorSummaryPage() {
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<Mode>("her");
   const [days, setDays] = useState(90);
   const [data, setData] = useState<any>(null);
@@ -97,27 +108,28 @@ export default function DoctorSummaryPage() {
     <div className="min-h-screen bg-cream print:bg-white py-6 px-4 print:p-0">
       <style>{`@media print { @page { size: A4; margin: 14mm; } .no-print { display: none !important; } }`}</style>
 
-      <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-wrap items-center gap-2 justify-between">
+      <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-wrap items-center gap-3 justify-between">
         <a href={back} className="inline-flex items-center gap-1.5 text-sm text-plum-900/70 hover:text-plum-900">
-          <ArrowLeft className="w-4 h-4" /> Back to dashboard
+          <ArrowLeft className="w-4 h-4" /> {t("common.backToDashboard")}
         </a>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <LanguageSelector />
           <select
             value={days}
             onChange={e => setDays(Number(e.target.value))}
-            className="text-sm rounded-full border border-plum-900/15 bg-white px-3 py-1.5"
+            className="text-sm rounded-full border border-plum-900/15 bg-white px-3 py-1.5 cursor-pointer text-plum-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400"
             aria-label="Summary period"
           >
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={180}>Last 6 months</option>
+            <option value={30}>{t("common.last30Days")}</option>
+            <option value={90}>{t("common.last90Days")}</option>
+            <option value={180}>{t("common.last6Months")}</option>
           </select>
           <button
             onClick={() => window.print()}
             disabled={!data}
-            className="inline-flex items-center gap-2 rounded-full bg-plum-900 text-white text-sm font-medium px-4 py-2 disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-full bg-plum-900 text-white text-sm font-medium px-4 py-2 disabled:opacity-40 cursor-pointer hover:bg-plum-800 transition-colors"
           >
-            <Printer className="w-4 h-4" /> Print / Save as PDF
+            <Printer className="w-4 h-4" /> {t("common.printPdf")}
           </button>
         </div>
       </div>
@@ -127,74 +139,79 @@ export default function DoctorSummaryPage() {
           <div>
             <div className="flex items-center gap-2 text-pink-600">
               <FirstAidKit weight="duotone" className="w-5 h-5" />
-              <span className="text-xs font-semibold">Sakhi · Doctor visit summary</span>
+              <span className="text-xs font-semibold">{t("common.doctorVisitSummary")}</span>
             </div>
             <h1 className="text-2xl font-semibold mt-1">
-              {mode === "pregnancy" ? (data?.postnatal ? "Postnatal" : "Antenatal") : "Menstrual & hormonal"} health summary
+              {mode === "pregnancy" ? (data?.postnatal ? t("doctor.postnatalTitle") : t("doctor.antenatalTitle")) : t("doctor.menstrualTitle")}
             </h1>
             {data && (
               <p className="text-sm text-plum-900/60">
-                {data.patient.name} · {data.stats.checkIns} check-ins · {fmtDate(data.period.from)} to {fmtDate(data.period.to)}
+                {data.patient.name} · {data.stats.checkIns} {t("doctor.checkIns")} · {fmtDate(data.period.from, language)} {t("common.to")} {fmtDate(data.period.to, language)}
               </p>
             )}
           </div>
           <div className="text-right text-[11px] text-plum-900/50">
-            Generated {data ? fmtDate(data.generatedAt) : "…"}
-            <br />Patient-reported data
+            {t("doctor.generated")} {data ? fmtDate(data.generatedAt, language) : "…"}
+            <br />{t("doctor.patientReported")}
           </div>
         </header>
 
-        {error && <p className="text-sm text-red-700">Could not build the summary ({error}).</p>}
-        {!data && !error && <p className="text-sm text-plum-900/50">Building summary…</p>}
+        {error && <p className="text-sm text-red-700">{t("doctor.couldNotBuild")} ({error}).</p>}
+        {!data && !error && <p className="text-sm text-plum-900/50">{t("doctor.buildingSummary")}</p>}
 
         {data?.kind === "her" && (
           <>
-            <Section title="Cycle">
+            <Section title={t("doctor.cycle")}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <Stat label="Last period" value={fmtDate(data.cycle.lastPeriodStart)} />
-                <Stat label="Cycle length" value={data.cycle.prediction?.average_cycle_length ?? data.cycle.reportedCycleLength ? `${data.cycle.prediction?.average_cycle_length ?? data.cycle.reportedCycleLength} days` : null} />
-                <Stat label="Period duration" value={data.cycle.reportedPeriodDuration ? `${data.cycle.reportedPeriodDuration} days` : null} />
-                <Stat label="Next period (est.)" value={fmtDate(data.cycle.prediction?.next_period_date)} />
+                <Stat label={t("doctor.lastPeriod")} value={fmtDate(data.cycle.lastPeriodStart, language)} />
+                <Stat label={t("doctor.cycleLength")} value={data.cycle.prediction?.average_cycle_length ?? data.cycle.reportedCycleLength ? `${data.cycle.prediction?.average_cycle_length ?? data.cycle.reportedCycleLength} ${t("doctor.daysLabel")}` : null} />
+                <Stat label={t("doctor.periodDuration")} value={data.cycle.reportedPeriodDuration ? `${data.cycle.reportedPeriodDuration} ${t("doctor.daysLabel")}` : null} />
+                <Stat label={t("doctor.nextPeriodEst")} value={fmtDate(data.cycle.prediction?.next_period_date, language)} />
               </div>
               {data.cycle.history.length > 0 && (
                 <p className="text-xs text-plum-900/70 mt-2">
-                  History: {data.cycle.history.map((h: any) => `${h.month}: ${h.cycleLength}d cycle / ${h.periodDuration}d bleed`).join(" · ")}
+                  {t("doctor.history")}: {data.cycle.history.map((h: any) => `${h.month}: ${h.cycleLength}d cycle / ${h.periodDuration}d bleed`).join(" · ")}
                 </p>
               )}
-              <p className="text-xs text-plum-900/70 mt-1">Self-reported regularity: {data.cycle.regularity || "—"} · Known conditions: {data.patient.diagnosedConditions.length ? data.patient.diagnosedConditions.join(", ") : "none"}</p>
+              <p className="text-xs text-plum-900/70 mt-1">{t("doctor.regularity")}: {data.cycle.regularity || "—"} · {t("doctor.conditions")}: {data.patient.diagnosedConditions.length ? data.patient.diagnosedConditions.join(", ") : t("doctor.none")}</p>
             </Section>
 
-            <Section title="Symptoms over the period">
+            <Section title={t("doctor.symptomsPeriod")}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
-                <Stat label="Average cramps" value={data.stats.avgCramps !== null ? `${data.stats.avgCramps}/10` : null} />
-                <Stat label="Worst cramps" value={data.stats.maxCramps !== null ? `${data.stats.maxCramps}/10` : null} />
-                <Stat label="Heavy-flow days" value={data.stats.heavyDays} />
-                <Stat label="Blood-loss score (PBAC)" value={data.stats.bloodLoss?.length ? data.stats.bloodLoss.map((p: any) => p.score).join(", ") + (data.stats.bloodLoss.some((p: any) => p.score > 100) ? " (over 100 = heavy)" : "") : null} />
-                <Stat label="Average sleep" value={data.stats.avgSleep !== null ? `${data.stats.avgSleep} h` : null} />
+                <Stat label={t("doctor.avgCramps")} value={data.stats.avgCramps !== null ? `${data.stats.avgCramps}/10` : null} />
+                <Stat label={t("doctor.worstCramps")} value={data.stats.maxCramps !== null ? `${data.stats.maxCramps}/10` : null} />
+                <Stat label={t("doctor.heavyFlowDays")} value={data.stats.heavyDays} />
+                <Stat label={t("doctor.bloodLoss")} value={data.stats.bloodLoss?.length ? data.stats.bloodLoss.map((p: any) => p.score).join(", ") + (data.stats.bloodLoss.some((p: any) => p.score > 100) ? " (over 100 = heavy)" : "") : null} />
+                <Stat label={t("doctor.avgSleep")} value={data.stats.avgSleep !== null ? `${data.stats.avgSleep} h` : null} />
               </div>
-              <p className="text-[11px] font-semibold text-plum-900/60">Most reported symptoms (days)</p>
-              <List items={data.stats.symptoms} />
-              <p className="text-[11px] font-semibold text-plum-900/60 mt-1">Flow</p>
-              <List items={data.stats.flow} />
-              <p className="text-[11px] font-semibold text-plum-900/60 mt-1">Mood</p>
-              <List items={data.stats.moods} />
+              <p className="text-[11px] font-semibold text-plum-900/60">{t("doctor.mostSymptoms")}</p>
+              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} />
+              <p className="text-[11px] font-semibold text-plum-900/60 mt-1">{t("doctor.flow")}</p>
+              <List items={data.stats.flow} emptyText={t("doctor.noneRecorded")} />
+              <p className="text-[11px] font-semibold text-plum-900/60 mt-1">{t("doctor.mood")}</p>
+              <List items={data.stats.moods} emptyText={t("doctor.noneRecorded")} />
             </Section>
 
             {data.pcosPattern && data.pcosPattern.rows.some((r: any) => r.checkIns > 0) && (
-              <Section title="Month by month (PCOS pattern)">
+              <Section title={t("doctor.monthByMonth")}>
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-left text-plum-900/50">
-                      <th className="py-1 font-medium">Month</th><th className="font-medium">Period</th><th className="font-medium">Cycle</th>
-                      <th className="font-medium">Bleed days</th><th className="font-medium">Acne</th><th className="font-medium">Hair growth</th>
-                      <th className="font-medium">Hair loss</th><th className="font-medium">Weight</th>
+                      <th className="py-1 font-medium">{t("doctor.colMonth")}</th>
+                      <th className="font-medium">{t("doctor.colPeriod")}</th>
+                      <th className="font-medium">{t("doctor.colCycle")}</th>
+                      <th className="font-medium">{t("doctor.colBleedDays")}</th>
+                      <th className="font-medium">{t("doctor.colAcne")}</th>
+                      <th className="font-medium">{t("doctor.colHairGrowth")}</th>
+                      <th className="font-medium">{t("doctor.colHairLoss")}</th>
+                      <th className="font-medium">{t("doctor.colWeight")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.pcosPattern.rows.map((r: any) => (
                       <tr key={r.label} className="border-t border-plum-900/5">
                         <td className="py-1">{r.label}</td>
-                        <td className={!r.periodStarted && r.checkIns >= 10 ? "font-bold text-red-700" : ""}>{r.periodStarted ? "Yes" : r.checkIns ? "No" : "—"}</td>
+                        <td className={!r.periodStarted && r.checkIns >= 10 ? "font-bold text-red-700" : ""}>{r.periodStarted ? t("common.yes") : r.checkIns ? t("common.no") : "—"}</td>
                         <td className={r.cycleLength && (r.cycleLength > 35 || r.cycleLength < 21) ? "font-bold text-red-700" : ""}>{r.cycleLength ? `${r.cycleLength} d` : "—"}</td>
                         <td>{r.checkIns ? r.bleedDays : "—"}</td>
                         <td>{r.checkIns ? r.acneDays : "—"}</td>
@@ -205,14 +222,13 @@ export default function DoctorSummaryPage() {
                     ))}
                   </tbody>
                 </table>
-                <p className="text-[10px] text-plum-900/50 mt-1">Days counted from her daily check-ins. Cycle = days from that month&apos;s period start to the next one.</p>
               </Section>
             )}
 
-            <Section title="Screening results">
+            <Section title={t("doctor.screeningResults")}>
               <div className="grid sm:grid-cols-2 gap-2">
-                <Screen title="PCOS (Rotterdam symptom criteria)" data={data.screens.pcos} detail={data.screens.pcos?.next_step} />
-                <Screen title="Thyroid symptom screen" data={data.screens.thyroid} detail={data.screens.thyroid?.next_step} />
+                <Screen title={t("doctor.pcosCriteria")} data={data.screens.pcos} detail={data.screens.pcos?.next_step} notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
+                <Screen title={t("doctor.thyroidScreen")} data={data.screens.thyroid} detail={data.screens.thyroid?.next_step} notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
               </div>
             </Section>
           </>
@@ -221,38 +237,38 @@ export default function DoctorSummaryPage() {
         {data?.kind === "pregnancy" && (
           <>
             {data.postnatal ? (
-            <Section title="After the birth">
+            <Section title={t("doctor.postnatalTitle")}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <Stat label="Baby" value={[data.postnatal.babyName, data.postnatal.sex].filter(Boolean).join(", ") || "Baby"} />
-                <Stat label="Born" value={`${fmtDate(data.postnatal.birthDate)} (${data.postnatal.age})`} />
+                <Stat label="Born" value={`${fmtDate(data.postnatal.birthDate, language)} (${data.postnatal.age})`} />
                 <Stat label="Delivery" value={data.postnatal.delivery} />
                 <Stat label="Birth weight" value={data.postnatal.birthWeight ? `${data.postnatal.birthWeight} kg` : null} />
-                <Stat label="Latest weight" value={data.postnatal.latestWeight ? `${data.postnatal.latestWeight.weight} kg (${fmtDate(data.postnatal.latestWeight.date)})` : null} />
+                <Stat label="Latest weight" value={data.postnatal.latestWeight ? `${data.postnatal.latestWeight.weight} kg (${fmtDate(data.postnatal.latestWeight.date, language)})` : null} />
                 <Stat label="Weight for age" value={data.postnatal.latestWeight?.band || null} />
                 <Stat label="Vaccine visits done" value={`${data.postnatal.vaccines.done} of ${data.postnatal.vaccines.total}`} />
-                <Stat label="Next vaccines" value={data.postnatal.vaccines.next ? `${data.postnatal.vaccines.next.name}, ${fmtDate(data.postnatal.vaccines.next.date)}${data.postnatal.vaccines.next.overdue ? " (overdue)" : ""}` : "All done"} />
+                <Stat label="Next vaccines" value={data.postnatal.vaccines.next ? `${data.postnatal.vaccines.next.name}, ${fmtDate(data.postnatal.vaccines.next.date, language)}${data.postnatal.vaccines.next.overdue ? " (overdue)" : ""}` : "All done"} />
               </div>
               <p className="text-xs text-plum-900/70 mt-2">
-                {data.postnatal.corrected ? `${data.postnatal.corrected}. ` : ""}Recovery check-ins in the last 2 weeks: {data.postnatal.recoveryChecks}. Known conditions: {data.patient.conditions.length ? data.patient.conditions.join(", ") : "none"}
+                {data.postnatal.corrected ? `${data.postnatal.corrected}. ` : ""}Recovery check-ins in the last 2 weeks: {data.postnatal.recoveryChecks}. Known conditions: {data.patient.conditions.length ? data.patient.conditions.join(", ") : t("doctor.none")}
               </p>
             </Section>
             ) : (
-            <Section title="Pregnancy">
+            <Section title={t("doctor.antenatalTitle")}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <Stat label="Gestation" value={data.patient.weeksPregnant ? `${data.patient.weeksPregnant} weeks` : null} />
-                <Stat label="Due date" value={fmtDate(data.patient.dueDate)} />
-                <Stat label="Weight change" value={data.vitals.weightChange !== null ? `${data.vitals.weightChange > 0 ? "+" : ""}${data.vitals.weightChange} kg` : null} />
-                <Stat label="Baby kicks (avg / min)" value={data.vitals.avgKicks !== null ? `${data.vitals.avgKicks} / ${data.vitals.minKicks}` : null} />
+                <Stat label={t("doctor.gestation")} value={data.patient.weeksPregnant ? `${data.patient.weeksPregnant} ${t("doctor.daysLabel")}` : null} />
+                <Stat label={t("doctor.dueDate")} value={fmtDate(data.patient.dueDate, language)} />
+                <Stat label={t("doctor.weightChange")} value={data.vitals.weightChange !== null ? `${data.vitals.weightChange > 0 ? "+" : ""}${data.vitals.weightChange} kg` : null} />
+                <Stat label={t("doctor.babyKicks")} value={data.vitals.avgKicks !== null ? `${data.vitals.avgKicks} / ${data.vitals.minKicks}` : null} />
               </div>
               <p className="text-xs text-plum-900/70 mt-2">
-                {data.patient.experience || ""}{data.patient.experience ? " · " : ""}Known conditions: {data.patient.conditions.length ? data.patient.conditions.join(", ") : "none"}
+                {data.patient.experience || ""}{data.patient.experience ? " · " : ""}{t("doctor.conditions")}: {data.patient.conditions.length ? data.patient.conditions.join(", ") : t("doctor.none")}
               </p>
             </Section>
             )}
 
-            <Section title="Blood pressure & glucose readings">
+            <Section title={t("doctor.bpGlucose")}>
               {data.vitals.bp.length === 0 && data.vitals.sugar.length === 0 ? (
-                <p className="text-xs text-plum-900/50">No readings logged in this period.</p>
+                <p className="text-xs text-plum-900/50">{t("doctor.noneRecorded")}</p>
               ) : (
                 <table className="w-full text-xs">
                   <thead>
@@ -268,7 +284,7 @@ export default function DoctorSummaryPage() {
                         const highBp = b && (b.systolic >= 140 || b.diastolic >= 90);
                         return (
                           <tr key={d} className="border-t border-plum-900/5">
-                            <td className="py-1">{fmtDate(d)}</td>
+                            <td className="py-1">{fmtDate(d, language)}</td>
                             <td className={highBp ? "font-bold text-red-700" : ""}>{b ? `${b.systolic}/${b.diastolic}` : "—"}</td>
                             <td className={s && s.value >= 140 ? "font-bold text-red-700" : ""}>{s ? s.value : "—"}</td>
                           </tr>
@@ -279,23 +295,23 @@ export default function DoctorSummaryPage() {
               )}
             </Section>
 
-            <Section title="Symptoms reported (days)">
-              <List items={data.stats.symptoms} />
+            <Section title={t("doctor.mostSymptoms")}>
+              <List items={data.stats.symptoms} emptyText={t("doctor.noneRecorded")} />
             </Section>
 
             {!data.postnatal && (
-            <Section title="Screening results">
+            <Section title={t("doctor.screeningResults")}>
               <div className="grid sm:grid-cols-2 gap-2">
-                <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} />
-                <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." />
+                <Screen title="Preeclampsia / hypertensive risk" data={data.screens.preeclampsia} notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
+                <Screen title="Blood sugar risk" data={data.screens.gdm} detail="General diabetes model (trained on non-pregnant women) used as a guide; OGTT at 24 to 28 weeks diagnoses gestational diabetes." notScoredText={t("doctor.notScored")} screeningAidText={t("doctor.screeningAid")} />
               </div>
             </Section>
             )}
 
             {data.appointments.length > 0 && (
-              <Section title="Appointments this month">
+              <Section title={t("doctor.appointments")}>
                 <p className="text-xs text-plum-900/80">
-                  {data.appointments.map((a: any) => `${a.completed ? "✓" : "○"} ${a.name} (${a.date})`).join(" · ")}
+                  {data.appointments.map((a: any) => `${a.completed ? "✓" : "○"} ${a.name} (${fmtDate(a.date, language)})`).join(" · ")}
                 </p>
               </Section>
             )}
@@ -305,14 +321,14 @@ export default function DoctorSummaryPage() {
         {data && (
           <>
             {data.labs?.length > 0 && (
-              <Section title="Lab results (latest of each)">
+              <Section title={t("doctor.labResults")}>
                 <table className="w-full text-xs">
                   <tbody>
                     {data.labs.map((l: any) => (
                       <tr key={l.key} className="border-t border-plum-900/5 align-top">
                         <td className="py-1 pr-2 font-medium">{l.label}</td>
                         <td className={`pr-2 tabular-nums ${l.status === "attention" || l.status === "urgent" ? "font-bold text-red-700" : ""}`}>{l.value}</td>
-                        <td className="pr-2 text-plum-900/60">{fmtDate(l.date)}</td>
+                        <td className="pr-2 text-plum-900/60">{fmtDate(l.date, language)}</td>
                         <td className="text-plum-900/70">{l.note}</td>
                       </tr>
                     ))}
@@ -322,7 +338,7 @@ export default function DoctorSummaryPage() {
             )}
 
             {data.tablets && (
-              <Section title={`Tablets taken, last ${data.tablets.days} days${data.tablets.takenRate !== null ? ` (${data.tablets.takenRate}% of doses)` : ""}`}>
+              <Section title={t("doctor.tabletsTaken", { days: String(data.tablets.days) })}>
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-left text-plum-900/50">
@@ -330,10 +346,10 @@ export default function DoctorSummaryPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.tablets.rows.map((t: any) => (
-                      <tr key={t.name} className="border-t border-plum-900/5">
-                        <td className="py-1">{t.name}</td><td>{t.schedule}</td><td>{t.onTime}</td><td>{t.late}</td>
-                        <td className={t.missed > 3 ? "font-bold text-red-700" : ""}>{t.missed}</td>
+                    {data.tablets.rows.map((tRow: any) => (
+                      <tr key={tRow.name} className="border-t border-plum-900/5">
+                        <td className="py-1">{tRow.name}</td><td>{tRow.schedule}</td><td>{tRow.onTime}</td><td>{tRow.late}</td>
+                        <td className={tRow.missed > 3 ? "font-bold text-red-700" : ""}>{tRow.missed}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -341,7 +357,7 @@ export default function DoctorSummaryPage() {
               </Section>
             )}
 
-            <Section title="Points to discuss">
+            <Section title={t("doctor.pointsToDiscuss")}>
               {data.flags.length > 0 && (
                 <div className="flex gap-2 mb-2">
                   <WarningCircle weight="fill" className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -359,9 +375,7 @@ export default function DoctorSummaryPage() {
             </Section>
 
             <footer className="text-[10px] text-plum-900/45 border-t border-plum-900/10 pt-2">
-              Generated by Sakhi from patient-reported daily check-ins. Risk screens are decision-support aids trained on public
-              research datasets and clinical guidelines; they are not a diagnosis. Please interpret alongside clinical examination
-              and laboratory tests.
+              {t("doctor.footerDisclaimer")}
             </footer>
           </>
         )}

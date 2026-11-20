@@ -12,7 +12,14 @@ import { EMPTY_GOAL, type GoalDoc } from "@/lib/herGoal";
 
 const chip = (on: boolean) =>
   `rounded-full border px-4 py-2 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 ${on ? "border-plum-900 bg-plum-900 text-cream" : "border-plum-900/12 bg-white text-plum-900 hover:bg-lavender-50"}`;
-const fmt = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+const getLocale = (lang: string) => {
+  const map: Record<string, string> = {
+    en: "en-IN", ta: "ta-IN", hi: "hi-IN", te: "te-IN",
+    ml: "ml-IN", kn: "kn-IN", bn: "bn-IN", mr: "mr-IN"
+  };
+  return map[lang] || "en-IN";
+};
+const fmt = (iso: string, lang = "en") => new Date(iso + "T00:00:00").toLocaleDateString(getLocale(lang), { day: "numeric", month: "long", year: "numeric" });
 
 /**
  * The way from Her Mode into Mom Mode. Shown when her period is late (or she's
@@ -23,7 +30,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
   lastStart: number; daysLate: number; name: string; className?: string;
 }) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { doc, save } = useUserDoc<GoalDoc>("her_goal", EMPTY_GOAL);
   const [answer, setAnswer] = useState<"positive" | "negative" | "notyet" | null>(null);
   const [lmp, setLmp] = useState(dayToIso(lastStart));
@@ -79,11 +86,11 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
         </h3>
       </div>
       <p className="text-sm text-ink-soft mb-4">
-        A home pregnancy test is reliable from the day your period was due. Use the first urine of the morning. The Nischay kit is free from your ASHA or sub-centre; chemists sell tests for about ₹50 to ₹100.
+        {t("pregnancyTest.testReliableDesc")}
       </p>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-medium text-plum-900">Did you take a test?</legend>
+        <legend className="mb-2 text-sm font-medium text-plum-900">{t("pregnancyTest.didYouTakeTest")}</legend>
         <div className="flex flex-wrap gap-2">
           <button type="button" aria-pressed={answer === "positive"} onClick={() => setAnswer("positive")} className={chip(answer === "positive")}>{t("pregnancyTest.yesPositive")}</button>
           <button type="button" aria-pressed={answer === "negative"} onClick={() => { setAnswer("negative"); record("negative"); }} className={chip(answer === "negative")}>{t("pregnancyTest.yesNegative")}</button>
@@ -93,7 +100,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
 
       {answer === "notyet" && (
         <p className="mt-4 rounded-2xl bg-lavender-50 px-4 py-3 text-sm text-plum-900">
-          Take one in the morning and come back here. Stress, illness, travel and PCOS can also delay a period.
+          {t("pregnancyTest.takeInMorning")}
         </p>
       )}
 
@@ -101,7 +108,7 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
         <p className="mt-4 rounded-2xl bg-lavender-50 px-4 py-3 text-sm text-plum-900">
           {lastNegative && lastNegative.date < today
             ? t("pregnancyTest.negativeTwice")
-            : "Tests can be negative if taken too early. If your period still hasn't come in 3 days, test again. See a doctor if it's over 2 weeks late."}
+            : t("pregnancyTest.negativeEarly")}
         </p>
       )}
 
@@ -110,34 +117,34 @@ export default function PregnancyTestCard({ lastStart, daysLate, name, className
           <div className="flex items-start gap-3">
             <Baby weight="duotone" className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600" aria-hidden="true" />
             <div className="text-sm text-plum-900">
-              <p className="font-semibold">Congratulations, {name}. Let&apos;s look after you both.</p>
-              <p className="mt-1 text-ink-soft">Sakhi will switch to Mom Mode. Your period records stay saved for later.</p>
+              <p className="font-semibold">{t("pregnancyTest.congratsTitle").replace("{name}", name || "")}</p>
+              <p className="mt-1 text-ink-soft">{t("pregnancyTest.switchMomDesc")}</p>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-sm text-plum-900">
-              <span className="mb-1 block font-medium">First day of your last period</span>
+              <span className="mb-1 block font-medium">{t("pregnancyTest.firstDayLastPeriod")}</span>
               <input type="date" value={lmp} max={today} onChange={e => setLmp(e.target.value)}
                 className="w-full rounded-xl border border-plum-900/12 bg-white px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500" />
-              {lmpOk && <span className="mt-1 block text-xs text-ink-soft">About {g.weeks} weeks{g.days ? ` ${g.days} days` : ""} pregnant · due around {fmt(due)}</span>}
+              {lmpOk && <span className="mt-1 block text-xs text-ink-soft">{g.weeks} {t("pregnancy.weeksPregnant")} · {t("pregnancy.dueAround", { date: fmt(due, language) })}</span>}
             </label>
             <fieldset className="text-sm text-plum-900">
-              <legend className="mb-1 font-medium">Is this your first pregnancy?</legend>
+              <legend className="mb-1 font-medium">{t("pregnancyTest.firstPregnancyQ")}</legend>
               <div className="flex gap-2">
-                <button type="button" aria-pressed={firstBaby === true} onClick={() => setFirstBaby(true)} className={chip(firstBaby === true)}>Yes</button>
-                <button type="button" aria-pressed={firstBaby === false} onClick={() => setFirstBaby(false)} className={chip(firstBaby === false)}>No</button>
+                <button type="button" aria-pressed={firstBaby === true} onClick={() => setFirstBaby(true)} className={chip(firstBaby === true)}>{t("common.yes")}</button>
+                <button type="button" aria-pressed={firstBaby === false} onClick={() => setFirstBaby(false)} className={chip(firstBaby === false)}>{t("common.no")}</button>
               </div>
             </fieldset>
           </div>
           <ul className="list-disc space-y-1 pl-5 text-sm text-plum-900">
-            <li>Register the pregnancy with your ASHA or health centre before 12 weeks, and get your MCP card.</li>
-            <li>Take folic acid every day until 12 weeks.</li>
-            <li className="text-rose-700">Go to hospital now if you have strong pain on one side of the belly, bleeding, or feel faint.</li>
+            <li>{t("pregnancyTest.registerAsha")}</li>
+            <li>{t("pregnancyTest.takeFolicDaily")}</li>
+            <li className="text-rose-700">{t("pregnancyTest.emergencyHospitalWarning")}</li>
           </ul>
           {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
           <button type="button" onClick={startMomMode} disabled={busy} aria-busy={busy}
             className="rounded-full bg-plum-900 px-5 py-2.5 text-sm font-semibold text-cream hover:bg-plum-800 transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500">
-            {busy ? "Starting Mom Mode…" : "Start Mom Mode"}
+            {busy ? t("pregnancyTest.startingMomMode") : t("pregnancyTest.startMomMode")}
           </button>
         </div>
       )}

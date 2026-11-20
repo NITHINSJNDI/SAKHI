@@ -20,10 +20,10 @@ import { motion, useReducedMotion, useMotionValue, animate } from "motion/react"
  * it only mounts when the intro should actually play.
  */
 
-const STAGE1 = 0.9; // s — vortex in + reveal
-const HOLD = 0.2; // s — hold revealed state
-const TRANSITION = 0.6; // s — shrink + glide to corner
-const EXIT = 0.25; // s — overlay fade out
+const STAGE1 = 0.6; // s — vortex in + reveal
+const HOLD = 0.1; // s — hold revealed state
+const TRANSITION = 0.4; // s — shrink + glide to corner
+const EXIT = 0.2; // s — overlay fade out
 
 const PETAL_COUNT = 80;
 const VORTEX_EYE = 70; // px — petals settle into a ring near center
@@ -188,13 +188,24 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
     }
 
     finishRef.current = () => {
-      if (doneRef.current) return;
+      if (doneRef.current) {
+        onCompleteRef.current();
+        return;
+      }
       doneRef.current = true;
-      animate(overlayOpacity, 0, {
-        duration: EXIT,
-        ease: "easeInOut",
-        onComplete: () => onCompleteRef.current(),
-      });
+      try {
+        animate(overlayOpacity, 0, {
+          duration: EXIT,
+          ease: "easeInOut",
+          onComplete: () => onCompleteRef.current(),
+        });
+      } catch {
+        onCompleteRef.current();
+      }
+      // Guaranteed dismiss fallback: never rely solely on animation frame callback
+      setTimeout(() => {
+        onCompleteRef.current();
+      }, (EXIT + 0.1) * 1000);
     };
 
     const finish = finishRef.current;
@@ -225,7 +236,7 @@ export function IntroOverlay({ onComplete }: { onComplete: () => void }) {
       className="fixed inset-0 z-[100] overflow-hidden bg-cream cursor-pointer"
       style={{ opacity: overlayOpacity }}
       aria-hidden="true"
-      onClick={() => finishRef.current?.()}
+      onClick={() => onCompleteRef.current()}
       title="Click anywhere to skip intro"
     >
       {/* Petal vortex */}

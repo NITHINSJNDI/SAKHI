@@ -38,6 +38,18 @@ export default function Home() {
     }
   }, [reduce]);
 
+  useEffect(() => {
+    // Absolute failsafe: The landing page must ALWAYS be revealed within 1.5 seconds
+    const failsafe = setTimeout(() => {
+      setIntroDone(true);
+      setPlayIntro(false);
+      try {
+        sessionStorage.setItem(INTRO_KEY, "true");
+      } catch {}
+    }, 1500);
+    return () => clearTimeout(failsafe);
+  }, []);
+
   const handleIntroComplete = () => {
     try {
       sessionStorage.setItem(INTRO_KEY, "true");
@@ -56,14 +68,13 @@ export default function Home() {
 
       <Navigation />
 
-      {/* Main content stays in the DOM (for SEO/accessibility) but is hidden
-          until the intro settles, then reveals without overlapping the intro. */}
+      {/* Main content stays in the DOM (for SEO/accessibility) */}
       <main
         id="main"
-        className={`relative transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`relative transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           introDone
             ? "translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-6 opacity-0"
+            : "pointer-events-none translate-y-3 opacity-90"
         }`}
       >
         <section id="hero" aria-label="Introduction">
