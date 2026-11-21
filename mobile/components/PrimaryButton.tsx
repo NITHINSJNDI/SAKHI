@@ -35,17 +35,17 @@ export function PrimaryButton({
 
   const backgroundColor =
     variant === "primary"
-      ? theme.primary
+      ? palette.plum900
       : variant === "secondary"
         ? theme.surface
         : variant === "onStage"
           ? palette.cream
           : "transparent";
   const borderColor =
-    variant === "secondary" ? theme.border : variant === "primary" ? theme.primary : "transparent";
+    variant === "secondary" ? theme.border : variant === "primary" ? palette.plum900 : "transparent";
   const textColor =
     variant === "primary"
-      ? theme.primaryContrast
+      ? palette.cream
       : variant === "onStage"
         ? palette.plum900
         : theme.text;

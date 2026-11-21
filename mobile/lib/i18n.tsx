@@ -111,7 +111,14 @@ export function LanguageProvider({ children, accountLanguage }: { children: Reac
       // Plural variants: path_one / path_other / ...
       let key = path;
       if (p && typeof p.count === "number") {
-        const cat = new Intl.PluralRules(meta.bcp47).select(p.count);
+        let cat = p.count === 1 ? "one" : "other";
+        try {
+          if (typeof Intl !== "undefined" && typeof (Intl as any).PluralRules === "function") {
+            cat = new (Intl as any).PluralRules(meta.bcp47).select(p.count);
+          }
+        } catch {
+          cat = p.count === 1 ? "one" : "other";
+        }
         if (has(en, `${path}_${cat}`)) key = `${path}_${cat}`;
         else if (has(en, `${path}_other`)) key = `${path}_other`;
       }
@@ -120,7 +127,16 @@ export function LanguageProvider({ children, accountLanguage }: { children: Reac
         reported.add(key);
         console.warn(`[i18n] missing key: ${key}`);
       }
-      const withCount = p && typeof p.count === "number" ? { ...p, count: new Intl.NumberFormat(meta.bcp47).format(p.count) } : p;
+      let withCount: Params | undefined = p;
+      if (p && typeof p.count === "number") {
+        let formattedCount = String(p.count);
+        try {
+          if (typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function") {
+            formattedCount = new Intl.NumberFormat(meta.bcp47).format(p.count);
+          }
+        } catch {}
+        withCount = { ...p, count: formattedCount };
+      }
       return getTranslation(language, key, fallback ?? withCount, fallback ? withCount : undefined);
     },
     [language, meta.bcp47],
@@ -137,7 +153,14 @@ export function LanguageProvider({ children, accountLanguage }: { children: Reac
   );
 
   const fmtNumber = useCallback(
-    (n: number, opts?: Intl.NumberFormatOptions) => new Intl.NumberFormat(meta.bcp47, opts).format(n),
+    (n: number, opts?: Intl.NumberFormatOptions) => {
+      try {
+        if (typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function") {
+          return new Intl.NumberFormat(meta.bcp47, opts).format(n);
+        }
+      } catch {}
+      return String(n);
+    },
     [meta.bcp47],
   );
   const fmtDate = useCallback(

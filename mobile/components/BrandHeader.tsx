@@ -31,22 +31,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
     paddingHorizontal: spacing.screen,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xxs,
   },
   logoBubble: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    padding: 3,
   },
   logo: {
     width: "100%",
     height: "100%",
   },
   wordmark: {
-    gap: 1,
+    gap: 0,
   },
 });

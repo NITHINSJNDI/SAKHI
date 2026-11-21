@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { AUTH_COPY } from "@/lib/auth-copy";
 import { signInWithGoogle } from "@/lib/google-auth";
 import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "@/lib/languages";
-import { spacing, useAppTheme } from "@/theme";
+import { palette, spacing, useAppTheme } from "@/theme";
 import type { MeResponse, RegisterResponse } from "@/types/api";
 import type { AuthMode, DemoMode, SignupStep } from "@/types/auth-ui";
 
@@ -247,11 +247,8 @@ export function AuthForm({ mode }: AuthFormProps) {
           ) : null}
 
           <View style={styles.headerText}>
-            <AppText variant="title">
+            <AppText variant="section">
               {tab === "signin" ? AUTH_COPY.signInTitle : AUTH_COPY.signUpTitle}
-            </AppText>
-            <AppText variant="body" tone="soft">
-              {tab === "signin" ? AUTH_COPY.signInSubtitle : AUTH_COPY.signUpSubtitle}
             </AppText>
           </View>
 
@@ -312,14 +309,14 @@ export function AuthForm({ mode }: AuthFormProps) {
               busy
                 ? AUTH_COPY.saving
                 : tab === "signin"
-                  ? AUTH_COPY.signInCta
-                  : AUTH_COPY.signUpCta
+                  ? AUTH_COPY.signIn
+                  : AUTH_COPY.createAccount
             }
             loading={busy}
             onPress={tab === "signin" ? handleSignIn : handleSignUp}
             icon={
               tab === "signin" ? (
-                <ArrowRight size={17} color={theme.primaryContrast} weight="bold" />
+                <ArrowRight size={17} color={palette.cream} weight="bold" />
               ) : undefined
             }
             style={styles.submit}
