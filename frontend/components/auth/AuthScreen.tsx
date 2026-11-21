@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -139,19 +139,19 @@ function StageModePreview({
   onChange: (m: PreviewMode) => void;
   reduce: boolean;
 }) {
-  const isHer = mode === "her";
+  const { t } = useLanguage();
 
   return (
     <div className="w-full max-w-md">
       <div
         role="tablist"
         aria-label="Preview Sakhi care modes"
-        className="inline-flex rounded-full bg-plum-800 p-1"
+        className="inline-flex rounded-full bg-plum-800/90 p-1 border border-plum-700/50 backdrop-blur-md shadow-sm"
       >
         {(
           [
-            { id: "her", label: "Her Mode" },
-            { id: "mom", label: "Mom Mode" },
+            { id: "her", label: t("landing.herMode", "Her Mode") },
+            { id: "mom", label: t("landing.momMode", "Mom Mode") },
           ] as const
         ).map((tab) => {
           const active = mode === tab.id;
@@ -173,99 +173,6 @@ function StageModePreview({
           );
         })}
       </div>
-
-      <motion.div
-        key={mode}
-        initial={reduce ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 rounded-[26px] bg-plum-800 p-6 sm:p-7 text-cream"
-      >
-        <Image
-          src={isHer ? "/auth/her-mode.jpg" : "/auth/mom-mode.jpg"}
-          alt={isHer ? "Her Mode illustration: a smiling woman holding a period-tracking calendar." : "Mom Mode illustration: a smiling expecting mother with a baby and a feeding bottle."}
-          width={800}
-          height={800}
-          sizes="400px"
-          priority
-          draggable={false}
-          className="mx-auto mb-4 aspect-square w-full max-w-[10rem] select-none rounded-2xl object-contain"
-        />
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-lavender-200">
-              {isHer ? "Cycle & hormone rhythm" : "Maternal & fetal vitals"}
-            </p>
-            <p className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-cream">
-              {isHer ? "Day 18 of 29" : "Week 24 · Day 3"}
-            </p>
-          </div>
-
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 64 64"
-            aria-hidden="true"
-            className="shrink-0"
-          >
-            <circle
-              cx="32"
-              cy="32"
-              r="25"
-              fill="none"
-              stroke="rgba(251, 246, 243, 0.16)"
-              strokeWidth="6"
-            />
-            <circle
-              cx="32"
-              cy="32"
-              r="25"
-              fill="none"
-              stroke={isHer ? "#c3a3e4" : "#ee9fb1"}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={`${isHer ? 98 : 94} 160`}
-              transform="rotate(-90 32 32)"
-            />
-            <text
-              x="32"
-              y="36"
-              textAnchor="middle"
-              fill="#fbf6f3"
-              fontSize="13"
-              fontWeight="600"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {isHer ? "62%" : "60%"}
-            </text>
-          </svg>
-        </div>
-
-        <p className="mt-4 text-base leading-relaxed text-cream/85">
-          {isHer
-            ? "Early luteal window. Sleep and mood logs calibrate your personal PMS, PCOS, and thyroid screening baselines."
-            : "Second trimester check-ins track fasting glucose, blood pressure trends, kick counts, and OB-GYN visit notes."}
-        </p>
-
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-plum-900/70 p-3.5">
-            <p className="text-sm text-cream/75">
-              {isHer ? "Screening focus" : "Latest vitals"}
-            </p>
-            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
-              {isHer ? "PCOS & Thyroid" : "118/76 mmHg"}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-plum-900/70 p-3.5">
-            <p className="text-sm text-cream/75">
-              {isHer ? "Clinical export" : "Fasting glucose"}
-            </p>
-            <p className="mt-1 text-base font-semibold tabular-nums text-cream">
-              {isHer ? "90-day PDF brief" : "86 mg/dL · Optimal"}
-            </p>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 }
@@ -497,7 +404,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
   return (
     <div className="relative min-h-[100dvh] bg-cream text-ink lg:grid lg:grid-cols-[46fr_54fr]">
       {/* Compact header on mobile; full sticky sanctuary stage on desktop */}
-      <aside className="relative overflow-hidden bg-plum-900 text-cream px-6 py-5 lg:sticky lg:top-0 lg:h-[100dvh] lg:px-12 lg:py-9 flex flex-col justify-between">
+      <aside className="relative overflow-hidden bg-plum-900 text-cream px-6 py-5 lg:sticky lg:top-0 lg:h-[100dvh] lg:px-12 lg:py-8 flex flex-col justify-between">
         <PetalWind contained className="pointer-events-none absolute inset-0 z-[1] h-full w-full" />
         {/* Soft breathing blooms inside the sanctuary stage */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -508,53 +415,98 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
           />
         </div>
 
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 rounded-full pr-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream p-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/original-logo.png?v=4"
-                alt="Sakhi"
-                className="h-full w-full object-contain"
-              />
-            </span>
-            <span className="text-lg font-semibold tracking-tight text-cream">Sakhi</span>
-          </Link>
+        {/* Top-grouped branding, editorial voice, and care mode toggle */}
+        <div className="relative z-10 flex flex-col gap-6 shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 rounded-full pr-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/original-logo.png?v=4"
+                  alt="Sakhi"
+                  className="h-full w-full object-contain"
+                />
+              </span>
+              <span className="text-lg font-semibold tracking-tight text-cream">Sakhi</span>
+            </Link>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/85 hover:text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 rounded-md px-2 py-1"
-          >
-            <ArrowLeft size={15} weight="bold" aria-hidden="true" />
-            <span>{t("menu.homePage", "Home")}</span>
-          </Link>
-        </div>
-
-        {/* Desktop stage body: floral crest + editorial voice + interactive preview */}
-        <div className="relative z-10 hidden lg:flex flex-col gap-6 my-auto py-4">
-          <div className="flex items-center gap-5">
-            <FloralCrest reduce={reduce} />
-            <div className="max-w-xs">
-              <p className="text-2xl font-medium leading-snug tracking-tight text-cream">
-                Your body speaks.{" "}
-                <span className="display-serif text-[1.85rem] text-lavender-200">
-                  Sakhi listens.
-                </span>
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-cream/75">
-                Every cycle phase and trimester held in one quiet, private timeline.
-              </p>
-            </div>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/85 hover:text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-300 rounded-md px-2 py-1"
+            >
+              <ArrowLeft size={15} weight="bold" aria-hidden="true" />
+              <span>{t("menu.homePage", "Home")}</span>
+            </Link>
           </div>
 
-          <StageModePreview mode={previewMode} onChange={setPreviewMode} reduce={reduce} />
+          {/* Desktop editorial block + care mode toggle */}
+          <div className="hidden lg:flex flex-col gap-5">
+            <div className="flex items-center gap-5">
+              <FloralCrest reduce={reduce} />
+              <div className="max-w-xs">
+                <p className="text-2xl font-medium leading-snug tracking-tight text-cream">
+                  Your body speaks.{" "}
+                  <span className="display-serif text-[1.85rem] text-lavender-200">
+                    Sakhi listens.
+                  </span>
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-cream/75">
+                  Every cycle phase and trimester held in one quiet, private timeline.
+                </p>
+              </div>
+            </div>
+
+            <StageModePreview mode={previewMode} onChange={setPreviewMode} reduce={reduce} />
+          </div>
         </div>
 
-        <div className="relative z-10 hidden lg:flex items-center gap-2.5 text-sm text-cream/75">
-          <Lock size={16} weight="duotone" aria-hidden="true" className="text-lavender-300 shrink-0" />
+        {/* Repositioned lower doll visual: prominent, borderless, soft pastel/dreamy pale appearance */}
+        <div className="relative z-0 hidden lg:flex flex-1 items-center justify-center overflow-hidden w-full min-h-0 py-2">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={previewMode}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-[370px] xl:max-w-[430px] aspect-square flex items-center justify-center select-none pointer-events-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewMode === "her" ? "/her-mode-preview.png" : "/mom-mode-preview.png"}
+                alt=""
+                className="w-full h-full object-contain"
+                style={{
+                  opacity: 0.68,
+                  filter: "brightness(1.12) contrast(0.96)",
+                  maskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
+                }}
+              />
+
+              {/* Delicate light pastel / pale dreamy wash overlay */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-full bg-gradient-to-tr from-lavender-200/10 via-blush-200/15 to-white/10 mix-blend-screen pointer-events-none opacity-80"
+                style={{
+                  maskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 88% 86% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 70%, transparent 95%)",
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom privacy assurance */}
+        <div className="relative z-10 hidden lg:flex items-center gap-2.5 text-xs xl:text-sm text-cream/70 pt-1 shrink-0">
+          <Lock size={15} weight="duotone" aria-hidden="true" className="text-lavender-300 shrink-0" />
           <span>Private workspace per account. Download or delete your records anytime.</span>
         </div>
       </aside>
