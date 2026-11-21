@@ -81,17 +81,19 @@ export async function apiFetch<TResponse>(
   }
 
   let response: Response;
+  const targetUrl = buildUrl(path);
   try {
-    response = await fetch(buildUrl(path), {
+    response = await fetch(targetUrl, {
       ...requestOptions,
       body,
       headers,
     });
   } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
     throw new ApiError(
-      "Network error. Check EXPO_PUBLIC_API_URL and your connection.",
+      `Network error connecting to ${targetUrl} (${detail}). Check your internet connection and API URL.`,
       0,
-      error instanceof Error ? error.message : error,
+      detail,
     );
   }
 

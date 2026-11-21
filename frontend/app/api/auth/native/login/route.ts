@@ -3,6 +3,17 @@ import { verifyManualAccount } from '@/lib/userAccounts';
 import { issueNativeToken } from '@/lib/sessionUser';
 import { clientKey, rateLimit } from '@/lib/rateLimit';
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, X-Requested-With',
+    },
+  });
+}
+
 // POST { email, password } -> { token, expiresAt, user }
 // Email/password sign-in for the mobile app, which can't use NextAuth's cookies.
 export async function POST(req: Request) {

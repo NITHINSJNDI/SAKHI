@@ -14,6 +14,17 @@ const allowedAudiences = () =>
     process.env.GOOGLE_IOS_CLIENT_ID,
   ].filter(Boolean) as string[];
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, X-Requested-With',
+    },
+  });
+}
+
 export async function POST(req: Request) {
   const limit = rateLimit(`native-google:${clientKey(req, 'anon')}`, 20, 60_000);
   if (!limit.ok) return NextResponse.json({ error: 'Too many attempts. Please wait a minute.' }, { status: 429 });
