@@ -362,7 +362,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing.lg,
+    gap: spacing.md,
   },
   topRow: {
     flexDirection: "row",
@@ -379,16 +379,16 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   section: {
-    gap: spacing.lg,
-  },
-  headerText: {
-    gap: spacing.xs,
-  },
-  form: {
     gap: spacing.md,
   },
+  headerText: {
+    gap: spacing.xxs,
+  },
+  form: {
+    gap: spacing.sm,
+  },
   submit: {
-    marginTop: spacing.xxs,
+    marginTop: spacing.xs,
   },
   backLink: {
     flexDirection: "row",

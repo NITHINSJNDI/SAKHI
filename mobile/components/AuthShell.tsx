@@ -27,7 +27,7 @@ export function AuthShell({ children }: AuthShellProps) {
   const theme = useAppTheme();
 
   return (
-    <SafeAreaView edges={["top"]} style={[styles.safe, { backgroundColor: theme.stage }]}>
+    <SafeAreaView edges={["top", "bottom"]} style={[styles.safe, { backgroundColor: theme.stage }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
@@ -36,7 +36,7 @@ export function AuthShell({ children }: AuthShellProps) {
           style={[styles.flex, { backgroundColor: theme.background }]}
           contentContainerStyle={styles.contentContainer}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
         >
           <View style={[styles.stage, { backgroundColor: theme.stage }]}>
             <View
@@ -73,11 +73,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: spacing.xxxl,
+    flexGrow: 1,
+    paddingBottom: spacing.xxxl * 2,
   },
   stage: {
     overflow: "hidden",
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.sm,
   },
   bloomTop: {
     position: "absolute",
@@ -97,8 +98,8 @@ const styles = StyleSheet.create({
   },
   formArea: {
     paddingHorizontal: spacing.screen,
-    paddingTop: spacing.xl,
-    gap: spacing.xl,
+    paddingTop: spacing.md,
+    gap: spacing.md,
   },
   privacy: {
     flexDirection: "row",
