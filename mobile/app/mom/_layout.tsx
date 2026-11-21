@@ -2,6 +2,7 @@ import { Redirect, Tabs } from "expo-router";
 import { Baby, CalendarCheck, Heart, Heartbeat, Sun } from "phosphor-react-native";
 
 import ConsentGate from "@/components/shared/ConsentGate";
+import { FloatingChatButton } from "@/components/shared/FloatingChatButton";
 import { ModeTabBar } from "@/components/shared/ModeTabBar";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
@@ -33,6 +34,7 @@ export default function MomLayout() {
     <MomDataProvider fallbackName={user?.name}>
       <MomUiProvider>
         <MomTabs />
+        <FloatingChatButton mode="pregnancy" />
         <ConsentGate />
       </MomUiProvider>
     </MomDataProvider>

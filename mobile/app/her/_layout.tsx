@@ -3,6 +3,7 @@ import { ChartLineUp, Drop, Heart, Sun } from "phosphor-react-native";
 
 import ReliefSheet from "@/components/her/ReliefSheet";
 import ConsentGate from "@/components/shared/ConsentGate";
+import { FloatingChatButton } from "@/components/shared/FloatingChatButton";
 import { ModeTabBar } from "@/components/shared/ModeTabBar";
 import { useAuth } from "@/lib/auth";
 import { HerDataProvider, useHer } from "@/lib/herData";
@@ -32,6 +33,7 @@ export default function HerLayout() {
           <Tabs.Screen name="insights" options={{ title: t("tabs.insights", "Insights") }} />
           <Tabs.Screen name="care" options={{ title: t("tabs.care", "Care") }} />
         </Tabs>
+        <FloatingChatButton mode="her" />
         <Relief />
         <ConsentGate />
       </HerUiProvider>
