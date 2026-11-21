@@ -119,6 +119,8 @@ Combined, non-identifiable trends, such as anaemia signs by district, could be o
 
 ## 3. SAKHI Care Store: low-cost pads and essentials
 
+**First partner (November 2026):** Aram Cotton Napkins, a women-led cotton pad maker in Pallipalayam, Erode (4.9 stars from 293 Google reviews; packs of 16 to 24 pads for about ₹75). They agreed to be listed in SAKHI. They are shown in Period care after the free and ₹1 options, with no health claims. Commission and terms are not agreed yet.
+
 ### The idea
 
 The Period care card already tells her when supplies are running low. The Care Store lets her act on that inside the app. She can order or reserve low-cost pads and other essentials, sold by:

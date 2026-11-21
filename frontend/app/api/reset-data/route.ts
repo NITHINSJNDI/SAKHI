@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getSessionUser } from "@/lib/sessionUser";
 import { getPool } from '@/lib/db';
 import { deleteAllDocs, getOwner } from '@/lib/store';
 
 async function wipeAllData() {
-  const session = await getServerSession(authOptions);
+  const user = await getSessionUser();
+  const session = user ? { user } : null;
   // Resolve the owner (user or guest id) before any cookie is deleted
   const owner = await getOwner();
   const cookieStore = await cookies();

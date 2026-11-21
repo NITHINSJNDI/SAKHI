@@ -205,7 +205,12 @@ export default function HygieneCard({ cycle, compact = false, className = "" }: 
               <li key={o.title} className="text-sm">
                 <p className="font-medium text-plum-900">{o.title}</p>
                 <p className="text-ink-soft">{o.detail}</p>
-                {o.mapsQuery && <a href={mapsSearch(o.mapsQuery)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs font-semibold text-plum-900 underline underline-offset-2">Find nearest on Google Maps</a>}
+                {o.phone ? (
+                  <span className="mt-1 flex gap-3 text-xs font-semibold text-plum-900">
+                    <a href={`https://wa.me/${o.phone}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">WhatsApp</a>
+                    <a href={`tel:+${o.phone}`} className="underline underline-offset-2">Call</a>
+                  </span>
+                ) : o.mapsQuery && <a href={mapsSearch(o.mapsQuery)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs font-semibold text-plum-900 underline underline-offset-2">Find nearest on Google Maps</a>}
               </li>
             ))}
           </ul>

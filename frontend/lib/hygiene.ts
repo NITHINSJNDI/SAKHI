@@ -231,7 +231,7 @@ export const WARNING_SIGNS: { text: string; urgent: boolean }[] = [
   { text: 'Rash or sores where the pad touches, that do not heal.', urgent: false },
 ];
 
-export interface LowCostOption { title: string; detail: string; mapsQuery?: string }
+export interface LowCostOption { title: string; detail: string; mapsQuery?: string; phone?: string }
 
 /**
  * Ways to get period products cheaply in India. Prices and free schemes vary by
@@ -240,6 +240,8 @@ export interface LowCostOption { title: string; detail: string; mapsQuery?: stri
 export const LOW_COST: LowCostOption[] = [
   { title: 'Jan Aushadhi Suvidha pads', detail: 'Low-cost sanitary pads (about ₹1 a pad) sold at Pradhan Mantri Bhartiya Janaushadhi Kendras. Check the current price at your nearest kendra.', mapsQuery: 'Jan Aushadhi Kendra near me' },
   { title: 'ASHA worker or health centre', detail: 'Many states give free or cheap pads to girls and women through ASHA workers, PHCs and schools. Ask your ASHA worker what your state offers.', mapsQuery: 'Primary Health Centre near me' },
+  // Partner listing: facts only, no health claims; free and ₹1 options stay first
+  { title: 'Aram Cotton Napkins (Sakhi partner)', detail: 'Cotton pads with no plastic or gel, made by a women-led business in Pallipalayam, Erode. Packs of 16 to 24 pads for about ₹75 (L, XL and XXL sizes). Order by phone or WhatsApp.', mapsQuery: 'Aram Cotton Napkins Pallipalayam', phone: '919498354964' },
   { title: 'Reusable options save money', detail: 'A clean cotton cloth pad or a menstrual cup costs more once but can be reused for months or years.' },
 ];
 

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { getSessionUser } from "@/lib/sessionUser";
 import { query } from "@/lib/db";
 import { triageSymptoms, SymptomInput } from "@/lib/triage";
 import { generateWellnessAdvice, WellnessSymptomInput } from "@/lib/wellness";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
+  const user = await getSessionUser();
+  const session = user ? { user } : null;
   if (!session || !session.user || !session.user.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

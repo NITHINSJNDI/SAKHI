@@ -28,7 +28,21 @@ const nextConfig = {
     if (process.env.NODE_ENV === "production") {
       security.push({ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" });
     }
+    // Local development only: let the Expo web preview call the API (token auth, no cookies).
+    // Native apps don't need CORS, and production never gets these headers.
+    const devCors =
+      process.env.NODE_ENV === "development"
+        ? [{
+            source: "/api/:path*",
+            headers: [
+              { key: "Access-Control-Allow-Origin", value: "*" },
+              { key: "Access-Control-Allow-Methods", value: "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+              { key: "Access-Control-Allow-Headers", value: "Authorization, Content-Type, Accept" },
+            ],
+          }]
+        : [];
     return [
+      ...devCors,
       { source: "/:path*", headers: security },
       // Health data must never be cached by browsers or shared proxies
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },
