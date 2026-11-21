@@ -15,11 +15,10 @@
  * `sakhi_guest_id` (httpOnly) so guests never share one bucket of data.
  */
 import { cookies } from 'next/headers';
-import { getServerSession } from 'next-auth/next';
 import { randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { authOptions } from '@/lib/auth';
+import { getSessionUser } from "@/lib/sessionUser";
 import { dbConfigured, getPool, isConnectionError, markDbUnavailable } from '@/lib/db';
 
 export type DocKind =
@@ -85,7 +84,8 @@ export interface Owner {
 
 /** Resolve who the current request belongs to (creates a guest id if needed). */
 export async function getOwner(): Promise<Owner> {
-  const session = await getServerSession(authOptions);
+  const user = await getSessionUser();
+  const session = user ? { user } : null;
   const email = session?.user?.email || null;
   if (email) {
     const cleanEmail = email.toLowerCase().trim();
