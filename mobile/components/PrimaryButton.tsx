@@ -37,18 +37,22 @@ export function PrimaryButton({
     variant === "primary"
       ? palette.plum900
       : variant === "secondary"
-        ? theme.surface
+        ? "#FFFFFF"
         : variant === "onStage"
           ? palette.cream
           : "transparent";
   const borderColor =
-    variant === "secondary" ? theme.border : variant === "primary" ? palette.plum900 : "transparent";
+    variant === "secondary"
+      ? "rgba(42, 21, 47, 0.12)"
+      : variant === "primary"
+        ? palette.plum900
+        : "transparent";
   const textColor =
     variant === "primary"
       ? palette.cream
       : variant === "onStage"
         ? palette.plum900
-        : theme.text;
+        : palette.plum900;
 
   return (
     <Pressable

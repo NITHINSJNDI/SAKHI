@@ -203,9 +203,9 @@ export function AuthForm({ mode }: AuthFormProps) {
         <AppText variant="overline" tone="soft">
           {stepLabel}
         </AppText>
-        <View style={[styles.languagePill, { backgroundColor: theme.surfaceMuted }]}>
-          <Globe size={14} color={theme.textSoft} />
-          <AppText variant="caption" tone="soft">
+        <View style={styles.languagePill}>
+          <Globe size={13} color="rgba(42, 21, 47, 0.65)" />
+          <AppText variant="caption" style={styles.languageText}>
             {selectedLanguage.nativeName}
           </AppText>
         </View>
@@ -335,11 +335,11 @@ export function AuthForm({ mode }: AuthFormProps) {
           ) : null}
 
           <View style={styles.orRow}>
-            <View style={[styles.orRule, { backgroundColor: theme.border }]} />
-            <AppText variant="caption" tone="soft">
+            <View style={styles.orRule} />
+            <AppText variant="caption" tone="soft" style={styles.orText}>
               {AUTH_COPY.or}
             </AppText>
-            <View style={[styles.orRule, { backgroundColor: theme.border }]} />
+            <View style={styles.orRule} />
           </View>
 
           <PrimaryButton
@@ -370,10 +370,18 @@ const styles = StyleSheet.create({
   languagePill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     borderRadius: 999,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "rgba(42, 21, 47, 0.08)",
+  },
+  languageText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: palette.plum900,
   },
   section: {
     gap: spacing.md,
@@ -401,9 +409,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
+    paddingVertical: 2,
   },
   orRule: {
     flex: 1,
     height: 1,
+    backgroundColor: "rgba(42, 21, 47, 0.10)",
+  },
+  orText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "rgba(42, 21, 47, 0.50)",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 });

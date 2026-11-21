@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
-import { radii, spacing, useAppTheme } from "@/theme";
+import { palette, radii, spacing } from "@/theme";
 
 export interface LanguageGridProps {
   value: string;
@@ -11,8 +11,6 @@ export interface LanguageGridProps {
 }
 
 export function LanguageGrid({ value, onChange }: LanguageGridProps) {
-  const theme = useAppTheme();
-
   return (
     <View style={styles.grid}>
       {SUPPORTED_LANGUAGES.map((language) => {
@@ -25,25 +23,31 @@ export function LanguageGrid({ value, onChange }: LanguageGridProps) {
             onPress={() => onChange(language.code)}
             style={[
               styles.item,
-              {
-                backgroundColor: selected ? theme.primary : theme.surface,
-                borderColor: selected ? theme.accent : theme.border,
-                borderWidth: selected ? 2 : 1,
-              },
+              selected ? styles.itemSelected : styles.itemUnselected,
             ]}
           >
             <View style={styles.itemTop}>
               <AppText
-                variant="section"
-                style={{ color: selected ? theme.primaryContrast : theme.text }}
+                variant="label"
+                style={[
+                  styles.nativeName,
+                  { color: selected ? palette.cream : palette.plum900 },
+                ]}
               >
                 {language.nativeName}
               </AppText>
-              {selected ? <Check size={18} color={theme.primaryContrast} weight="bold" /> : null}
+              {selected ? (
+                <View style={styles.checkBadge}>
+                  <Check size={13} color={palette.plum900} weight="bold" />
+                </View>
+              ) : null}
             </View>
             <AppText
               variant="caption"
-              style={{ color: selected ? theme.primaryContrast : theme.textSoft }}
+              style={{
+                color: selected ? "rgba(251, 246, 243, 0.85)" : "rgba(42, 21, 47, 0.60)",
+                fontSize: 12,
+              }}
             >
               {language.name}
             </AppText>
@@ -58,21 +62,54 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    justifyContent: "space-between",
+    rowGap: spacing.sm,
   },
   item: {
-    width: "48%",
-    minHeight: 76,
+    width: "48.2%",
+    minHeight: 74,
     borderRadius: radii.soft,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     justifyContent: "center",
-    gap: 2,
+    gap: 3,
+  },
+  itemSelected: {
+    backgroundColor: palette.plum900,
+    borderWidth: 1.5,
+    borderColor: palette.plum900,
+    shadowColor: "rgba(42, 21, 47, 0.2)",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  itemUnselected: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "rgba(42, 21, 47, 0.08)",
+    shadowColor: "rgba(42, 21, 47, 0.05)",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
   itemTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: spacing.xs,
+  },
+  nativeName: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  checkBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: palette.cream,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

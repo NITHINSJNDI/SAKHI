@@ -24,7 +24,12 @@ export function ModeScroll({ header, children, refreshing, onRefresh, loading }:
     <View style={{ flex: 1, backgroundColor: palette.cream }}>
       <ScrollView
         ref={ref}
-        contentContainerStyle={{ paddingTop: insets.top + 4, paddingHorizontal: 16, paddingBottom: 32, gap: 16 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 8,
+          paddingHorizontal: 16,
+          paddingBottom: Math.max(insets.bottom, 16) + 80,
+          gap: 16,
+        }}
         keyboardShouldPersistTaps="handled"
         refreshControl={onRefresh ? <RefreshControl refreshing={Boolean(refreshing)} onRefresh={() => { selectHaptic(); onRefresh(); }} tintColor={palette.pink500} colors={[palette.pink500]} /> : undefined}
       >

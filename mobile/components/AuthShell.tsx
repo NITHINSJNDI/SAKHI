@@ -78,7 +78,14 @@ const styles = StyleSheet.create({
   },
   stage: {
     overflow: "hidden",
-    paddingBottom: spacing.sm,
+    paddingBottom: spacing.md,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    shadowColor: "#2A152F",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
   },
   bloomTop: {
     position: "absolute",
@@ -98,15 +105,19 @@ const styles = StyleSheet.create({
   },
   formArea: {
     paddingHorizontal: spacing.screen,
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
     gap: spacing.md,
+    maxWidth: 440,
+    width: "100%",
+    alignSelf: "center",
   },
   privacy: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "center",
     gap: spacing.xs,
-    paddingTop: spacing.xs,
+    paddingTop: spacing.sm,
   },
   privacyText: {
     flexShrink: 1,

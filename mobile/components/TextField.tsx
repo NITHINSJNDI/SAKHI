@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import { AppText } from "@/components/AppText";
-import { radii, spacing, useAppTheme } from "@/theme";
+import { palette, radii, spacing } from "@/theme";
 
 export interface TextFieldProps extends Omit<TextInputProps, "style"> {
   label: string;
@@ -28,21 +28,24 @@ export function TextField({
   editable = true,
   ...inputProps
 }: TextFieldProps) {
-  const theme = useAppTheme();
   const [focused, setFocused] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <AppText variant="label">{label}</AppText>
+      <AppText variant="label" style={styles.label}>
+        {label}
+      </AppText>
       <View
         style={[
           styles.inputWrap,
           {
-            backgroundColor: focused ? theme.surfaceRaised : theme.surfaceMuted,
-            borderColor: focused ? theme.accent : theme.border,
+            backgroundColor: "#FFFFFF",
+            borderColor: focused ? palette.plum900 : "rgba(42, 21, 47, 0.12)",
+            borderWidth: focused ? 1.5 : 1,
             opacity: editable ? 1 : 0.6,
           },
+          focused ? styles.inputFocused : styles.inputUnfocused,
         ]}
       >
         <TextInput
@@ -56,13 +59,13 @@ export function TextField({
             setFocused(false);
             inputProps.onBlur?.(event);
           }}
-          placeholderTextColor={theme.textFaint}
+          placeholderTextColor="rgba(42, 21, 47, 0.38)"
           secureTextEntry={secure && !revealed}
           style={[
             styles.input,
             {
-              color: theme.text,
-              paddingRight: secure ? 48 : spacing.md,
+              color: palette.plum900,
+              paddingRight: secure ? 46 : spacing.md,
             },
           ]}
         />
@@ -71,20 +74,20 @@ export function TextField({
             accessibilityRole="button"
             accessibilityLabel={revealed ? "Hide password" : "Show password"}
             accessibilityState={{ selected: revealed }}
-            hitSlop={8}
+            hitSlop={12}
             onPress={() => setRevealed((current) => !current)}
             style={styles.eyeButton}
           >
             {revealed ? (
-              <EyeSlash size={20} color={theme.textSoft} />
+              <EyeSlash size={20} color={palette.plum900} />
             ) : (
-              <Eye size={20} color={theme.textSoft} />
+              <Eye size={20} color="rgba(42, 21, 47, 0.55)" />
             )}
           </Pressable>
         ) : null}
       </View>
       {hint ? (
-        <AppText variant="caption" tone="soft">
+        <AppText variant="caption" tone="soft" style={styles.hint}>
           {hint}
         </AppText>
       ) : null}
@@ -94,18 +97,37 @@ export function TextField({
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing.xs,
+    gap: 6,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: palette.plum900,
+    letterSpacing: 0.1,
   },
   inputWrap: {
     borderRadius: radii.soft,
-    borderWidth: 1,
     minHeight: 50,
     justifyContent: "center",
+  },
+  inputFocused: {
+    shadowColor: "rgba(42, 21, 47, 0.12)",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  inputUnfocused: {
+    shadowColor: "rgba(42, 21, 47, 0.04)",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
   input: {
     minHeight: 48,
     paddingHorizontal: spacing.md,
-    fontSize: 16,
+    fontSize: 15,
   },
   eyeButton: {
     position: "absolute",
@@ -113,5 +135,11 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: "center",
+    paddingHorizontal: 4,
+  },
+  hint: {
+    fontSize: 12,
+    lineHeight: 16,
+    color: "rgba(42, 21, 47, 0.60)",
   },
 });
