@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import AnaemiaCard from "@/components/her/AnaemiaCard";
 import { CareLinksCard, PatternsCard } from "@/components/her/HerPanels";
 import HygieneCard from "@/components/her/HygieneCard";
-import PainTodayCard from "@/components/her/PainTodayCard";
 import PcosCheckCard from "@/components/her/PcosCheckCard";
 import { FamilyContactsCard } from "@/components/shared/FamilyAlert";
 import LabResultsCard from "@/components/shared/LabResultsCard";
@@ -26,7 +25,6 @@ export default function HerCare() {
         favourites={h.favourites}
       />
       <HygieneCard cycle={h.hygieneCycle} />
-      <PainTodayCard logs={h.logs} onSaved={h.savePainLog} onOpenRelief={() => h.openRelief()} />
       <AnaemiaCard logs={h.logs} />
       <PcosCheckCard phase={h.phase} profile={h.profile} />
       <TabletsCard mode="her" />
