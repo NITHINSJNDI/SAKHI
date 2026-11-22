@@ -7,14 +7,26 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": { "buildType": "apk" },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sakhi1.vercel.app",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "221746511638-d33vntkihj2rp8cuj19ilmng9ckls8qv.apps.googleusercontent.com"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": { "buildType": "apk" },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sakhi1.vercel.app",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "221746511638-d33vntkihj2rp8cuj19ilmng9ckls8qv.apps.googleusercontent.com"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sakhi1.vercel.app",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "221746511638-d33vntkihj2rp8cuj19ilmng9ckls8qv.apps.googleusercontent.com"
+      }
     }
   },
   "submit": {

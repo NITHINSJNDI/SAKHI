@@ -17,7 +17,6 @@ import { getString, setString } from "./storage";
 import { useMomReminders } from "./useHerReminders";
 import { dayKey, useUserDoc } from "./useUserDoc";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface PregnancyData {
   profile: any;
   logs: any[];
@@ -107,7 +106,8 @@ function useMomValue(fallbackName?: string | null) {
   const ppStage: PostpartumStage | null = daysOld !== null ? stageOf(daysOld) : null;
   const weeks: number = Number(profile?.weeks_pregnant) || 18;
   const dueMs = profile?.expected_due_date ? Date.parse(isoDay(profile.expected_due_date) + "T00:00:00") : NaN;
-  const daysToGo = isNaN(dueMs) ? null : Math.max(0, Math.ceil((dueMs - Date.now()) / 86_400_000));
+  // eslint-disable-next-line react-hooks/purity
+  const daysToGo = useMemo(() => (isNaN(dueMs) ? null : Math.max(0, Math.ceil((dueMs - Date.now()) / 86_400_000))), [dueMs]);
   const displayName: string = profile?.preferred_name || fallbackName?.split(" ")[0] || "Mama";
   const ml = useMlRisk(profile, logs);
 

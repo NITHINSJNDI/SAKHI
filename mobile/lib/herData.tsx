@@ -19,8 +19,6 @@ import { contextFromLog, tipsForToday, type Tip, type TodayContext } from "./sha
 import { getString, setString } from "./storage";
 import { useUserDoc } from "./useUserDoc";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export interface HygieneCycle {
   bleeding: boolean;
   daysUntilPeriod: number;
@@ -131,17 +129,20 @@ export function HerDataProvider({ children, fallbackName }: { children: ReactNod
 
   const applyChartUpdate = useCallback(
     (u: any) => {
-      if (!u) return;
-      if (u.type === "daily_log" && u.log) {
-        const newLog = u.log;
-        setData((d) => ({ ...d, logs: [...d.logs.filter((l) => dayNum(l.log_date) !== dayNum(newLog.log_date || new Date().toISOString())), newLog] }));
-        if (Number(newLog.cramps_severity) >= 7) setRelief({ open: true, severity: Number(newLog.cramps_severity) });
-        if (u.cycleUpdate) applyChartUpdate(u.cycleUpdate);
-      } else if (u.type === "cycle_history_update") {
-        setData((d) => ({ ...d, cycleHistory: u.cycleHistory ?? d.cycleHistory, profile: { ...d.profile, ...(u.profile || {}) } }));
-      } else if (u.type === "profile_update") {
-        setData((d) => ({ ...d, profile: { ...d.profile, ...(u.profile || {}) } }));
-      }
+      const runUpdate = (update: any) => {
+        if (!update) return;
+        if (update.type === "daily_log" && update.log) {
+          const newLog = update.log;
+          setData((d) => ({ ...d, logs: [...d.logs.filter((l) => dayNum(l.log_date) !== dayNum(newLog.log_date || new Date().toISOString())), newLog] }));
+          if (Number(newLog.cramps_severity) >= 7) setRelief({ open: true, severity: Number(newLog.cramps_severity) });
+          if (update.cycleUpdate) runUpdate(update.cycleUpdate);
+        } else if (update.type === "cycle_history_update") {
+          setData((d) => ({ ...d, cycleHistory: update.cycleHistory ?? d.cycleHistory, profile: { ...d.profile, ...(update.profile || {}) } }));
+        } else if (update.type === "profile_update") {
+          setData((d) => ({ ...d, profile: { ...d.profile, ...(update.profile || {}) } }));
+        }
+      };
+      runUpdate(u);
     },
     [setData],
   );

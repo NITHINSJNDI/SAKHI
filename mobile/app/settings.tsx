@@ -36,7 +36,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/AppText";
 import { PressableScale } from "@/components/ui";
 import { Field, PillButton } from "@/components/web/Atoms";
-import { Panel, ink } from "@/components/web/Panel";
+import { Panel } from "@/components/web/Panel";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -62,7 +62,7 @@ import {
   speak,
   type VoiceStyle,
 } from "@/lib/voice";
-import { palette, radii, spacing } from "@/theme";
+import { palette, radii } from "@/theme";
 
 function SectionTitle({ icon: I, children }: { icon: Icon; children: string }) {
   return (

@@ -6,7 +6,7 @@ import ModeHeader from "@/components/shared/ModeHeader";
 import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useT } from "@/lib/i18n";
 import { useMom } from "@/lib/momData";
-import type { MomPrefs } from "@/lib/useHerReminders";
+import type { MomPrefs, Reminder } from "@/lib/useHerReminders";
 
 const Ctx = createContext<{ openReminders: () => void; upcoming: number }>({ openReminders: () => {}, upcoming: 0 });
 
@@ -14,7 +14,7 @@ export function MomUiProvider({ children }: { children: ReactNode }) {
   const { t } = useT();
   const { reminders: store } = useMom();
   const [open, setOpen] = useState(false);
-  const upcoming = store.reminders.filter((r) => r.status === "upcoming").length;
+  const upcoming = store.reminders.filter((r: Reminder) => r.status === "upcoming").length;
   return (
     <Ctx.Provider value={{ openReminders: () => setOpen(true), upcoming }}>
       {children}

@@ -29,7 +29,7 @@ export async function registerForPush(): Promise<void> {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
         name: "Reminders",
-        importance: Notifications.AndroidImportance.DEFAULT,
+        importance: (Notifications as any).AndroidImportance?.DEFAULT ?? 3,
       });
     }
 

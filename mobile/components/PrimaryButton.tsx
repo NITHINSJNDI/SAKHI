@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { AppText } from "@/components/AppText";
-import { palette, radii, spacing, useAppTheme } from "@/theme";
+import { palette, radii, spacing } from "@/theme";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "onStage";
 
@@ -30,7 +30,6 @@ export function PrimaryButton({
   style,
   ...pressableProps
 }: PrimaryButtonProps) {
-  const theme = useAppTheme();
   const isDisabled = Boolean(disabled || loading);
 
   const backgroundColor =

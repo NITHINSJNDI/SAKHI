@@ -9,7 +9,7 @@ import ModeHeader from "@/components/shared/ModeHeader";
 import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useHer } from "@/lib/herData";
 import { useT } from "@/lib/i18n";
-import { useHerReminders, type HerPrefs } from "@/lib/useHerReminders";
+import { useHerReminders, type HerPrefs, type Reminder } from "@/lib/useHerReminders";
 
 const Ctx = createContext<{ openReminders: () => void; upcoming: number }>({ openReminders: () => {}, upcoming: 0 });
 
@@ -18,7 +18,7 @@ export function HerUiProvider({ children }: { children: ReactNode }) {
   const { profile, logs, cycleHistory } = useHer();
   const store = useHerReminders(profile, logs, cycleHistory);
   const [open, setOpen] = useState(false);
-  const upcoming = store.reminders.filter((r) => r.status === "upcoming").length;
+  const upcoming = store.reminders.filter((r: Reminder) => r.status === "upcoming").length;
   return (
     <Ctx.Provider value={{ openReminders: () => setOpen(true), upcoming }}>
       {children}

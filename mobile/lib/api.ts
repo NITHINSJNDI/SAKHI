@@ -4,7 +4,7 @@ import { clearAccessToken, getAccessToken } from "./secure-store";
  * EXPO_PUBLIC_API_URL must be statically referenced for Expo to inline it.
  * Do not replace this with process.env["EXPO_PUBLIC_API_URL"].
  */
-const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL;
+const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL || "https://sakhi1.vercel.app";
 
 export const API_BASE_URL = (configuredApiUrl ?? "").replace(/\/+$/, "");
 

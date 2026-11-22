@@ -26,6 +26,10 @@ export const emergencyBus = channel<EmergencyEvent>();
 export const emitEmergency = (reason: string | null = null, level: EmergencyEvent["level"] = reason === "self-harm" ? "crisis" : "emergency") =>
   emergencyBus.emit({ reason, level });
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface ChartUpdateEvent {
+  type?: string;
+  [key: string]: unknown;
+}
+
 /** Chart/data updates coming back from the chat (daily_log, tablets_update, ...). */
-export const chartBus = channel<any>();
+export const chartBus = channel<ChartUpdateEvent>();

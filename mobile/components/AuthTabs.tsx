@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
-import { palette, radii, spacing, useAppTheme } from "@/theme";
+import { palette, radii } from "@/theme";
 import type { AuthMode } from "@/types/auth-ui";
 
 export interface AuthTabsProps {

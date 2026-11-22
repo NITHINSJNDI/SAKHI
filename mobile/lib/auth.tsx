@@ -47,12 +47,15 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
 
   const refreshSession = useCallback(async () => {
     if (!mounted.current) return;
-    setState((current) => ({ ...current, status: "loading" }));
 
     const token = await getAccessToken();
     if (!token) {
       if (mounted.current) setState({ status: "unauthenticated", user: null, hasToken: false });
       return;
+    }
+
+    if (mounted.current) {
+      setState((current) => (current.status === "loading" ? current : { ...current, status: "loading" }));
     }
 
     try {
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
 
   useEffect(() => {
     mounted.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshSession();
     return () => {
       mounted.current = false;

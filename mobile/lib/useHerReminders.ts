@@ -4,13 +4,12 @@
  * weekly summary). On the phone each upcoming reminder is a real scheduled
  * notification instead of a 10-second in-page timer.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
 import { requestNotificationPermission, setDateReminders } from "./localReminders";
 import { getJSON, setJSON } from "./storage";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export type ReminderStatus = "upcoming" | "completed" | "snoozed" | "missed";
 export interface Reminder {
   id: string;
@@ -77,11 +76,14 @@ export function useReminderStore<P extends { enabled: boolean }>(prefix: string,
   const deleteReminder = (id: string) => setReminders((prev) => prev.filter((r) => r.id !== id));
 
   // A reminder whose time has passed shows as "missed" (it already fired on the phone)
-  const now = Date.now();
-  const shown = reminders.map((r) => {
-    const at = r.status === "snoozed" ? r.snoozedUntil || 0 : r.scheduledTime;
-    return (r.status === "upcoming" || r.status === "snoozed") && at <= now ? { ...r, status: "missed" as ReminderStatus } : r;
-  });
+  const shown = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    return reminders.map((r) => {
+      const at = r.status === "snoozed" ? r.snoozedUntil || 0 : r.scheduledTime;
+      return (r.status === "upcoming" || r.status === "snoozed") && at <= now ? { ...r, status: "missed" as ReminderStatus } : r;
+    });
+  }, [reminders]);
 
   return { ready, preferences, setPreferences, reminders: shown, setReminders, toggleMaster, updatePreference, markCompleted, snoozeReminder, deleteReminder };
 }
