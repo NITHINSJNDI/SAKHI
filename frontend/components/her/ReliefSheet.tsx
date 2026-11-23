@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Timer, ThumbsUp, ThumbsDown, ArrowsClockwise, WarningCircle, Heart, Play, Pause } from "@phosphor-icons/react";
+import { SakhiSpinner } from "@/components/SakhiSpinner";
 import type { ReliefTip } from "@/lib/reliefTips";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -134,7 +135,12 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
               </div>
             )}
 
-            {loading && <p className="mt-6 text-sm text-plum-900/50">{t("relief.finding")}</p>}
+            {loading && (
+              <div className="mt-6 flex items-center justify-center gap-2.5 text-sm text-plum-900/60">
+                <SakhiSpinner size="sm" />
+                <span>{t("relief.finding")}</span>
+              </div>
+            )}
 
             {data && !loading && (
               <>

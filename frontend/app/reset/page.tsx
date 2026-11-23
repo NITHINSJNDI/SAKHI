@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Sparkle, CheckCircle } from "@phosphor-icons/react";
+import { SakhiSpinner } from "@/components/SakhiSpinner";
 
 export default function ResetPage() {
   const [status, setStatus] = useState("Clearing all data and records...");
@@ -52,7 +53,7 @@ export default function ResetPage() {
       </div>
       <h1 className="text-2xl font-semibold text-plum-900 mb-2">Resetting Sakhi</h1>
       <p className="text-sm text-plum-900/60 max-w-sm mb-6">{status}</p>
-      <div className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
+      <SakhiSpinner size="md" />
     </div>
   );
 }

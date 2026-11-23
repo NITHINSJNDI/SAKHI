@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkle, CheckCircle, Baby, Flower, CalendarBlank, Heartbeat, Target, Drop, ShieldCheck } from "@phosphor-icons/react";
+import { SakhiSpinner } from "@/components/SakhiSpinner";
 
 export default function UnifiedOnboardingChat() {
   const router = useRouter();
@@ -627,7 +628,7 @@ export default function UnifiedOnboardingChat() {
     botText: `Thank you, ${name}. I am preparing your customized ${mode === 'mom' ? 'Pregnancy' : 'Menstrual'} dashboard now... 🌸`,
     renderInput: () => (
        <div className="mt-4 flex justify-center w-full">
-         <div className="h-6 w-6 animate-spin rounded-full border-2 border-plum-900 border-t-transparent" />
+         <SakhiSpinner size="md" />
        </div>
     )
   });

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import ConsentGate from "@/components/ConsentGate";
+import { SakhiLoadingScreen } from "@/components/SakhiSpinner";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -645,11 +646,7 @@ export default function PregnancyModePage() {
   };
 
   if (!mounted || isCheckingData) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <Baby weight="duotone" className="w-12 h-12 text-pink-400 animate-pulse opacity-50" />
-      </div>
-    );
+    return <SakhiLoadingScreen size="lg" />;
   }
 
   const displayName = profile?.preferred_name || (typeof window !== 'undefined' ? localStorage.getItem('sakhi_preferred_name') : null) || session?.user?.name?.split(" ")[0] || "Mama";

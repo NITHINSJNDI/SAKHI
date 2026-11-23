@@ -21,6 +21,7 @@ import {
   ArrowLeft
 } from "@phosphor-icons/react";
 import { Button, Input, Card, Badge } from "@/components/kokonut";
+import { SakhiSpinner, SakhiLoadingScreen } from "@/components/SakhiSpinner";
 
 type Tab = "dashboard" | "log" | "history" | "profile";
 
@@ -276,14 +277,7 @@ export default function PortalPage() {
 
   // Authentication Guard Render
   if (status === "loading") {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-cream">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-lavender-500 border-t-transparent" />
-          <p className="text-sm font-medium text-plum-800">Entering Sakhi Portal...</p>
-        </div>
-      </div>
-    );
+    return <SakhiLoadingScreen label="Entering Sakhi Portal..." />;
   }
 
   if (status === "unauthenticated") {
@@ -768,7 +762,7 @@ export default function PortalPage() {
 
             {logsLoading ? (
               <div className="py-20 flex justify-center items-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-lavender-500 border-t-transparent" />
+                <SakhiSpinner size="md" />
               </div>
             ) : cycleLogs.length === 0 ? (
               <Card className="p-12 text-center border border-plum-700/5 bg-white/40">

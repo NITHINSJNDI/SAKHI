@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MEASURED_BY, type MeasuredBy } from "@/lib/readings";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, FileText, X, Plus, Trash, CircleNotch, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
+import { Camera, FileText, X, Plus, Trash, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
+import { SakhiSpinner } from "@/components/SakhiSpinner";
 import {
   LAB_TESTS, checkLab, cleanValue, formatLab, labTest, latestLabs, parseLabText,
   type LabKey, type LabResult, type LabStatus, type LabValue,
@@ -216,7 +217,7 @@ export function LabReportSheet({ open, onClose, mode, pregnant, onSaved, initial
               {step === "reading" && (
                 <div className="flex flex-col items-center gap-4 py-6" aria-live="polite">
                   {preview && <img src={preview} alt="Your report" className="max-h-48 rounded-xl border border-plum-900/10 object-contain" />}
-                  <CircleNotch className="h-7 w-7 animate-spin text-lavender-500" />
+                  <SakhiSpinner size="md" />
                   <p className="text-sm font-medium text-plum-900">Reading your report{progress > 0 ? `… ${Math.round(progress * 100)}%` : "…"}</p>
                   <p className="text-xs text-ink-soft">The first time takes a little longer.</p>
                 </div>

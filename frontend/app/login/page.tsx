@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import AuthScreen from "@/components/auth/AuthScreen";
+import { SakhiLoadingScreen } from "@/components/SakhiSpinner";
 
 export const metadata: Metadata = {
   title: "Sign in — Sakhi",
@@ -9,13 +10,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[100dvh] items-center justify-center bg-cream">
-          <div className="h-9 w-9 animate-spin rounded-full border-4 border-lavender-500 border-t-transparent" />
-        </div>
-      }
-    >
+    <Suspense fallback={<SakhiLoadingScreen />}>
       <AuthScreen initialTab="signin" />
     </Suspense>
   );

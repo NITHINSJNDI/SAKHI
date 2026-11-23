@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import UnifiedOnboardingChat from "@/components/UnifiedOnboardingChat";
 import AuthScreen from "@/components/auth/AuthScreen";
 import { Heartbeat } from "@phosphor-icons/react";
+import { SakhiLoadingScreen } from "@/components/SakhiSpinner";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -59,25 +60,12 @@ export default function OnboardingPage() {
   }, [status]);
 
   if (status === "loading" || (status === "authenticated" && profileLoading)) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-cream">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-lavender-500 border-t-transparent" />
-          <p className="text-sm font-medium text-plum-800">Checking profile...</p>
-        </div>
-      </div>
-    );
+    return <SakhiLoadingScreen label="Checking profile..." />;
   }
 
   if (status === "unauthenticated") {
     return (
-      <Suspense
-        fallback={
-          <div className="flex min-h-[100dvh] items-center justify-center bg-cream">
-            <div className="h-9 w-9 animate-spin rounded-full border-4 border-lavender-500 border-t-transparent" />
-          </div>
-        }
-      >
+      <Suspense fallback={<SakhiLoadingScreen label="Preparing your workspace..." />}>
         <AuthScreen initialTab="signin" />
       </Suspense>
     );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ConsentGate from "@/components/ConsentGate";
+import { SakhiLoadingScreen } from "@/components/SakhiSpinner";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -193,11 +194,7 @@ export default function HerModePage() {
   const closeRelief = () => { setRelief({ open: false, severity: null }); loadFavourites(); };
 
   if (!mounted || isCheckingData) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <Sparkle weight="duotone" className="w-12 h-12 text-pink-400 animate-pulse opacity-50" />
-      </div>
-    );
+    return <SakhiLoadingScreen size="lg" />;
   }
 
   const displayName = profile?.preferred_name || session?.user?.name?.split(" ")[0] || "there";

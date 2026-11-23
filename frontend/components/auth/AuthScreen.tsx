@@ -9,7 +9,6 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
-  CircleNotch,
   Eye,
   EyeSlash,
   Lock,
@@ -17,6 +16,7 @@ import {
   Globe,
   Check,
 } from "@phosphor-icons/react";
+import { SakhiSpinner } from "@/components/SakhiSpinner";
 import { PetalWind } from "@/components/PetalWind";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -754,7 +754,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 >
                   {submitting ? (
                     <>
-                      <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
+                      <SakhiSpinner size="sm" className="text-pink-300" aria-hidden="true" />
                       <span>{tab === "signin" ? t("common.loading") : t("common.saving")}</span>
                     </>
                   ) : (
@@ -778,7 +778,7 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 className="w-full inline-flex items-center justify-center gap-3 rounded-full border border-plum-900/15 bg-white px-5 py-3 text-sm font-medium text-plum-900 hover:bg-cream-deep/60 active:scale-[0.99] transition-[background-color,transform] duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               >
                 {googleBusy ? (
-                  <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
+                  <SakhiSpinner size="sm" className="text-pink-500" aria-hidden="true" />
                 ) : (
                   <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -818,7 +818,14 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 className="rounded-xl bg-cream hover:bg-white px-4 py-2.5 text-left transition-colors duration-150 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
               >
                 <span className="block text-sm font-semibold text-plum-900">
-                  {demoBusy === "her" ? t("common.loading") : t("auth.demoHer")}
+                  {demoBusy === "her" ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <SakhiSpinner size="xs" className="text-pink-500" />
+                      {t("common.loading")}
+                    </span>
+                  ) : (
+                    t("auth.demoHer")
+                  )}
                 </span>
                 <span className="block text-sm text-plum-800/80">{t("auth.demoHerCycles")}</span>
               </button>
@@ -829,7 +836,14 @@ export default function AuthScreen({ initialTab = "signin" }: AuthScreenProps) {
                 className="rounded-xl bg-cream hover:bg-white px-4 py-2.5 text-left transition-colors duration-150 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender-500"
               >
                 <span className="block text-sm font-semibold text-plum-900">
-                  {demoBusy === "pregnancy" ? t("common.loading") : t("auth.demoMom")}
+                  {demoBusy === "pregnancy" ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <SakhiSpinner size="xs" className="text-pink-500" />
+                      {t("common.loading")}
+                    </span>
+                  ) : (
+                    t("auth.demoMom")
+                  )}
                 </span>
                 <span className="block text-sm text-plum-800/80">{t("auth.demoMomWeeks")}</span>
               </button>
