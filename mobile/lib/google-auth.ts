@@ -13,6 +13,10 @@
  */
 type GoogleModule = typeof import("@react-native-google-signin/google-signin");
 
+const GOOGLE_WEB_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ||
+  "221746511638-d33vntkihj2rp8cuj19ilmng9ckls8qv.apps.googleusercontent.com";
+
 let cached: GoogleModule | null | undefined;
 function loadModule(): GoogleModule | null {
   if (cached !== undefined) return cached;
@@ -20,7 +24,7 @@ function loadModule(): GoogleModule | null {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     cached = require("@react-native-google-signin/google-signin") as GoogleModule;
     cached.GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      webClientId: GOOGLE_WEB_CLIENT_ID,
       iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     });
   } catch {
@@ -29,7 +33,7 @@ function loadModule(): GoogleModule | null {
   return cached;
 }
 
-export const googleConfigured = Boolean(process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID);
+export const googleConfigured = Boolean(GOOGLE_WEB_CLIENT_ID);
 
 export type GoogleResult =
   | { type: "success"; idToken: string }
