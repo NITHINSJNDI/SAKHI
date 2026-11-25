@@ -33,16 +33,34 @@ export function cleanForSpeech(text: string): string {
     .trim();
 }
 
+/** Sentence-sized pieces (about 180 chars), so the first one starts speaking right away. */
+export function speechChunks(text: string): string[] {
+  const sentences = cleanForSpeech(text).match(/[^.!?।]+[.!?।]*\s*/g) ?? [];
+  const out: string[] = [];
+  for (const s of sentences) {
+    const last = out.length - 1;
+    if (last >= 0 && out[last].length + s.length <= 180) out[last] += s;
+    else out.push(s);
+  }
+  return out.map((c) => c.trim()).filter(Boolean);
+}
+
 export async function speak(text: string, bcp47 = "en-IN", style?: VoiceStyle, onDone?: () => void) {
   const s = style ?? (await getVoiceStyle());
   await Speech.stop();
-  Speech.speak(cleanForSpeech(text), {
-    language: bcp47,
-    pitch: s === "girl" ? 1.15 : 1.0,
-    rate: 0.95,
-    onDone,
-    onStopped: onDone,
-    onError: onDone,
+  // One long utterance is synthesised whole before any sound; queued sentences start at once
+  const chunks = speechChunks(text);
+  if (!chunks.length) return onDone?.();
+  chunks.forEach((chunk, i) => {
+    const last = i === chunks.length - 1;
+    Speech.speak(chunk, {
+      language: bcp47,
+      pitch: s === "girl" ? 1.15 : 1.0,
+      rate: 0.95,
+      onDone: last ? onDone : undefined,
+      onStopped: onDone,
+      onError: onDone,
+    });
   });
 }
 

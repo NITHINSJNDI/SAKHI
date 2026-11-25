@@ -7,15 +7,16 @@
  */
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { CaretLeft, LockSimple, PaperPlaneRight, ShieldCheck, Sparkle, SpeakerHigh, SpeakerSlash, Trash, WifiSlash, type Icon } from "phosphor-react-native";
+import { CaretLeft, ChatsCircle, LockSimple, NotePencil, PaperPlaneRight, ShieldCheck, SpeakerHigh, SpeakerSlash, Trash, WifiSlash, type Icon } from "phosphor-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, FlatList, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
+import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
 import Animated, { FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/AppText";
 import { PressableScale } from "@/components/ui";
 import { ink } from "@/components/web/Panel";
+import { Sheet } from "@/components/web/Sheet";
 import { apiFetch } from "@/lib/api";
 import { chartBus, emitEmergency } from "@/lib/events";
 import { useT } from "@/lib/i18n";
@@ -44,6 +45,20 @@ interface Quick {
 
 const ENDPOINT: Record<Mode, string> = { her: "/api/ask-sakhi", pregnancy: "/api/ask-sakhi-pregnancy" };
 const localKey = (m: Mode) => `sakhi_chat_${m}`;
+// shortcut: past chats live on this phone only (the server keeps just the open one); move to the API to sync across devices
+interface Past {
+  id: string;
+  title: string;
+  at: string;
+  messages: Msg[];
+}
+const pastKey = (m: Mode) => `sakhi_chats_${m}`;
+const MAX_PAST = 30;
+function toPast(msgs: Msg[]): Past | null {
+  if (!msgs.length) return null;
+  const first = msgs.find((m) => m.role === "user") ?? msgs[0];
+  return { id: newId(), title: first.text.replace(/\s+/g, " ").slice(0, 70), at: msgs[msgs.length - 1].at || nowIso(), messages: msgs };
+}
 let seq = 0;
 const newId = () => `m${++seq}-${Math.random().toString(36).slice(2, 7)}`;
 const nowIso = () => new Date().toISOString();
@@ -79,6 +94,8 @@ export default function ChatScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [voiceOn, setVoiceOn] = useState(true);
   const [speaking, setSpeaking] = useState(false);
+  const [past, setPast] = useState<Past[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const listRef = useRef<FlatList<Msg>>(null);
   const messagesRef = useRef(messages);
   useEffect(() => {
@@ -89,6 +106,10 @@ export default function ChatScreen() {
     void getVoiceEnabled().then(setVoiceOn);
     return () => void stopSpeaking();
   }, []);
+
+  useEffect(() => {
+    void getJSON<Past[]>(pastKey(mode), []).then(setPast);
+  }, [mode]);
 
   // History: from the server, or the phone when the server can't store it
   useEffect(() => {
@@ -146,7 +167,8 @@ export default function ChatScreen() {
             prompt: text,
             userName: name,
             lang: meta.bcp47 || language,
-            history: serverStores ? undefined : prior.slice(-10).map((m) => ({ role: m.role, text: m.text })),
+            // The server uses this only when it holds no history of its own (a reopened past chat)
+            history: prior.slice(-10).map((m) => ({ role: m.role, text: m.text })),
           }),
         });
         const reply = data.reply || "I'm having trouble connecting right now. Please try again in a moment.";
@@ -169,23 +191,38 @@ export default function ChatScreen() {
         setLoading(false);
       }
     },
-    [loading, mode, name, meta.bcp47, language, serverStores, qc, say],
+    [loading, mode, name, meta.bcp47, language, qc, say],
   );
 
-  const clear = () =>
-    Alert.alert(t("chat.clearChat"), t("chat.clearConfirm"), [
+  const savePast = (list: Past[]) => {
+    const next = list.slice(0, MAX_PAST);
+    setPast(next);
+    void setJSON(pastKey(mode), next);
+  };
+  // Swap what's open: the server forgets the current thread, the phone shows `next`
+  const openThread = async (next: Msg[]) => {
+    void stopSpeaking();
+    setSpeaking(false);
+    setNotice(null);
+    setMessages(next);
+    setHistoryOpen(false);
+    await setJSON(localKey(mode), next);
+    await apiFetch(`/api/chat-history?mode=${mode}`, { method: "DELETE" }).catch(() => null);
+  };
+  const newChat = () => {
+    const cur = toPast(messagesRef.current);
+    if (cur) savePast([cur, ...past]);
+    void openThread([]);
+  };
+  const reopen = (c: Past) => {
+    const cur = toPast(messagesRef.current);
+    savePast([...(cur ? [cur] : []), ...past.filter((x) => x.id !== c.id)]);
+    void openThread(c.messages);
+  };
+  const removePast = (c: Past) =>
+    Alert.alert(t("chat.deleteChat", "Delete this chat?"), c.title, [
       { text: t("common.cancel", "Cancel"), style: "cancel" },
-      {
-        text: t("chat.clearChat"),
-        style: "destructive",
-        onPress: async () => {
-          void stopSpeaking();
-          setMessages([]);
-          setNotice(null);
-          await setJSON(localKey(mode), []);
-          await apiFetch(`/api/chat-history?mode=${mode}`, { method: "DELETE" }).catch(() => null);
-        },
-      },
+      { text: t("common.delete", "Delete"), style: "destructive", onPress: () => savePast(past.filter((x) => x.id !== c.id)) },
     ]);
 
   const toggleVoice = async () => {
@@ -258,9 +295,12 @@ export default function ChatScreen() {
         <PressableScale onPress={() => void toggleVoice()} accessibilityLabel={voiceOn ? t("chat.voiceRepliesOn") : t("chat.voiceRepliesOff")} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
           {voiceOn ? <SpeakerHigh size={20} color={accent} weight="duotone" /> : <SpeakerSlash size={20} color={ink[50]} />}
         </PressableScale>
+        <PressableScale onPress={() => setHistoryOpen(true)} accessibilityLabel={t("chat.pastChats", "Past chats")} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
+          <ChatsCircle size={21} color={ink[60]} />
+        </PressableScale>
         {messages.length ? (
-          <PressableScale onPress={clear} accessibilityLabel={t("chat.clearChat")} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
-            <Trash size={20} color={ink[55]} />
+          <PressableScale onPress={newChat} accessibilityLabel={t("chat.newChat", "New chat")} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
+            <NotePencil size={21} color={ink[60]} />
           </PressableScale>
         ) : null}
       </View>
@@ -281,8 +321,8 @@ export default function ChatScreen() {
         ListEmptyComponent={
           loaded ? (
             <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 12 }}>
-              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: mode === "pregnancy" ? palette.lavender100 : palette.pink100, alignItems: "center", justifyContent: "center" }}>
-                <Sparkle size={32} color={accent} weight="duotone" />
+              <View style={{ borderRadius: 50, borderWidth: 3, borderColor: accent }}>
+                <SakhiAvatar size={88} />
               </View>
               <AppText style={{ fontSize: 22, fontWeight: "500", textAlign: "center", color: palette.plum900 }}>{t("chat.emptyGreeting", { name: name || t("common.friend") })}</AppText>
               <AppText style={{ fontSize: 14, lineHeight: 20, textAlign: "center", color: ink[60] }}>{emptyPrompt}</AppText>
@@ -307,10 +347,11 @@ export default function ChatScreen() {
                   <AppText style={{ fontSize: 11, color: ink[50] }}>{day}</AppText>
                 </View>
               ) : null}
+              <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, alignSelf: mine ? "flex-end" : "flex-start", maxWidth: mine ? "88%" : "92%" }}>
+              {mine ? null : <SakhiAvatar size={30} />}
               <View
                 style={{
-                  alignSelf: mine ? "flex-end" : "flex-start",
-                  maxWidth: "88%",
+                  flexShrink: 1,
                   padding: 12,
                   borderRadius: 18,
                   borderTopRightRadius: mine ? 4 : 18,
@@ -327,6 +368,7 @@ export default function ChatScreen() {
                     <AppText style={{ fontSize: 10, color: ink[45] }}>{tag.label}</AppText>
                   </View>
                 ) : null}
+              </View>
               </View>
             </Animated.View>
           );
@@ -359,6 +401,33 @@ export default function ChatScreen() {
           <PaperPlaneRight size={20} color="#fff" weight="fill" />
         </PressableScale>
       </View>
+      <Sheet open={historyOpen} onClose={() => setHistoryOpen(false)} title={t("chat.pastChats", "Past chats")}>
+        <PressableScale onPress={newChat} accessibilityRole="button" style={{ flexDirection: "row", alignItems: "center", gap: 10, minHeight: 52, paddingHorizontal: 16, borderRadius: 16, backgroundColor: palette.plum900 }}>
+          <NotePencil size={20} color={palette.cream} />
+          <AppText style={{ fontSize: 15, fontWeight: "600", color: palette.cream }}>{t("chat.newChat", "New chat")}</AppText>
+        </PressableScale>
+        {past.length ? (
+          <View style={{ marginTop: 12, gap: 6 }}>
+            {past.map((c) => (
+              <View key={c.id} style={{ flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: ink[7] }}>
+                <PressableScale onPress={() => reopen(c)} accessibilityRole="button" accessibilityLabel={c.title} style={{ flex: 1, minHeight: 56, paddingHorizontal: 14, paddingVertical: 10, justifyContent: "center" }}>
+                  <AppText numberOfLines={1} style={{ fontSize: 15, fontWeight: "500", color: palette.plum900 }}>
+                    {c.title}
+                  </AppText>
+                  <AppText style={{ marginTop: 2, fontSize: 12, color: ink[50] }}>
+                    {dayLabel(c.at)} · {t("chat.messagesCount", { count: c.messages.length })}
+                  </AppText>
+                </PressableScale>
+                <PressableScale onPress={() => removePast(c)} accessibilityLabel={t("chat.deleteChat", "Delete this chat?")} style={{ width: 48, height: 56, alignItems: "center", justifyContent: "center" }}>
+                  <Trash size={18} color={ink[45]} />
+                </PressableScale>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <AppText style={{ marginTop: 16, fontSize: 14, lineHeight: 20, color: ink[55], textAlign: "center" }}>{t("chat.noPastChats", "Your earlier chats will appear here when you start a new one.")}</AppText>
+        )}
+      </Sheet>
     </KeyboardAvoidingView>
   );
 }
@@ -371,9 +440,28 @@ function SakhiFace({ speaking, accent }: { speaking: boolean; accent: string }) 
   }, [speaking, s]);
   const style = useAnimatedStyle(() => ({ transform: [{ scale: s.get() }] }));
   return (
-    <Animated.View style={[{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: palette.pink100 }, style]}>
-      <Sparkle size={18} color={accent} weight="fill" />
+    <Animated.View style={[{ borderRadius: 20, borderWidth: 2, borderColor: accent }, style]}>
+      <SakhiAvatar size={36} />
     </Animated.View>
+  );
+}
+
+const SAKHI_DOLL = require("@/assets/images/sakhi-doll.png");
+// The doll picture is 1473x720; this box (in its pixels) frames her face
+const FACE = { x: 540, y: 70, w: 410 };
+
+/** Sakhi's face in a circle, beside each of her replies. */
+function SakhiAvatar({ size }: { size: number }) {
+  const k = size / FACE.w;
+  return (
+    <View style={{ width: size, height: size, borderRadius: size / 2, overflow: "hidden", backgroundColor: "#F7F1EC", borderWidth: 1, borderColor: TW.pink[100] }}>
+      <Image
+        source={SAKHI_DOLL}
+        style={{ position: "absolute", width: 1473 * k, height: 720 * k, left: -FACE.x * k, top: -FACE.y * k }}
+        accessibilityLabel="Sakhi"
+        accessibilityIgnoresInvertColors
+      />
+    </View>
   );
 }
 

@@ -3,6 +3,7 @@ import { CaretDown, Drop, Lightbulb, MapPin, Package, Timer, Trash, Warning, typ
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Pressable, TextInput, View } from "react-native";
 
+import AramCard from "@/components/her/AramCard";
 import { AppText } from "@/components/AppText";
 import { atom, CheckRow, InfoBox, PillButton, StatusBadge, ToggleChip } from "@/components/web/Atoms";
 import { ink, Panel, PanelTitle } from "@/components/web/Panel";
@@ -12,7 +13,6 @@ import { useT } from "@/lib/i18n";
 import { call, mapsSearch, openUrl, whatsapp } from "@/lib/links";
 import { todayNum } from "@/lib/shared/cyclePhase";
 import {
-  addChange,
   addPad,
   changesToday,
   changeState,
@@ -23,6 +23,7 @@ import {
   PBAC_HEAVY,
   pbacScore,
   PRODUCT_ORDER,
+  recordChange,
   PRODUCTS,
   supplyCheck,
   WARNING_SIGNS,
@@ -84,10 +85,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
   const markChanged = async () => {
     const at = new Date();
     setNow(at);
-    await save((prev) => {
-      const used = prev.product && PRODUCTS[prev.product].disposable && typeof prev.stock === "number" ? Math.max(0, prev.stock - 1) : prev.stock;
-      return { ...prev, changes: addChange(prev.changes, at), stock: used };
-    });
+    await save((prev) => recordChange(prev, at));
     successHaptic();
     if (scoresSoak) {
       setAskSoak(at.toISOString());
@@ -102,7 +100,8 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
   const setStock = (n: number | null) => void save((prev) => ({ ...prev, stock: n === null ? null : Math.max(0, Math.min(200, n)) }));
   const toggle = (k: "care" | "access" | "signs") => setOpen((o) => (o === k ? null : k));
 
-  const productLabel = (p: Product) => (p === "pad" ? t("hygiene.pad") : p === "tampon" ? t("hygiene.tampon") : p === "cup" ? t("hygiene.cup") : t("hygiene.cloth"));
+  // Every product has its own label (period underwear used to fall through to "Cloth pad")
+  const productLabel = (p: Product) => t(`hygiene.${p}`, PRODUCTS[p].label);
 
   return (
     <Panel>
@@ -125,6 +124,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
           <ToggleChip key={p} label={productLabel(p)} on={doc.product === p} onPress={() => setProduct(p)} />
         ))}
       </View>
+      <AramCard />
 
       {/* Change timer */}
       <View style={[box, { marginTop: 16 }]}>
@@ -138,7 +138,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
         {guide ? (
           <>
             <AppText style={[atom.soft, { marginTop: 8 }]}>
-              {hours === null ? "Tap when you change, and Sakhi will tell you when the next one is due." : `Last changed ${fmtHours(hours)} ago.`}{" "}
+              {hours === null ? t("hygiene.tapWhenChange") : t("hygiene.lastChanged", { time: fmtHours(hours) })}{" "}
               <AppText style={{ fontSize: 14, color: palette.plum900 }}>
                 {guide.label}: {guide.window}.
               </AppText>
@@ -146,29 +146,27 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
             <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
               <PillButton label={t("common.confirm", "I changed just now")} onPress={() => void markChanged()} />
               {todayCount > 0 ? (
-                <AppText style={atom.faint}>
-                  {todayCount} change{todayCount === 1 ? "" : "s"} today
-                </AppText>
+                <AppText style={atom.faint}>{t("hygiene.changesToday", { count: todayCount })}</AppText>
               ) : null}
             </View>
             {askSoak ? (
               <InfoBox style={{ marginTop: 12, gap: 8 }}>
-                <AppText style={{ fontSize: 12, fontWeight: "600", color: palette.plum900 }}>How full was the one you took off?</AppText>
+                <AppText style={{ fontSize: 12, fontWeight: "600", color: palette.plum900 }}>{t("hygiene.howFull")}</AppText>
                 <View style={atom.wrap}>
                   {(
                     [
-                      ["light", "A little"],
-                      ["half", "Half"],
-                      ["full", "Fully soaked"],
+                      ["light", t("hygiene.soakLight")],
+                      ["half", t("hygiene.soakHalf")],
+                      ["full", t("hygiene.soakFull")],
                     ] as [Soak, string][]
                   ).map(([k, label]) => (
                     <ToggleChip key={k} label={label} on={false} onPress={() => recordSoak(k)} />
                   ))}
                   <Pressable onPress={() => setAskSoak(null)} hitSlop={8}>
-                    <AppText style={[atom.faint, { textDecorationLine: "underline" }]}>Skip</AppText>
+                    <AppText style={[atom.faint, { textDecorationLine: "underline" }]}>{t("hygiene.skip")}</AppText>
                   </Pressable>
                 </View>
-                <CheckRow label="Passed a clot bigger than a ₹5 coin" checked={clots} onChange={setClots} />
+                <CheckRow label={t("hygiene.clotCheck")} checked={clots} onChange={setClots} />
               </InfoBox>
             ) : null}
             {scoresSoak && cycle.periodStart ? (
@@ -189,11 +187,11 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
                   </View>
                 ) : null}
                 <AppText style={{ marginTop: 6, fontSize: 12, lineHeight: 17, color: pbac.heavy ? TW.rose[800] : "rgba(42,21,47,0.68)" }}>{pbac.message}</AppText>
-                {pbac.validFor === "rough" && pbac.items > 0 ? <AppText style={[atom.faint, { marginTop: 4 }]}>With cloth this is a rough guide.</AppText> : null}
+                {pbac.validFor === "rough" && pbac.items > 0 ? <AppText style={[atom.faint, { marginTop: 4 }]}>{t("hygiene.clothRough")}</AppText> : null}
               </View>
             ) : null}
             {cycle.bleeding && todayCount >= 8 && guide.disposable ? (
-              <AppText style={{ marginTop: 8, fontSize: 12, color: TW.rose[700] }}>That is a lot of changes for one day. If you are soaking a pad every hour, see a doctor.</AppText>
+              <AppText style={{ marginTop: 8, fontSize: 12, color: TW.rose[700] }}>{t("hygiene.tooMany")}</AppText>
             ) : null}
           </>
         ) : (
@@ -242,7 +240,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
       {/* Expandable sections */}
       <View style={{ marginTop: 12, borderRadius: 16, borderWidth: 1, borderColor: ink[7], backgroundColor: "rgba(255,255,255,0.6)" }}>
         {guide ? (
-          <Section icon={Trash} title={`Caring for your ${guide.label.toLowerCase()} and disposal`} open={open === "care"} onToggle={() => toggle("care")}>
+          <Section icon={Trash} title={t("hygiene.careFor", { item: productLabel(doc.product!).toLowerCase() })} open={open === "care"} onToggle={() => toggle("care")}>
             <View style={{ gap: 6 }}>
               {guide.care.map((c) => (
                 <AppText key={c} style={atom.soft}>
@@ -252,7 +250,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
             </View>
             <InfoBox style={{ marginTop: 8 }}>
               <AppText style={{ fontSize: 14, lineHeight: 20, color: palette.plum900 }}>
-                <AppText style={{ fontSize: 14, fontWeight: "500" }}>Disposal:</AppText> {guide.disposal}
+                <AppText style={{ fontSize: 14, fontWeight: "500" }}>{t("hygiene.disposal")}</AppText> {guide.disposal}
               </AppText>
             </InfoBox>
           </Section>
@@ -269,12 +267,12 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
                       WhatsApp
                     </AppText>
                     <AppText onPress={() => void call(`+${o.phone}`)} style={link}>
-                      Call
+                      {t("hygiene.call")}
                     </AppText>
                   </View>
                 ) : o.mapsQuery ? (
                   <AppText onPress={() => void openUrl(mapsSearch(o.mapsQuery!))} style={[link, { marginTop: 4 }]}>
-                    Find nearest on Google Maps
+                    {t("hygiene.findNearest")}
                   </AppText>
                 ) : null}
               </View>
@@ -289,7 +287,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
               </AppText>
             ))}
           </View>
-          <AppText style={[atom.faint, { marginTop: 8 }]}>Emergency: call 112 or 108.</AppText>
+          <AppText style={[atom.faint, { marginTop: 8 }]}>{t("hygiene.emergency")}</AppText>
         </Section>
       </View>
       <AppText style={[atom.faint, { marginTop: 12 }]}>{t("hygiene.disclaimer")}</AppText>

@@ -201,6 +201,13 @@ export const te: TranslationSchema = {
     "hospitalBag": "హాస్పిటల్ బ్యాగ్ జాబితా"
   },
   "chat": {
+    "askSakhi": "సఖిని అడగండి",
+    "newChat": "కొత్త చాట్",
+    "pastChats": "గత చాట్‌లు",
+    "noPastChats": "కొత్త చాట్ మొదలుపెట్టినప్పుడు మీ పాత చాట్‌లు ఇక్కడ కనిపిస్తాయి.",
+    "deleteChat": "ఈ చాట్‌ను తొలగించాలా?",
+    "messagesCount_one": "{count} సందేశం",
+    "messagesCount_other": "{count} సందేశాలు",
     "title": "సఖి AI బహుభాషా సంభాషణ",
     "placeholder": "టైప్ చేయండి లేదా మాట్లాడటానికి మైక్ నొక్కండి…",
     "placeholderHandsFree": "హ్యాండ్స్-ఫ్రీ ఆన్‌లో ఉంది, మాట్లాడండి…",
@@ -250,6 +257,8 @@ export const te: TranslationSchema = {
     "quickPostnatalFoodMsg": "తల్లిపాలు ఇచ్చేటప్పుడు ఏమి తినాలి?"
   },
   "settings": {
+    "voice_girl": "యువ",
+    "voice_woman": "ఆప్యాయమైన",
     "title": "సెట్టింగులు",
     "preferredName": "పిలవాల్సిన పేరు",
     "preferredNameHint": "సఖి మిమ్మల్ని ఈ పేరుతో పిలుస్తుంది.",
@@ -755,6 +764,24 @@ export const te: TranslationSchema = {
     "close": "మూసివేయండి"
   },
   "hygiene": {
+    "period_underwear": "పీరియడ్ లోదుస్తులు",
+    "tapWhenChange": "మార్చినప్పుడు నొక్కండి, తదుపరిది ఎప్పుడో సఖి చెబుతుంది.",
+    "lastChanged": "చివరిగా {time} క్రితం మార్చారు.",
+    "changesToday_one": "ఈ రోజు {count} సార్లు మార్చారు",
+    "changesToday_other": "ఈ రోజు {count} సార్లు మార్చారు",
+    "howFull": "తీసినది ఎంత నిండింది?",
+    "soakLight": "కొంచెం",
+    "soakHalf": "సగం",
+    "soakFull": "పూర్తిగా తడిసింది",
+    "skip": "దాటవేయి",
+    "clotCheck": "₹5 నాణెం కంటే పెద్ద గడ్డ వచ్చింది",
+    "clothRough": "బట్టకు ఇది అంచనా మాత్రమే.",
+    "tooMany": "ఒక రోజుకు ఇది చాలా ఎక్కువ. ప్రతి గంటకూ ప్యాడ్ తడిస్తే డాక్టర్‌ను కలవండి.",
+    "careFor": "మీ {item} సంరక్షణ, పారవేయడం",
+    "disposal": "పారవేయడం:",
+    "call": "కాల్ చేయండి",
+    "findNearest": "Google Maps‌లో దగ్గర్లో వెతకండి",
+    "emergency": "అత్యవసరం: 112 లేదా 108కి కాల్ చేయండి.",
     "title": "పీరియడ్ సంరక్షణ",
     "whatDoYouUse": "మీరు దేనిని ఉపయోగిస్తున్నారు?",
     "changeTimer": "మార్చుకునే సమయం",
@@ -1082,5 +1109,22 @@ export const te: TranslationSchema = {
       "tapToReportSymptoms": "వాయిస్ ద్వారా లక్షణాలను నివేదించడానికి నొక్కండి",
       "correlationHistory": "పరస్పర సంబంధ చరిత్ర",
       "symptomTracking": "లక్షణాల ట్రాకింగ్"
+  },
+  "aram": {
+    "rating": "Google‌లో 4.9 · 293 సమీక్షలు",
+    "partner": "సఖి భాగస్వామి",
+    "pitch": "తమిళనాడులోని పల్లిపాళయంలో తయారైన మెత్తని కాటన్ నాప్కిన్లు. వాడే మహిళలు సౌకర్యం, దురద లేదా దద్దుర్లు లేకపోవడం గురించి చెబుతారు.",
+    "find": "ఆరం చూడండి",
+    "watch": "వీడియో చూడండి"
+  },
+  "padCheck": {
+    "calling": "సఖి మిమ్మల్ని పిలుస్తోంది 💜",
+    "title": "{item} మార్చే సమయమా?",
+    "body": "చివరిగా మార్చి సుమారు {hours} గంటలైంది. కొత్తది దద్దుర్లు, ఇన్ఫెక్షన్ రాకుండా సహాయపడుతుంది.",
+    "changed": "ఇప్పుడే మార్చాను",
+    "later": "1 గంటలో గుర్తు చేయండి"
+  },
+  "nudge": {
+    "checkIn": "మీ రోజువారీ చెక్-ఇన్ ఎదురుచూస్తోంది 💜 30 సెకన్లు చాలు."
   },
 };

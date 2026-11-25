@@ -16,6 +16,8 @@ export type UserDocKind =
   | "hygiene";
 
 const cacheKey = (kind: string) => `sakhi_doc_${kind}`;
+// Every mounted copy of a doc, so a save in one (say the pad dialog) shows in the others (the care card)
+const mounted = new Map<string, Set<(v: object) => void>>();
 
 /**
  * Port of frontend/hooks/useUserDoc: load and save one per-user document.
@@ -32,6 +34,17 @@ export function useUserDoc<T extends object>(kind: UserDocKind, fallback: T) {
   const reload = useCallback(() => setVersion((v) => v + 1), []);
   const ready = useRef<Promise<void>>(Promise.resolve());
   const known = useRef(false);
+
+  const onPeerSave = useRef((v: object) => {
+    latest.current = v as T;
+    setDoc(v as T);
+  }).current;
+  useEffect(() => {
+    const set = mounted.get(kind) ?? new Set();
+    mounted.set(kind, set);
+    set.add(onPeerSave);
+    return () => void set.delete(onPeerSave);
+  }, [kind, onPeerSave]);
 
   useEffect(() => {
     let alive = true;
@@ -67,11 +80,12 @@ export function useUserDoc<T extends object>(kind: UserDocKind, fallback: T) {
       const value = typeof next === "function" ? (next as (p: T) => T)(latest.current) : next;
       latest.current = value;
       setDoc(value);
+      mounted.get(kind)?.forEach((fn) => fn !== onPeerSave && fn(value));
       if (!known.current) return false;
       await setJSON(cacheKey(kind), value);
       return (await sendOrQueue(`/api/user-doc/${kind}`, "PUT", { doc: value })).ok;
     },
-    [kind],
+    [kind, onPeerSave],
   );
 
   return { doc, save, loaded, reload };

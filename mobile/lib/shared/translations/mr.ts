@@ -201,6 +201,13 @@ export const mr: TranslationSchema = {
     "hospitalBag": "रुग्णालय बॅग यादी"
   },
   "chat": {
+    "askSakhi": "सखीला विचारा",
+    "newChat": "नवीन चॅट",
+    "pastChats": "मागील चॅट",
+    "noPastChats": "नवीन चॅट सुरू केल्यावर तुमच्या आधीच्या चॅट इथे दिसतील.",
+    "deleteChat": "हे चॅट हटवायचे?",
+    "messagesCount_one": "{count} संदेश",
+    "messagesCount_other": "{count} संदेश",
     "title": "सखी AI बहुभाषिक संभाषण",
     "placeholder": "संदेश लिहा किंवा बोलण्यासाठी माइक दाबा…",
     "placeholderHandsFree": "हँड्स-फ్రీ सुरू आहे, बोला…",
@@ -250,6 +257,8 @@ export const mr: TranslationSchema = {
     "quickPostnatalFoodMsg": "स्तनपान करताना मी काय खावे?"
   },
   "settings": {
+    "voice_girl": "तरुण",
+    "voice_woman": "मायाळू",
     "title": "सेटिंग्ज",
     "preferredName": "हाक मारायचे नाव",
     "preferredNameHint": "सखी आपल्याला या नावाने हाक मारेल.",
@@ -755,6 +764,24 @@ export const mr: TranslationSchema = {
     "close": "बंद करा"
   },
   "hygiene": {
+    "period_underwear": "पिरियड अंतर्वस्त्र",
+    "tapWhenChange": "बदलताना टॅप करा, पुढचा कधी बदलायचा ते सखी सांगेल.",
+    "lastChanged": "शेवटचे {time} पूर्वी बदलले.",
+    "changesToday_one": "आज {count} वेळा बदलले",
+    "changesToday_other": "आज {count} वेळा बदलले",
+    "howFull": "काढलेले किती भरले होते?",
+    "soakLight": "थोडे",
+    "soakHalf": "अर्धे",
+    "soakFull": "पूर्ण भिजले",
+    "skip": "वगळा",
+    "clotCheck": "₹5 च्या नाण्यापेक्षा मोठी गाठ गेली",
+    "clothRough": "कापडासाठी हा फक्त अंदाज आहे.",
+    "tooMany": "एका दिवसासाठी हे खूप वेळा आहे. दर तासाला पॅड भिजत असेल तर डॉक्टरांना भेटा.",
+    "careFor": "तुमच्या {item}ची काळजी आणि विल्हेवाट",
+    "disposal": "विल्हेवाट:",
+    "call": "कॉल करा",
+    "findNearest": "Google Maps वर जवळचे शोधा",
+    "emergency": "आणीबाणी: 112 किंवा 108 वर कॉल करा.",
     "title": "मासिक पाळीची काळजी",
     "whatDoYouUse": "तुम्ही कशाचा वापर करता?",
     "changeTimer": "बदलण्याची वेळ",
@@ -1082,5 +1109,22 @@ export const mr: TranslationSchema = {
       "tapToReportSymptoms": "आवाजाद्वारे लक्षणांची नोंद करण्यासाठी टॅप करा",
       "correlationHistory": "परस्परसंबंध इतिहास",
       "symptomTracking": "लक्षण ट्रॅकिंग"
+  },
+  "aram": {
+    "rating": "Google वर 4.9 · 293 पुनरावलोकने",
+    "partner": "सखी भागीदार",
+    "pitch": "पल्लिपालयम, तमिळनाडू येथे बनवलेले मऊ कॉटन नॅपकिन. वापरणाऱ्या महिला आराम आणि खाज किंवा पुरळ न येण्याबद्दल सांगतात.",
+    "find": "आरम शोधा",
+    "watch": "व्हिडिओ पहा"
+  },
+  "padCheck": {
+    "calling": "सखी तुम्हाला बोलावत आहे 💜",
+    "title": "{item} बदलायची वेळ?",
+    "body": "शेवटच्या बदलाला सुमारे {hours} तास झाले. नवीन वापरल्याने पुरळ आणि संसर्ग टळतो.",
+    "changed": "मी आत्ताच बदलले",
+    "later": "1 तासाने आठवण करून द्या"
+  },
+  "nudge": {
+    "checkIn": "तुमचे रोजचे चेक-इन वाट पाहत आहे 💜 फक्त 30 सेकंद लागतील."
   },
 };

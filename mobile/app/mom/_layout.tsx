@@ -25,6 +25,11 @@ function MomTabs() {
   );
 }
 
+function ChatFab() {
+  const { displayName } = useMom();
+  return <FloatingChatButton mode="pregnancy" name={displayName} />;
+}
+
 export default function MomLayout() {
   const { status, user } = useAuth();
   if (status === "loading") return null;
@@ -34,7 +39,7 @@ export default function MomLayout() {
     <MomDataProvider fallbackName={user?.name}>
       <MomUiProvider>
         <MomTabs />
-        <FloatingChatButton mode="pregnancy" />
+        <ChatFab />
         <ConsentGate />
       </MomUiProvider>
     </MomDataProvider>

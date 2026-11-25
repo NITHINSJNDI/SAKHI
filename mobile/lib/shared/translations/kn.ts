@@ -201,6 +201,13 @@ export const kn: TranslationSchema = {
     "hospitalBag": "ಆಸ್ಪತ್ರೆ ಬ್ಯಾಗ್ ಪಟ್ಟಿ"
   },
   "chat": {
+    "askSakhi": "ಸಖಿಯನ್ನು ಕೇಳಿ",
+    "newChat": "ಹೊಸ ಚಾಟ್",
+    "pastChats": "ಹಿಂದಿನ ಚಾಟ್‌ಗಳು",
+    "noPastChats": "ಹೊಸ ಚಾಟ್ ಆರಂಭಿಸಿದಾಗ ನಿಮ್ಮ ಹಿಂದಿನ ಚಾಟ್‌ಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.",
+    "deleteChat": "ಈ ಚಾಟ್ ಅಳಿಸಬೇಕೆ?",
+    "messagesCount_one": "{count} ಸಂದೇಶ",
+    "messagesCount_other": "{count} ಸಂದೇಶಗಳು",
     "title": "ಸಖಿ AI ಬಹುಭಾಷಾ ಸಂಭಾಷಣೆ",
     "placeholder": "ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ…",
     "placeholderHandsFree": "ಹ್ಯಾಂಡ್ಸ್-ಫ್ರೀ ಆನ್ ಆಗಿದೆ, ಮಾತನಾಡಿ…",
@@ -250,6 +257,8 @@ export const kn: TranslationSchema = {
     "quickPostnatalFoodMsg": "ಸ್ತನ್ಯಪಾನ ಮಾಡುವಾಗ ಏನು ತಿನ್ನಬೇಕು?"
   },
   "settings": {
+    "voice_girl": "ಯುವ",
+    "voice_woman": "ಆತ್ಮೀಯ",
     "title": "ಸೆಟ್ಟಿಂಗ್ಸ್",
     "preferredName": "ಕರೆಯಬೇಕಾದ ಹೆಸರು",
     "preferredNameHint": "ಸಖಿ ನಿಮ್ಮನ್ನು ಈ ಹೆಸರಿನಿಂದ ಸಂಬೋಧಿಸುತ್ತದೆ.",
@@ -755,6 +764,24 @@ export const kn: TranslationSchema = {
     "close": "ಮುಚ್ಚಿ"
   },
   "hygiene": {
+    "period_underwear": "ಪೀರಿಯಡ್ ಒಳಉಡುಪು",
+    "tapWhenChange": "ಬದಲಾಯಿಸಿದಾಗ ಟ್ಯಾಪ್ ಮಾಡಿ, ಮುಂದಿನದು ಯಾವಾಗ ಎಂದು ಸಖಿ ಹೇಳುತ್ತಾಳೆ.",
+    "lastChanged": "ಕೊನೆಯದಾಗಿ {time} ಹಿಂದೆ ಬದಲಾಯಿಸಿದ್ದೀರಿ.",
+    "changesToday_one": "ಇಂದು {count} ಬಾರಿ ಬದಲಾವಣೆ",
+    "changesToday_other": "ಇಂದು {count} ಬಾರಿ ಬದಲಾವಣೆ",
+    "howFull": "ತೆಗೆದದ್ದು ಎಷ್ಟು ತುಂಬಿತ್ತು?",
+    "soakLight": "ಸ್ವಲ್ಪ",
+    "soakHalf": "ಅರ್ಧ",
+    "soakFull": "ಪೂರ್ತಿ ತೊಯ್ದಿತ್ತು",
+    "skip": "ಬಿಡಿ",
+    "clotCheck": "₹5 ನಾಣ್ಯಕ್ಕಿಂತ ದೊಡ್ಡ ಹೆಪ್ಪು ಬಂದಿತು",
+    "clothRough": "ಬಟ್ಟೆಯಿದ್ದರೆ ಇದು ಅಂದಾಜು ಮಾತ್ರ.",
+    "tooMany": "ಒಂದು ದಿನಕ್ಕೆ ಇದು ತುಂಬಾ ಬಾರಿ. ಪ್ರತಿ ಗಂಟೆ ಪ್ಯಾಡ್ ತೊಯ್ಯುತ್ತಿದ್ದರೆ ವೈದ್ಯರನ್ನು ಕಾಣಿ.",
+    "careFor": "ನಿಮ್ಮ {item} ಆರೈಕೆ ಮತ್ತು ವಿಲೇವಾರಿ",
+    "disposal": "ವಿಲೇವಾರಿ:",
+    "call": "ಕರೆ ಮಾಡಿ",
+    "findNearest": "Google Maps‌ನಲ್ಲಿ ಹತ್ತಿರದ್ದನ್ನು ಹುಡುಕಿ",
+    "emergency": "ತುರ್ತು: 112 ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ.",
     "title": "ಮುಟ್ಟಿನ ನೈರ್ಮಲ್ಯ",
     "whatDoYouUse": "ನೀವು ಏನನ್ನು ಬಳಸುತ್ತೀರಿ?",
     "changeTimer": "ಬದಲಾಯಿಸುವ ಸಮಯ",
@@ -1082,5 +1109,22 @@ export const kn: TranslationSchema = {
       "tapToReportSymptoms": "ಧ್ವನಿಯ ಮೂಲಕ ರೋಗಲಕ್ಷಣಗಳನ್ನು ವರದಿ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ",
       "correlationHistory": "ಸಂಬಂಧ ಇತಿಹಾಸ",
       "symptomTracking": "ರೋಗಲಕ್ಷಣ ಟ್ರ್ಯಾಕಿಂಗ್"
+  },
+  "aram": {
+    "rating": "Google‌ನಲ್ಲಿ 4.9 · 293 ವಿಮರ್ಶೆಗಳು",
+    "partner": "ಸಖಿ ಪಾಲುದಾರ",
+    "pitch": "ತಮಿಳುನಾಡಿನ ಪಲ್ಲಿಪಾಳಯಂನಲ್ಲಿ ತಯಾರಾದ ಮೃದು ಹತ್ತಿ ನ್ಯಾಪ್ಕಿನ್‌ಗಳು. ಬಳಸುವ ಮಹಿಳೆಯರು ಆರಾಮ ಮತ್ತು ತುರಿಕೆ ಅಥವಾ ರ್ಯಾಶ್ ಇಲ್ಲದಿರುವುದರ ಬಗ್ಗೆ ಹೇಳುತ್ತಾರೆ.",
+    "find": "ಆರಾಮ್ ಹುಡುಕಿ",
+    "watch": "ವೀಡಿಯೊ ನೋಡಿ"
+  },
+  "padCheck": {
+    "calling": "ಸಖಿ ನಿಮ್ಮನ್ನು ಕರೆಯುತ್ತಿದ್ದಾಳೆ 💜",
+    "title": "{item} ಬದಲಾಯಿಸುವ ಸಮಯವೇ?",
+    "body": "ಕೊನೆಯ ಬದಲಾವಣೆಯಿಂದ ಸುಮಾರು {hours} ಗಂಟೆಗಳಾಗಿವೆ. ಹೊಸದು ರ್ಯಾಶ್ ಮತ್ತು ಸೋಂಕನ್ನು ದೂರ ಇಡುತ್ತದೆ.",
+    "changed": "ಈಗಷ್ಟೇ ಬದಲಾಯಿಸಿದೆ",
+    "later": "1 ಗಂಟೆಯಲ್ಲಿ ನೆನಪಿಸಿ"
+  },
+  "nudge": {
+    "checkIn": "ನಿಮ್ಮ ದೈನಂದಿನ ಚೆಕ್-ಇನ್ ಕಾಯುತ್ತಿದೆ 💜 ಕೇವಲ 30 ಸೆಕೆಂಡು ಸಾಕು."
   },
 };

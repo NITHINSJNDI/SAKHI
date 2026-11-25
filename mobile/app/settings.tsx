@@ -375,7 +375,7 @@ export default function SettingsScreen() {
                           { color: on ? palette.cream : palette.plum900 },
                         ]}
                       >
-                        {s.label}
+                        {t(`settings.voice_${s.code}`, s.label)}
                       </AppText>
                     </PressableScale>
                   );
@@ -383,7 +383,7 @@ export default function SettingsScreen() {
               </View>
             </View>
             <View style={styles.testVoiceDivider}>
-              <AppText style={styles.rowHint}>{t("settings.previewVoiceGreeting")}</AppText>
+              <AppText style={[styles.rowHint, { flex: 1 }]}>{t("settings.previewVoiceGreeting")}</AppText>
               <PressableScale
                 onPress={() =>
                   void speak(
@@ -392,9 +392,13 @@ export default function SettingsScreen() {
                     style,
                   )
                 }
+                accessibilityRole="button"
                 style={styles.testVoiceButton}
               >
-                <AppText style={styles.testVoiceText}>{t("settings.testVoice")}</AppText>
+                <SpeakerHigh size={16} color={palette.pink600} weight="fill" />
+                <AppText style={styles.testVoiceText} numberOfLines={1}>
+                  {t("settings.testVoice")}
+                </AppText>
               </PressableScale>
             </View>
           </View>
@@ -746,13 +750,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: "rgba(42, 21, 47, 0.06)",
   },
   testVoiceButton: {
-    minHeight: 38,
-    paddingHorizontal: 14,
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minHeight: 44,
+    paddingHorizontal: 16,
     borderRadius: radii.pill,
     justifyContent: "center",
     backgroundColor: "rgba(251, 207, 232, 0.3)",

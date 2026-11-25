@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import DiscreetGuard from "@/components/shared/DiscreetGuard";
+import OpenNudge from "@/components/shared/OpenNudge";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { LanguageProvider } from "@/lib/i18n";
 import { ModeProvider } from "@/lib/mode";
@@ -72,6 +73,7 @@ export default function RootLayout() {
                 <Stack.Screen name="consent" options={{ animation: "slide_from_right" }} />
               </Stack>
               <DiscreetGuard />
+              <OpenNudge />
             </AppProviders>
           </AuthProvider>
         </QueryClientProvider>

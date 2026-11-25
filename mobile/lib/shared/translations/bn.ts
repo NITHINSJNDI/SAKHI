@@ -201,6 +201,13 @@ export const bn: TranslationSchema = {
     "hospitalBag": "হাসপাতালের ব্যাগের তালিকা"
   },
   "chat": {
+    "askSakhi": "সখীকে জিজ্ঞাসা করুন",
+    "newChat": "নতুন চ্যাট",
+    "pastChats": "আগের চ্যাট",
+    "noPastChats": "নতুন চ্যাট শুরু করলে আগের চ্যাটগুলো এখানে দেখা যাবে।",
+    "deleteChat": "এই চ্যাট মুছবেন?",
+    "messagesCount_one": "{count}টি বার্তা",
+    "messagesCount_other": "{count}টি বার্তা",
     "title": "সখী AI বহুভাষিক কথোপকথন",
     "placeholder": "মেসেজ লিখুন বা কথা বলতে মাইক চাপুন…",
     "placeholderHandsFree": "হ্যান্ডস-ফ্রি অন আছে, কথা বলুন…",
@@ -250,6 +257,8 @@ export const bn: TranslationSchema = {
     "quickPostnatalFoodMsg": "দুধ খাওয়ানোর সময় কী খাওয়া উচিত?"
   },
   "settings": {
+    "voice_girl": "তরুণ",
+    "voice_woman": "উষ্ণ",
     "title": "সেটিংস",
     "preferredName": "যে নামে ডাকবেন",
     "preferredNameHint": "সখী আপনাকে এই নামে সম্বোধন করবে।",
@@ -755,6 +764,24 @@ export const bn: TranslationSchema = {
     "close": "বন্ধ করুন"
   },
   "hygiene": {
+    "period_underwear": "পিরিয়ড আন্ডারওয়্যার",
+    "tapWhenChange": "বদলানোর সময় ট্যাপ করুন, সখী জানাবে পরেরটা কখন বদলাতে হবে।",
+    "lastChanged": "শেষবার {time} আগে বদলেছেন।",
+    "changesToday_one": "আজ {count} বার বদলেছেন",
+    "changesToday_other": "আজ {count} বার বদলেছেন",
+    "howFull": "যেটা খুললেন, সেটা কতটা ভরা ছিল?",
+    "soakLight": "একটু",
+    "soakHalf": "অর্ধেক",
+    "soakFull": "পুরো ভেজা",
+    "skip": "বাদ দিন",
+    "clotCheck": "৫ টাকার কয়েনের চেয়ে বড় জমাট রক্ত বেরিয়েছে",
+    "clothRough": "কাপড়ের ক্ষেত্রে এটা মোটামুটি হিসাব।",
+    "tooMany": "এক দিনে এটা অনেকবার। প্রতি ঘণ্টায় প্যাড ভিজে গেলে ডাক্তার দেখান।",
+    "careFor": "আপনার {item}-এর যত্ন ও ফেলে দেওয়া",
+    "disposal": "ফেলে দেওয়া:",
+    "call": "কল করুন",
+    "findNearest": "Google Maps-এ কাছেরটি খুঁজুন",
+    "emergency": "জরুরি অবস্থায়: 112 বা 108-এ কল করুন।",
     "title": "ঋতুস্রাবকালীন যত্ন",
     "whatDoYouUse": "আপনি কী ব্যবহার করেন?",
     "changeTimer": "বদলানোর সময়",
@@ -1082,5 +1109,22 @@ export const bn: TranslationSchema = {
       "tapToReportSymptoms": "ভয়েসের মাধ্যমে লক্ষণগুলি রিপোর্ট করতে আলতো চাপুন",
       "correlationHistory": "পারস্পরিক সম্পর্ক ইতিহাস",
       "symptomTracking": "লক্ষণ ট্র্যাকিং"
+  },
+  "aram": {
+    "rating": "Google-এ 4.9 · 293টি রিভিউ",
+    "partner": "সখী পার্টনার",
+    "pitch": "তামিলনাড়ুর পল্লিপালয়মে তৈরি নরম সুতির ন্যাপকিন। ব্যবহারকারী মহিলারা আরাম আর চুলকানি বা র‍্যাশ না হওয়ার কথা বলেন।",
+    "find": "আরাম খুঁজুন",
+    "watch": "ভিডিও দেখুন"
+  },
+  "padCheck": {
+    "calling": "সখী আপনাকে ডাকছে 💜",
+    "title": "{item} বদলানোর সময় হলো?",
+    "body": "শেষবার বদলানোর পর প্রায় {hours} ঘণ্টা হয়েছে। নতুনটা র‍্যাশ আর সংক্রমণ থেকে বাঁচায়।",
+    "changed": "এইমাত্র বদলেছি",
+    "later": "১ ঘণ্টা পরে মনে করান"
+  },
+  "nudge": {
+    "checkIn": "আপনার দৈনিক চেক-ইন অপেক্ষা করছে 💜 মাত্র ৩০ সেকেন্ড লাগবে।"
   },
 };

@@ -55,7 +55,7 @@ export async function setDailyReminders(group: string, items: DailyReminder[]): 
 }
 
 /** Replace every reminder in `group` with one-off notifications at the given times (past ones are skipped). */
-export async function setDateReminders(group: string, items: { at: number; title: string; body: string }[]): Promise<void> {
+export async function setDateReminders(group: string, items: { at: number; title: string; body: string; data?: Record<string, string> }[]): Promise<void> {
   if (Platform.OS === "web") return;
   const old = await getJSON<string[]>(idsKey(group), []);
   await Promise.all(old.map((id) => Notifications.cancelScheduledNotificationAsync(id).catch(() => {})));
@@ -69,7 +69,7 @@ export async function setDateReminders(group: string, items: { at: number; title
     try {
       ids.push(
         await Notifications.scheduleNotificationAsync({
-          content: { ...discreetNotice(it.title, it.body), sound: "default" },
+          content: { ...discreetNotice(it.title, it.body), sound: "default", data: it.data },
           trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(it.at) },
         }),
       );

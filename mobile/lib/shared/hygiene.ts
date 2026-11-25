@@ -179,6 +179,18 @@ export function addChange(changes: string[], now = new Date()): string[] {
   return [...(changes || []).filter(c => new Date(c).getTime() >= cutoff), now.toISOString()];
 }
 
+/** Log a change now: adds the timestamp and uses one disposable from her stock. */
+export function recordChange(doc: HygieneDoc, now = new Date()): HygieneDoc {
+  const used = doc.product && PRODUCTS[doc.product].disposable && typeof doc.stock === 'number' ? Math.max(0, doc.stock - 1) : doc.stock;
+  return { ...doc, changes: addChange(doc.changes, now), stock: used };
+}
+
+/** Time of the latest change (ms), or null. */
+export function lastChangeAt(changes: string[]): number | null {
+  const t = new Date([...(changes || [])].sort().pop() ?? '').getTime();
+  return Number.isFinite(t) ? t : null;
+}
+
 /** Count of changes logged since local midnight. */
 export function changesToday(changes: string[], now = new Date()): number {
   const start = new Date(now); start.setHours(0, 0, 0, 0);

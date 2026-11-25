@@ -1,6 +1,7 @@
 import { Redirect, Tabs } from "expo-router";
 import { ChartLineUp, Drop, Heart, Sun } from "phosphor-react-native";
 
+import PadCheck from "@/components/her/PadCheck";
 import ReliefSheet from "@/components/her/ReliefSheet";
 import ConsentGate from "@/components/shared/ConsentGate";
 import { FloatingChatButton } from "@/components/shared/FloatingChatButton";
@@ -18,6 +19,11 @@ function Relief() {
   return <ReliefSheet open={relief.open} initialSeverity={relief.severity} onClose={closeRelief} />;
 }
 
+function ChatFab() {
+  const { displayName } = useHer();
+  return <FloatingChatButton mode="her" name={displayName} />;
+}
+
 export default function HerLayout() {
   const { status, user } = useAuth();
   const { t } = useT();
@@ -33,8 +39,9 @@ export default function HerLayout() {
           <Tabs.Screen name="insights" options={{ title: t("tabs.insights", "Insights") }} />
           <Tabs.Screen name="care" options={{ title: t("tabs.care", "Care") }} />
         </Tabs>
-        <FloatingChatButton mode="her" />
+        <ChatFab />
         <Relief />
+        <PadCheck />
         <ConsentGate />
       </HerUiProvider>
     </HerDataProvider>

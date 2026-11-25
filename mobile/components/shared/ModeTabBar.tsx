@@ -45,7 +45,7 @@ export function ModeTabBar({ state, descriptors, emitter, navigateToTab, icons, 
             style={{ flex: 1, alignItems: "center", justifyContent: "center", minHeight: 52, gap: 2 }}
           >
             {I ? <TabIcon I={I} focused={focused} color={activeColor} /> : null}
-            <AppText style={{ fontSize: 11, fontWeight: focused ? "600" : "500", color: focused ? activeColor : "rgba(42,21,47,0.55)" }}>{label}</AppText>
+            <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={{ fontSize: 11, paddingHorizontal: 2, fontWeight: focused ? "600" : "500", color: focused ? activeColor : "rgba(42,21,47,0.55)" }}>{label}</AppText>
           </PressableScale>
         );
       })}

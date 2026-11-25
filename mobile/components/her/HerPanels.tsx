@@ -22,16 +22,9 @@ import {
   Sparkle,
   Stethoscope,
 } from "phosphor-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedProps,
-  useReducedMotion,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import Svg, { Circle, Defs, G, LinearGradient, Mask, Rect, Stop, Text as SvgText } from "react-native-svg";
+import Svg, { Circle, Defs, G, LinearGradient, Stop } from "react-native-svg";
 
 import { AppText } from "@/components/AppText";
 import { PressableScale } from "@/components/ui";
@@ -43,8 +36,6 @@ import { PHASE_GUIDE, type Tip } from "@/lib/shared/phaseTips";
 import type { Pattern, PhaseStat } from "@/lib/shared/herInsights";
 import { TW, twColor, twSoft } from "@/lib/tw";
 import { palette } from "@/theme";
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const CONF_LABEL = { high: "High confidence", medium: "Medium confidence", low: "Rough estimate" } as const;
 const CONF_STYLE = {
@@ -64,12 +55,11 @@ const PHASE_WORD: Record<Phase, string> = { menstrual: "Period", follicular: "Fo
 
 /**
  * Cycle dial: four gradient arcs (one per phase), days already lived in full
- * colour and days ahead faded, a dot for every day with ovulation marked, and a
- * glowing marker on today. Draws itself in once; still for reduced motion.
+ * colour and days ahead faded, ovulation marked inside the ring, and a knob on
+ * today. Centre text is real text so it takes the app font and translations.
  */
 function PhaseRing({ info }: { info: PhaseInfo }) {
   const { t } = useT();
-  const reduce = useReducedMotion();
   const phaseWord: Record<Phase, string> = {
     menstrual: t("cycle.period"),
     follicular: t("cycle.follicular"),
@@ -88,7 +78,6 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
   const dueToday = !info.late && !info.bleedingDay && info.daysUntilPeriod === 0;
   const waiting = info.late || dueToday;
   const marker = at(waiting ? len + 0.5 : day, r);
-  const elapsed = (day / len) * c;
   const color = waiting ? RING_GRAD.menstrual[1] : RING_GRAD[info.phase][1];
   const phaseWordTranslated = t(`cycle.${info.phase}`, PHASE_WORD[info.phase]);
   const label = info.late
@@ -98,123 +87,62 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
       : phaseWordTranslated;
   const sub = waiting ? t("cycle.dueOnDay", { day: len + 1 }) : `${t("cycle.ofAbout", "of about")} ${len}`;
 
+  // Each phase arc is drawn faded, then its lived part in full colour on top.
+  // Plain arcs, no SVG mask: Android masks leave a pale fringe and cost a bitmap per frame.
+  const trim = gap + stroke;
+  const todayPos = (day / len) * c;
   const arcs = PHASES.map((p) => {
     const [a, b] = ranges[p];
     if (b < a) return null;
-    const trim = gap + stroke;
-    return { p, dash: Math.max(0.5, ((b - a + 1) / len) * c - trim), offset: -(((a - 1) / len) * c + trim / 2) };
-  }).filter(Boolean) as { p: Phase; dash: number; offset: number }[];
-
-  // Lived-days mask sweeps in
-  const sweep = useSharedValue(reduce ? c - elapsed : c);
-  useEffect(() => {
-    sweep.value = reduce ? c - elapsed : withTiming(c - elapsed, { duration: 1100, easing: Easing.bezier(0.22, 1, 0.36, 1) });
-  }, [c, elapsed, reduce, sweep]);
-  const maskProps = useAnimatedProps(() => ({ strokeDashoffset: sweep.value }));
-
-
-  const labelW = label.length * 6.8 + 24;
+    const start = ((a - 1) / len) * c + trim / 2;
+    const dash = Math.max(0.5, ((b - a + 1) / len) * c - trim);
+    const lived = waiting ? dash : Math.max(0, Math.min(start + dash, todayPos) - start);
+    return { p, dash, lived, offset: -start };
+  }).filter(Boolean) as { p: Phase; dash: number; lived: number; offset: number }[];
+  const ov = at(ovulationDay, r - stroke / 2 - 8);
 
   return (
-    <View style={{ alignItems: "center", gap: 12 }}>
-      <Svg
-        width={196}
-        height={196}
-        viewBox={`0 0 ${size} ${size}`}
-        accessibilityLabel={`Cycle day ${info.cycleDay} of about ${len}. ${PHASE_META[info.phase].label}${info.late ? `, ${info.daysLate} days late` : ""}.`}
-      >
-        <Defs>
-          {arcs.map(({ p }) => (
-            <LinearGradient key={p} id={`grad-${p}`} x1="0" y1="0" x2="1" y2="1">
-              <Stop offset="0" stopColor={RING_GRAD[p][0]} />
-              <Stop offset="1" stopColor={RING_GRAD[p][1]} />
-            </LinearGradient>
+    <View style={{ alignItems: "center", gap: 14 }}>
+      <View style={{ width: 196, height: 196, alignItems: "center", justifyContent: "center" }}>
+        <Svg
+          width={196}
+          height={196}
+          viewBox={`0 0 ${size} ${size}`}
+          style={StyleSheet.absoluteFill}
+          accessibilityLabel={`Cycle day ${info.cycleDay} of about ${len}. ${PHASE_META[info.phase].label}${info.late ? `, ${info.daysLate} days late` : ""}.`}
+        >
+          <Defs>
+            {arcs.map(({ p }) => (
+              <LinearGradient key={p} id={`grad-${p}`} x1="0" y1="0" x2="1" y2="1">
+                <Stop offset="0" stopColor={RING_GRAD[p][0]} />
+                <Stop offset="1" stopColor={RING_GRAD[p][1]} />
+              </LinearGradient>
+            ))}
+          </Defs>
+          {arcs.map(({ p, dash, lived, offset }) => (
+            <G key={p} transform={`rotate(-90 ${cx} ${cx})`}>
+              <Circle cx={cx} cy={cx} r={r} fill="none" stroke={`url(#grad-${p})`} strokeOpacity={0.22} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${dash} ${c}`} strokeDashoffset={offset} />
+              {lived > 0 ? (
+                <Circle cx={cx} cy={cx} r={r} fill="none" stroke={`url(#grad-${p})`} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${lived} ${c}`} strokeDashoffset={offset} />
+              ) : null}
+            </G>
           ))}
-          <Mask id="lived">
-            <AnimatedCircle
-              cx={cx}
-              cy={cx}
-              r={r}
-              fill="none"
-              stroke="#fff"
-              strokeWidth={stroke + 6}
-              strokeDasharray={`${c} ${c}`}
-              transform={`rotate(-90 ${cx} ${cx})`}
-              animatedProps={maskProps}
-            />
-          </Mask>
-        </Defs>
-
-        <Circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(42,21,47,0.05)" strokeWidth={stroke} />
-        {arcs.map(({ p, dash, offset }) => (
-          <Circle
-            key={`ahead-${p}`}
-            cx={cx}
-            cy={cx}
-            r={r}
-            fill="none"
-            stroke={`url(#grad-${p})`}
-            strokeOpacity={0.28}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${dash} ${c}`}
-            strokeDashoffset={offset}
-            transform={`rotate(-90 ${cx} ${cx})`}
-          />
-        ))}
-        <G mask="url(#lived)">
-          {arcs.map(({ p, dash, offset }) => (
-            <Circle
-              key={`lived-${p}`}
-              cx={cx}
-              cy={cx}
-              r={r}
-              fill="none"
-              stroke={`url(#grad-${p})`}
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={`${dash} ${c}`}
-              strokeDashoffset={offset}
-              transform={`rotate(-90 ${cx} ${cx})`}
-            />
-          ))}
-        </G>
-
-        {Array.from({ length: len }, (_, i) => i + 1).map((d) => {
-          const pt = at(d, r - stroke / 2 - 7);
-          const isOv = d === ovulationDay;
-          return (
-            <Circle
-              key={d}
-              cx={pt.x}
-              cy={pt.y}
-              r={isOv ? 2.6 : d === day ? 2 : 1.1}
-              fill={isOv ? RING_GRAD.ovulatory[1] : d <= day ? "rgba(42,21,47,0.45)" : "rgba(42,21,47,0.16)"}
-            />
-          );
-        })}
-
-        {/* Static halo: an endless SVG pulse redraws the masked ring every frame and janks scrolling on Android */}
-        <Circle cx={marker.x} cy={marker.y} r={13} fill={color} opacity={0.18} />
-        <Circle cx={marker.x} cy={marker.y} r={9.5} fill="#fff" stroke={color} strokeOpacity={0.35} strokeWidth={3} />
-        <Circle cx={marker.x} cy={marker.y} r={4.5} fill={color} />
-
-        <SvgText x={cx} y={cx - 22} textAnchor="middle" fill="rgba(42,21,47,0.55)" fontSize={11.5} fontWeight="500">
-          {t("cycle.day")}
-        </SvgText>
-        <SvgText x={cx} y={cx + 13} textAnchor="middle" fill={palette.plum900} fontSize={44} fontWeight="700" letterSpacing={-1.3}>
-          {String(info.cycleDay)}
-        </SvgText>
-        <SvgText x={cx} y={cx + 31} textAnchor="middle" fill="rgba(42,21,47,0.5)" fontSize={11}>
-          {sub}
-        </SvgText>
-        <G transform={`translate(${cx} ${cx + 49})`}>
-          <Rect x={-labelW / 2} y={-10} width={labelW} height={19} rx={9.5} fill={color} fillOpacity={0.14} />
-          <SvgText x={0} y={3.5} textAnchor="middle" fontSize={10.5} fontWeight="600" fill={color}>
+          <Circle cx={ov.x} cy={ov.y} r={3} fill={RING_GRAD.ovulatory[1]} />
+          {/* Today: a knob in the card's own colour so nothing pale shows around it */}
+          <Circle cx={marker.x} cy={marker.y} r={11} fill="#FEFCFB" stroke={color} strokeWidth={3.5} />
+          <Circle cx={marker.x} cy={marker.y} r={4.5} fill={color} />
+        </Svg>
+        <View style={{ alignItems: "center", maxWidth: 124 }} importantForAccessibility="no-hide-descendants">
+          <AppText style={s.ringDayWord}>{t("cycle.day")}</AppText>
+          <AppText style={s.ringDay}>{String(info.cycleDay)}</AppText>
+          <AppText style={s.ringSub} numberOfLines={1} adjustsFontSizeToFit>
+            {sub}
+          </AppText>
+          <AppText style={[s.ringLabel, { color }]} numberOfLines={2}>
             {label}
-          </SvgText>
-        </G>
-      </Svg>
+          </AppText>
+        </View>
+      </View>
 
       {/* Phase legend with this cycle's day ranges */}
       <View style={s.legend} accessibilityLabel="Phases this cycle">
@@ -600,6 +528,10 @@ export function CareLinksCard({ onOpenRelief, onOpenSettings, favourites }: { on
 }
 
 const s = StyleSheet.create({
+  ringDayWord: { fontSize: 12, fontWeight: "500", color: ink[55] },
+  ringDay: { fontSize: 46, lineHeight: 50, fontWeight: "700", letterSpacing: -1.4, color: palette.plum900, fontVariant: ["tabular-nums"] },
+  ringSub: { fontSize: 11.5, color: ink[50] },
+  ringLabel: { marginTop: 6, fontSize: 12.5, fontWeight: "600", textAlign: "center" },
   row: { flexDirection: "row", alignItems: "center" },
   rowWrap: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
   legend: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", columnGap: 16, rowGap: 4, maxWidth: 260 },

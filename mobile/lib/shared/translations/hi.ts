@@ -201,6 +201,13 @@ export const hi: TranslationSchema = {
     "hospitalBag": "अस्पताल बैग चेकलिस्ट"
   },
   "chat": {
+    "askSakhi": "सखी से पूछें",
+    "newChat": "नई चैट",
+    "pastChats": "पिछली चैट",
+    "noPastChats": "नई चैट शुरू करने पर आपकी पिछली चैट यहाँ दिखेंगी।",
+    "deleteChat": "यह चैट हटाएँ?",
+    "messagesCount_one": "{count} संदेश",
+    "messagesCount_other": "{count} संदेश",
     "title": "सखी AI बहुभाषी बातचीत",
     "placeholder": "संदेश लिखें या बोलने के लिए माइक दबाएं…",
     "placeholderHandsFree": "हैंड्स-फ्री चालू है, बोलिए…",
@@ -250,6 +257,8 @@ export const hi: TranslationSchema = {
     "quickPostnatalFoodMsg": "स्तनपान के दौरान क्या खाना चाहिए?"
   },
   "settings": {
+    "voice_girl": "युवा",
+    "voice_woman": "स्नेही",
     "title": "सेटिंग्स",
     "preferredName": "पसंदीदा नाम",
     "preferredNameHint": "सखी आपको इस नाम से संबोधित करेगी।",
@@ -755,6 +764,24 @@ export const hi: TranslationSchema = {
     "close": "बंद करें"
   },
   "hygiene": {
+    "period_underwear": "पीरियड अंडरवियर",
+    "tapWhenChange": "बदलते समय टैप करें, सखी बताएगी कि अगला कब बदलना है।",
+    "lastChanged": "पिछली बार {time} पहले बदला।",
+    "changesToday_one": "आज {count} बार बदला",
+    "changesToday_other": "आज {count} बार बदला",
+    "howFull": "जो उतारा, वह कितना भरा था?",
+    "soakLight": "थोड़ा",
+    "soakHalf": "आधा",
+    "soakFull": "पूरा भीगा",
+    "skip": "छोड़ें",
+    "clotCheck": "₹5 के सिक्के से बड़ा थक्का निकला",
+    "clothRough": "कपड़े के साथ यह केवल अनुमान है।",
+    "tooMany": "एक दिन के लिए यह बहुत बार है। अगर हर घंटे पैड भीग रहा है, तो डॉक्टर से मिलें।",
+    "careFor": "आपके {item} की देखभाल और निपटान",
+    "disposal": "निपटान:",
+    "call": "कॉल करें",
+    "findNearest": "Google Maps पर नज़दीकी खोजें",
+    "emergency": "आपात स्थिति: 112 या 108 पर कॉल करें।",
     "title": "मासिक धर्म देखभाल",
     "whatDoYouUse": "आप क्या उपयोग करती हैं?",
     "changeTimer": "बदलने का समय",
@@ -1082,5 +1109,22 @@ export const hi: TranslationSchema = {
       "tapToReportSymptoms": "आवाज के माध्यम से लक्षणों की रिपोर्ट करने के लिए टैप करें",
       "correlationHistory": "सहसंबंध इतिहास",
       "symptomTracking": "लक्षण ट्रैकिंग"
+  },
+  "aram": {
+    "rating": "Google पर 4.9 · 293 समीक्षाएँ",
+    "partner": "सखी पार्टनर",
+    "pitch": "पल्लिपालयम, तमिलनाडु में बने मुलायम कॉटन नैपकिन। इस्तेमाल करने वाली महिलाएँ आराम और खुजली या रैश न होने की बात करती हैं।",
+    "find": "आरम देखें",
+    "watch": "वीडियो देखें"
+  },
+  "padCheck": {
+    "calling": "सखी आपको बुला रही है 💜",
+    "title": "{item} बदलने का समय?",
+    "body": "पिछली बार बदले लगभग {hours} घंटे हो गए। नया लगाने से रैश और संक्रमण से बचाव होता है।",
+    "changed": "मैंने अभी बदला",
+    "later": "1 घंटे में याद दिलाएँ"
+  },
+  "nudge": {
+    "checkIn": "आपका डेली चेक-इन इंतज़ार कर रहा है 💜 बस 30 सेकंड लगेंगे।"
   },
 };

@@ -199,6 +199,13 @@ export const en = {
     "hospitalBag": "Hospital bag checklist"
   },
   "chat": {
+    "askSakhi": "Ask Sakhi",
+    "newChat": "New chat",
+    "pastChats": "Past chats",
+    "noPastChats": "Your earlier chats will appear here when you start a new one.",
+    "deleteChat": "Delete this chat?",
+    "messagesCount_one": "{count} message",
+    "messagesCount_other": "{count} messages",
     "title": "Sakhi AI Multilingual",
     "placeholder": "Type or tap the mic to talk…",
     "placeholderHandsFree": "Hands-free is on, just talk…",
@@ -248,6 +255,8 @@ export const en = {
     "quickPostnatalFoodMsg": "What should I eat while breastfeeding?"
   },
   "settings": {
+    "voice_girl": "Young",
+    "voice_woman": "Warm",
     "title": "Settings",
     "preferredName": "Preferred name",
     "preferredNameHint": "How Sakhi greets you in dashboards and chat.",
@@ -753,6 +762,23 @@ export const en = {
     "close": "Close"
   },
   "hygiene": {
+    "tapWhenChange": "Tap when you change, and Sakhi will tell you when the next one is due.",
+    "lastChanged": "Last changed {time} ago.",
+    "changesToday_one": "{count} change today",
+    "changesToday_other": "{count} changes today",
+    "howFull": "How full was the one you took off?",
+    "soakLight": "A little",
+    "soakHalf": "Half",
+    "soakFull": "Fully soaked",
+    "skip": "Skip",
+    "clotCheck": "Passed a clot bigger than a ₹5 coin",
+    "clothRough": "With cloth this is a rough guide.",
+    "tooMany": "That is a lot of changes for one day. If you are soaking a pad every hour, see a doctor.",
+    "careFor": "Caring for your {item} and disposal",
+    "disposal": "Disposal:",
+    "call": "Call",
+    "findNearest": "Find nearest on Google Maps",
+    "emergency": "Emergency: call 112 or 108.",
     "title": "Period care",
     "whatDoYouUse": "What do you use?",
     "changeTimer": "Change timer",
@@ -766,7 +792,8 @@ export const en = {
     "pad": "Sanitary pad",
     "tampon": "Tampon",
     "cup": "Menstrual cup",
-    "cloth": "Cloth pad"
+    "cloth": "Cloth pad",
+    "period_underwear": "Period underwear"
   },
   "anaemia": {
     "title": "Iron check",
@@ -1080,6 +1107,23 @@ export const en = {
       "tapToReportSymptoms": "Tap to report symptoms via voice",
       "correlationHistory": "Correlation History",
       "symptomTracking": "Symptom tracking"
+  },
+  "aram": {
+    "rating": "4.9 on Google · 293 reviews",
+    "partner": "Sakhi partner",
+    "pitch": "Soft cotton napkins made in Pallipalayam, Tamil Nadu. Women who use them talk about comfort and no itching or rashes.",
+    "find": "Find Aram",
+    "watch": "Watch video"
+  },
+  "padCheck": {
+    "calling": "Sakhi is calling you 💜",
+    "title": "Time to change your {item}?",
+    "body": "It's been about {hours} hours since your last change. A fresh one helps keep rashes and infection away.",
+    "changed": "I changed just now",
+    "later": "Remind me in 1 hour"
+  },
+  "nudge": {
+    "checkIn": "Your daily check-in is waiting 💜 It takes 30 seconds."
   },
 };
 
