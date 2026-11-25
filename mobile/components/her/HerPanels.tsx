@@ -29,7 +29,6 @@ import Animated, {
   useAnimatedProps,
   useReducedMotion,
   useSharedValue,
-  withRepeat,
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Circle, Defs, G, LinearGradient, Mask, Rect, Stop, Text as SvgText } from "react-native-svg";
@@ -113,12 +112,6 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
   }, [c, elapsed, reduce, sweep]);
   const maskProps = useAnimatedProps(() => ({ strokeDashoffset: sweep.value }));
 
-  // Pulsing halo on today
-  const pulse = useSharedValue(0);
-  useEffect(() => {
-    if (!reduce) pulse.value = withRepeat(withTiming(1, { duration: 2400 }), -1, false);
-  }, [pulse, reduce]);
-  const haloProps = useAnimatedProps(() => ({ r: 10 + 5 * pulse.value, opacity: 0.3 * (1 - pulse.value) }));
 
   const labelW = label.length * 6.8 + 24;
 
@@ -201,7 +194,8 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
           );
         })}
 
-        {!reduce ? <AnimatedCircle cx={marker.x} cy={marker.y} fill={color} animatedProps={haloProps} /> : null}
+        {/* Static halo: an endless SVG pulse redraws the masked ring every frame and janks scrolling on Android */}
+        <Circle cx={marker.x} cy={marker.y} r={13} fill={color} opacity={0.18} />
         <Circle cx={marker.x} cy={marker.y} r={9.5} fill="#fff" stroke={color} strokeOpacity={0.35} strokeWidth={3} />
         <Circle cx={marker.x} cy={marker.y} r={4.5} fill={color} />
 

@@ -40,7 +40,7 @@ export function Card({ children, variant = "default", onPress, accessibilityLabe
             shadowOpacity: dark ? 0 : 1,
             shadowRadius: 18,
             shadowOffset: { width: 0, height: 8 },
-            elevation: dark ? 0 : 2,
+            elevation: 0, // see Panel: Android elevation draws grey boxes under fading parents
           };
 
   const content = (

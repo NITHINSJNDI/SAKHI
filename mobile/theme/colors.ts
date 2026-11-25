@@ -91,7 +91,7 @@ export const lightTheme: AppTheme = {
   mode: "light",
   background: palette.cream,
   backgroundAlt: palette.creamDeep,
-  surface: "rgba(255, 255, 255, 0.72)",
+  surface: "#FEFCFB", // opaque: translucent fills + Android elevation draw a grey frame
   surfaceRaised: "#FFFFFF",
   surfaceMuted: "rgba(42, 21, 47, 0.05)",
   border: "rgba(251, 207, 232, 0.9)",

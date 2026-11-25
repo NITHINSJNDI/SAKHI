@@ -1,6 +1,6 @@
 import type { Icon } from "phosphor-react-native";
 import type { ReactNode } from "react";
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
 import { AppText } from "@/components/AppText";
 import { palette } from "@/theme";
@@ -91,11 +91,11 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(42,21,47,0.07)",
     padding: 20,
     overflow: "hidden",
-    shadowColor: "#4A2A52",
-    shadowOpacity: 0.12,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 2,
+    // Android elevation renders as a grey box under fading parents, so Android cards stay flat with a border
+    ...Platform.select({
+      ios: { shadowColor: "#4A2A52", shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 10 } },
+      default: { borderColor: "rgba(42,21,47,0.09)" },
+    }),
   },
   titleWrap: { gap: 4 },
   titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 8 },

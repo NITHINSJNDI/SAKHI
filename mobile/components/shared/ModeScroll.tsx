@@ -3,9 +3,9 @@
  * and the web's stacked panels with a 16pt gutter.
  */
 import { useScrollToTop } from "expo-router";
-import { useRef, type ReactNode } from "react";
+import { Children, isValidElement, useRef, type ReactNode } from "react";
 import { RefreshControl, ScrollView, View, type ScrollViewInstance } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/AppText";
@@ -41,9 +41,12 @@ export function ModeScroll({ header, children, refreshing, onRefresh, loading }:
             <Skeleton height={160} radius={24} />
           </View>
         ) : (
-          <Animated.View entering={FadeIn.duration(280)} style={{ gap: 16 }}>
-            {children}
-          </Animated.View>
+          // Cards rise in one after another; capped so long tabs don't wait (Reanimated honours Reduce Motion)
+          Children.toArray(children).map((child, i) => (
+            <Animated.View key={isValidElement(child) ? child.key : i} entering={FadeInDown.duration(360).delay(Math.min(i, 6) * 55).springify().damping(18)}>
+              {child}
+            </Animated.View>
+          ))
         )}
       </ScrollView>
     </View>
