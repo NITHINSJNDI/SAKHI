@@ -132,7 +132,7 @@ export default function ConsentScreen() {
               <AppText variant="section">Data Protection Promise</AppText>
             </View>
             <AppText variant="body" tone="soft" style={styles.principleText}>
-              SAKHI is designed with privacy-by-design under India&apos;s Digital Personal Data Protection (DPDP) Act and international privacy frameworks.
+              Sakhi is designed with privacy-by-design under India&apos;s Digital Personal Data Protection (DPDP) Act and international privacy frameworks.
             </AppText>
             <View style={styles.bullets}>
               <AppText variant="caption" tone="soft">• Your reproductive and health logs belong solely to you.</AppText>

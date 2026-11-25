@@ -115,7 +115,7 @@ export default function CheckInChat({ phase: info, name, onComplete }: { phase: 
 
   return (
     <Panel style={{ borderColor: "rgba(251,207,232,0.8)" }}>
-      <PanelTitle eyebrow={t("checkin.eyebrow", "Daily check-in")} title={t("checkin.title", "How are you today?")} icon={Sparkle} iconColor={palette.pink500} />
+      <PanelTitle title={t("checkin.title", "How are you today?")} icon={Sparkle} iconColor={palette.pink500} />
       <View style={{ marginTop: 14, gap: 4 }}>
         <Bot>{`${t("checkin.greeting", { name })} ${flowQ.text}`}</Bot>
         {step === "flow" && !done ? (

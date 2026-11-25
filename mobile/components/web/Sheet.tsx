@@ -20,8 +20,6 @@ export function Sheet({
   open,
   onClose,
   title,
-  eyebrow,
-  eyebrowColor = palette.pink500,
   subtitle,
   children,
   footer,
@@ -29,8 +27,6 @@ export function Sheet({
   open: boolean;
   onClose: () => void;
   title: string;
-  eyebrow?: string;
-  eyebrowColor?: string;
   subtitle?: string;
   children: ReactNode;
   footer?: ReactNode;
@@ -86,7 +82,6 @@ export function Sheet({
                 <View style={s.grabber} />
                 <View style={s.head}>
                   <View style={{ flex: 1, gap: 2 }}>
-                    {eyebrow ? <AppText style={{ fontSize: 12, fontWeight: "600", color: eyebrowColor }}>{eyebrow}</AppText> : null}
                     <AppText style={s.title} accessibilityRole="header">
                       {title}
                     </AppText>

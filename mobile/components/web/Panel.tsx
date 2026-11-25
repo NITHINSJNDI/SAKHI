@@ -13,17 +13,15 @@ export function Panel({ children, style, tint }: { children: ReactNode; style?: 
   return <View style={[styles.panel, tint ? { backgroundColor: tint } : null, style]}>{children}</View>;
 }
 
-/** Card title row: optional coloured icon, title, optional eyebrow and right slot. */
+/** Card title row: optional coloured icon, title and right slot. */
 export function PanelTitle({
   title,
-  eyebrow,
   icon: IconCmp,
   iconColor = palette.pink500,
   right,
   subtitle,
 }: {
   title: string;
-  eyebrow?: string;
   icon?: Icon;
   iconColor?: string;
   right?: ReactNode;
@@ -32,8 +30,7 @@ export function PanelTitle({
   return (
     <View style={styles.titleWrap}>
       <View style={styles.titleRow}>
-        <View style={{ flex: 1, gap: 2 }}>
-          {eyebrow ? <AppText style={styles.eyebrow}>{eyebrow}</AppText> : null}
+        <View style={{ flex: 1 }}>
           <View style={styles.titleInner}>
             {IconCmp ? <IconCmp size={20} color={iconColor} weight="duotone" /> : null}
             <AppText style={styles.title} accessibilityRole="header">
@@ -100,7 +97,6 @@ export const styles = StyleSheet.create({
   titleWrap: { gap: 4 },
   titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 8 },
   titleInner: { flexDirection: "row", alignItems: "center", gap: 8 },
-  eyebrow: { fontSize: 12, fontWeight: "500", color: ink[55] },
   title: { fontSize: 20, lineHeight: 26, fontWeight: "600", letterSpacing: -0.3, color: palette.plum900, flexShrink: 1 },
   subtitle: { fontSize: 12, lineHeight: 17, color: ink[55] },
   chip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6, alignSelf: "flex-start" },

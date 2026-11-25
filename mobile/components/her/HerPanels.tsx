@@ -405,7 +405,6 @@ export function TodayTipsCard({ tips, adapted }: { tips: Tip[]; adapted: boolean
   return (
     <Panel>
       <PanelTitle
-        eyebrow={t("cycle.forYouToday")}
         title={t("cycle.smallThingsFitPhase")}
       />
       {adapted ? (

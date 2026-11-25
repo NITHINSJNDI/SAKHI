@@ -94,7 +94,7 @@ export default function ReliefSheet({ open, initialSeverity, onClose }: { open: 
   };
 
   return (
-    <Sheet open={open} onClose={onClose} eyebrow={t("relief.painRelief")} eyebrowColor={TW.rose[500]} title={t("relief.letUsEase")} subtitle={t("relief.reliefSubtitle")}>
+    <Sheet open={open} onClose={onClose} title={t("relief.letUsEase")} subtitle={t("relief.reliefSubtitle")}>
       <AppText style={{ fontSize: 14, fontWeight: "500", color: palette.plum900 }}>{t("relief.howBad")}</AppText>
       <View style={{ marginTop: 8, flexDirection: "row", gap: 8 }}>
         {levels.map((l) => {

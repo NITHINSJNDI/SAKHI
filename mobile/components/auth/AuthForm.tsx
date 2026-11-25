@@ -200,9 +200,14 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <AppText variant="overline" tone="soft">
-          {stepLabel}
-        </AppText>
+        {/* Sign-up steps carry information; on sign-in the brand header already names the app */}
+        {tab === "signup" ? (
+          <AppText variant="overline" tone="soft">
+            {stepLabel}
+          </AppText>
+        ) : (
+          <View />
+        )}
         <View style={styles.languagePill}>
           <Globe size={13} color="rgba(42, 21, 47, 0.65)" />
           <AppText variant="caption" style={styles.languageText}>

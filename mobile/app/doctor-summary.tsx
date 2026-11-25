@@ -115,7 +115,7 @@ export default function DoctorSummaryScreen() {
           </style>
         </head>
         <body>
-          <div style="color: #db2777; font-size: 12px; font-weight: 700; text-transform: uppercase;">SAKHI · Clinical Summary Brief</div>
+          <div style="color: #db2777; font-size: 12px; font-weight: 700;">Sakhi · Clinical Summary Brief</div>
           <h1>${title}</h1>
           <div class="sub">
             <strong>${data.patient.name}</strong> · ${data.stats.checkIns} logged check-ins · Period: ${fmtDate(data.period.from)} to ${fmtDate(data.period.to)}

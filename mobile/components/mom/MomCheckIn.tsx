@@ -78,7 +78,7 @@ export default function MomCheckIn({ name, onComplete }: { name: string; onCompl
 
   return (
     <Panel style={{ borderColor: "rgba(221,214,254,0.9)" }}>
-      <PanelTitle eyebrow="Daily check-in" title="How are you and baby today?" icon={Sparkle} iconColor={palette.lavender500} />
+      <PanelTitle title="How are you and baby today?" icon={Sparkle} iconColor={palette.lavender500} />
       {step === 99 ? (
         <Animated.View entering={ZoomIn.duration(240)} style={{ alignItems: "center", paddingVertical: 20, gap: 6 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: palette.pink100, alignItems: "center", justifyContent: "center" }}>
