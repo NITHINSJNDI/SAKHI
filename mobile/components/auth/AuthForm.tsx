@@ -12,8 +12,8 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { TextField } from "@/components/TextField";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { AUTH_COPY } from "@/lib/auth-copy";
 import { signInWithGoogle } from "@/lib/google-auth";
+import { useT } from "@/lib/i18n";
 import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { palette, spacing, useAppTheme } from "@/theme";
 import type { MeResponse, RegisterResponse } from "@/types/api";
@@ -36,12 +36,13 @@ export interface AuthFormProps {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const theme = useAppTheme();
+  const { t, language: activeLang, setLanguage: setAppLanguage } = useT();
   const router = useRouter();
   const { setSession, refreshSession } = useAuth();
 
   const [tab, setTab] = useState<AuthMode>(mode);
   const [signupStep, setSignupStep] = useState<SignupStep>(1);
-  const [language, setLanguage] = useState(DEFAULT_LANGUAGE.code);
+  const [language, setLanguage] = useState(activeLang || DEFAULT_LANGUAGE.code);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,14 +93,14 @@ export function AuthForm({ mode }: AuthFormProps) {
     setError(null);
     setSuccess(null);
     if (!email.trim() || !password) {
-      setError(AUTH_COPY.invalidCredentials);
+      setError(t("auth.invalidCredentials"));
       return;
     }
     setBusy(true);
     try {
       await signInWithPassword(email.trim().toLowerCase(), password);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : AUTH_COPY.genericError);
+      setError(requestError instanceof Error ? requestError.message : t("auth.genericError"));
     } finally {
       setBusy(false);
     }
@@ -113,27 +114,27 @@ export function AuthForm({ mode }: AuthFormProps) {
     const trimmedEmail = email.trim().toLowerCase();
 
     if (trimmedName.length < 2) {
-      setError(AUTH_COPY.nameTooShort);
+      setError(t("auth.nameTooShort"));
       return;
     }
     if (trimmedName.length > 80) {
-      setError(AUTH_COPY.nameTooLong);
+      setError(t("auth.nameTooLong"));
       return;
     }
     if (!EMAIL_RE.test(trimmedEmail)) {
-      setError(AUTH_COPY.validEmailRequired);
+      setError(t("auth.validEmailRequired"));
       return;
     }
     if (password.length < 8) {
-      setError(AUTH_COPY.passwordTooShort);
+      setError(t("auth.passwordTooShort"));
       return;
     }
     if (password.length > 128) {
-      setError(AUTH_COPY.passwordTooLong);
+      setError(t("auth.passwordTooLong"));
       return;
     }
     if (password !== confirmPassword) {
-      setError(AUTH_COPY.passwordsDoNotMatch);
+      setError(t("auth.passwordsDoNotMatch"));
       return;
     }
 
@@ -154,7 +155,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       await signInWithPassword(registered.user.email, password);
     } catch (requestError) {
       setError(
-        requestError instanceof Error ? requestError.message : AUTH_COPY.genericError,
+        requestError instanceof Error ? requestError.message : t("auth.genericError"),
       );
     } finally {
       setBusy(false);
@@ -177,7 +178,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       });
       await finishSignIn(res.token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : AUTH_COPY.genericError);
+      setError(e instanceof Error ? e.message : t("auth.genericError"));
     } finally {
       setBusy(false);
     }
@@ -193,9 +194,9 @@ export function AuthForm({ mode }: AuthFormProps) {
   const stepLabel =
     tab === "signup"
       ? signupStep === 1
-        ? AUTH_COPY.step1
-        : AUTH_COPY.step2
-      : AUTH_COPY.appName;
+        ? t("auth.step1")
+        : t("auth.step2")
+      : t("common.appName");
 
   return (
     <View style={styles.container}>
@@ -221,16 +222,22 @@ export function AuthForm({ mode }: AuthFormProps) {
       {tab === "signup" && signupStep === 1 ? (
         <View style={styles.section}>
           <View style={styles.headerText}>
-            <AppText variant="title">{AUTH_COPY.welcome}</AppText>
+            <AppText variant="title">{t("auth.welcome")}</AppText>
             <AppText variant="body" tone="soft">
-              {AUTH_COPY.selectLanguagePrompt}
+              {t("auth.selectLanguagePrompt")}
             </AppText>
           </View>
 
-          <LanguageGrid value={language} onChange={setLanguage} />
+          <LanguageGrid
+            value={language}
+            onChange={(next) => {
+              setLanguage(next as any);
+              void setAppLanguage(next as any);
+            }}
+          />
 
           <PrimaryButton
-            label={AUTH_COPY.continue}
+            label={t("common.continue")}
             icon={<ArrowRight size={17} color={theme.primaryContrast} weight="bold" />}
             onPress={() => setSignupStep(2)}
             style={styles.submit}
@@ -246,14 +253,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             >
               <ArrowLeft size={15} color={theme.accent} weight="bold" />
               <AppText variant="caption" tone="accent">
-                {AUTH_COPY.back}
+                {t("common.back")}
               </AppText>
             </Pressable>
           ) : null}
 
           <View style={styles.headerText}>
             <AppText variant="section">
-              {tab === "signin" ? AUTH_COPY.signInTitle : AUTH_COPY.signUpTitle}
+              {tab === "signin" ? t("auth.signInTitle") : t("auth.signUpTitle")}
             </AppText>
           </View>
 
@@ -263,20 +270,20 @@ export function AuthForm({ mode }: AuthFormProps) {
           <View style={styles.form}>
             {tab === "signup" ? (
               <TextField
-                label={AUTH_COPY.fullName}
+                label={t("auth.fullName")}
                 value={name}
                 onChangeText={setName}
-                placeholder={AUTH_COPY.fullNamePlaceholder}
+                placeholder={t("auth.fullNamePlaceholder")}
                 autoComplete="name"
                 editable={!busy}
               />
             ) : null}
 
             <TextField
-              label={AUTH_COPY.email}
+              label={t("auth.email")}
               value={email}
               onChangeText={setEmail}
-              placeholder={AUTH_COPY.emailPlaceholder}
+              placeholder={t("auth.emailPlaceholder")}
               autoCapitalize="none"
               autoComplete="email"
               keyboardType="email-address"
@@ -284,23 +291,23 @@ export function AuthForm({ mode }: AuthFormProps) {
             />
 
             <TextField
-              label={AUTH_COPY.password}
+              label={t("auth.password")}
               value={password}
               onChangeText={setPassword}
-              placeholder={AUTH_COPY.passwordPlaceholder}
+              placeholder={t("auth.passwordPlaceholder")}
               autoCapitalize="none"
               autoComplete={tab === "signup" ? "new-password" : "current-password"}
               secure
               editable={!busy}
-              hint={tab === "signup" ? AUTH_COPY.passwordHint : undefined}
+              hint={tab === "signup" ? t("auth.passwordHint") : undefined}
             />
 
             {tab === "signup" ? (
               <TextField
-                label={AUTH_COPY.confirmPassword}
+                label={t("auth.confirmPassword")}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                placeholder={AUTH_COPY.confirmPasswordPlaceholder}
+                placeholder={t("auth.confirmPasswordPlaceholder")}
                 autoCapitalize="none"
                 autoComplete="new-password"
                 secure
@@ -312,10 +319,10 @@ export function AuthForm({ mode }: AuthFormProps) {
           <PrimaryButton
             label={
               busy
-                ? AUTH_COPY.saving
+                ? t("common.saving")
                 : tab === "signin"
-                  ? AUTH_COPY.signIn
-                  : AUTH_COPY.createAccount
+                  ? t("auth.signIn")
+                  : t("auth.createAccount")
             }
             loading={busy}
             onPress={tab === "signin" ? handleSignIn : handleSignUp}
@@ -334,7 +341,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               style={styles.forgot}
             >
               <AppText variant="caption" tone="accent">
-                {AUTH_COPY.forgotPassword}
+                {t("auth.forgotPassword")}
               </AppText>
             </Pressable>
           ) : null}
@@ -342,13 +349,13 @@ export function AuthForm({ mode }: AuthFormProps) {
           <View style={styles.orRow}>
             <View style={styles.orRule} />
             <AppText variant="caption" tone="soft" style={styles.orText}>
-              {AUTH_COPY.or}
+              {t("auth.or")}
             </AppText>
             <View style={styles.orRule} />
           </View>
 
           <PrimaryButton
-            label={AUTH_COPY.continueWithGoogle}
+            label={t("auth.continueWithGoogle")}
             variant="secondary"
             icon={<GoogleLogo size={18} color={theme.text} weight="bold" />}
             onPress={handleGoogle}

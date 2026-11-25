@@ -75,7 +75,7 @@ export default function AnaemiaCard({ logs }: { logs: any[] }) {
       </View>
       {w.level !== "clear" ? (
         <View style={{ marginTop: 16 }}>
-          <AppText style={{ fontSize: 12, fontWeight: "600", color: ink[65], marginBottom: 8 }}>Iron-rich food to add</AppText>
+          <AppText style={{ fontSize: 12, fontWeight: "600", color: ink[65], marginBottom: 8 }}>{t("relief.ironRichFood")}</AppText>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
             {IRON_FOODS.map((f) => (
               <View key={f} style={{ borderRadius: 999, backgroundColor: "rgba(255,255,255,0.8)", borderWidth: 1, borderColor: ink[7], paddingHorizontal: 10, paddingVertical: 4 }}>
@@ -83,7 +83,7 @@ export default function AnaemiaCard({ logs }: { logs: any[] }) {
               </View>
             ))}
           </View>
-          <AppText style={{ marginTop: 8, fontSize: 11, color: ink[45] }}>Skip tea or coffee for an hour around meals: it blocks iron.</AppText>
+          <AppText style={{ marginTop: 8, fontSize: 11, color: ink[45] }}>{t("relief.skipTeaCoffee")}</AppText>
         </View>
       ) : null}
       <AppText style={{ marginTop: 12, fontSize: 11, color: ink[45] }}>{t("anaemia.disclaimer")}</AppText>

@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const hi: TranslationSchema = {
   "common": {
+    "yes": "हाँ",
+    "no": "नहीं",
+    "somethingWrong": "कुछ गड़बड़ हो गई",
+    "tryAgain": "फिर से कोशिश करें",
     "backToDashboard": "डैशबोर्ड पर वापस जाएं",
     "last30Days": "पिछले 30 दिन",
     "last90Days": "पिछले 90 दिन",
@@ -29,6 +33,17 @@ export const hi: TranslationSchema = {
     "friend": "सखी"
   },
   "auth": {
+    "privacy": "हर खाते के लिए निजी स्थान। अपना डेटा कभी भी डाउनलोड या हटाएं।",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "resetTitle": "पासवर्ड रीसेट करें",
+    "nameTooLong": "नाम 80 अक्षरों या उससे कम होना चाहिए।",
+    "passwordTooLong": "पासवर्ड 128 अक्षरों या उससे कम होना चाहिए।",
+    "resetCodeLabel": "6-अंकीय कोड",
+    "newPasswordLabel": "नया पासवर्ड",
+    "confirmNewPasswordLabel": "नए पासवर्ड की पुष्टि करें",
+    "sendCode": "कोड भेजें",
+    "setNewPassword": "नया पासवर्ड सेट करें",
+    "sendNewCode": "नया कोड भेजें",
     "exploreSampleData": "नमूना डेटा के साथ देखें",
     "exploreSampleDesc": "बिना साइन-अप किए इस डिवाइस पर भरा हुआ वर्कस्पेस आज़माएं।",
     "demoHerCycles": "3 महीने के चक्र",
@@ -184,6 +199,9 @@ export const hi: TranslationSchema = {
     "basedOnCycles": "आपके {count} चक्रों पर आधारित (आमतौर पर {mean} दिन, ±{sd} दिन)।"
   },
   "pregnancy": {
+    "daysToDue": "{days} दिन बाकी",
+    "dueAround": "संभावित डिलीवरी: {date}",
+    "weeksPregnant": "गर्भावस्था के {weeks} सप्ताह",
     "pregnancyMode": "गर्भावस्था मोड",
     "maternalVitals": "मातृ और शिशु स्वास्थ्य",
     "firstTrimester": "पहली तिमाही",
@@ -201,6 +219,10 @@ export const hi: TranslationSchema = {
     "hospitalBag": "अस्पताल बैग चेकलिस्ट"
   },
   "chat": {
+    "askHerMobile": "सखी से पूछें",
+    "askMomMobile": "सखी से पूछें",
+    "herSubtitle": "अपने पीरियड, लक्षणों या आप कैसा महसूस कर रही हैं, इस बारे में पूछें।",
+    "placeholderMobile": "सखी को संदेश भेजें...",
     "title": "सखी AI बहुभाषी बातचीत",
     "placeholder": "संदेश लिखें या बोलने के लिए माइक दबाएं…",
     "placeholderHandsFree": "हैंड्स-फ्री चालू है, बोलिए…",
@@ -250,6 +272,8 @@ export const hi: TranslationSchema = {
     "quickPostnatalFoodMsg": "स्तनपान के दौरान क्या खाना चाहिए?"
   },
   "settings": {
+    "language": "भाषा",
+    "pinCurrent": "वर्तमान 4-अंकीय पिन",
     "title": "सेटिंग्स",
     "preferredName": "पसंदीदा नाम",
     "preferredNameHint": "सखी आपको इस नाम से संबोधित करेगी।",
@@ -294,6 +318,8 @@ export const hi: TranslationSchema = {
     "pinWrongError": "गलत पिन।"
   },
   "menu": {
+    "account": "खाता",
+    "profile": "प्रोफ़ाइल",
     "switchToMom": "मॉम मोड पर स्विच करें",
     "switchToHer": "हर मोड पर स्विच करें",
     "doctorSummary": "डॉक्टर सारांश (PDF)",
@@ -320,6 +346,7 @@ export const hi: TranslationSchema = {
     "notNow": "अभी नहीं"
   },
   "checkin": {
+    "title": "दैनिक चेक-इन",
     "greeting": "नमस्ते {name} 👋",
     "flowDefaultQ": "क्या आज कोई ब्लीडिंग या स्पॉटिंग है?",
     "flowPeriodQ": "पीरियड का {day}वां दिन। आज आपका फ्लो कैसा है?",
@@ -495,6 +522,10 @@ export const hi: TranslationSchema = {
     "signedInAs": "इस रूप में साइन इन किया"
   },
   "relief": {
+    "painCanChange": "दर्द हर घंटे बदल सकता है।",
+    "painRightNow": "अभी",
+    "worst": "सबसे तेज़",
+    "worstToday": "आज सबसे तेज़",
     "painRelief": "दर्द से राहत",
     "letUsEase": "मिलकर दर्द कम करते हैं",
     "reliefSubtitle": "ये उपाय तुरंत दर्द खत्म नहीं करेंगे, लेकिन राहत ज़रूर देंगे।",
@@ -1082,5 +1113,58 @@ export const hi: TranslationSchema = {
       "tapToReportSymptoms": "आवाज के माध्यम से लक्षणों की रिपोर्ट करने के लिए टैप करें",
       "correlationHistory": "सहसंबंध इतिहास",
       "symptomTracking": "लक्षण ट्रैकिंग"
+  },
+  "onboarding": {
+    "title": "अपना सखी स्थान सेट करें",
+    "nameLabel": "सखी आपको क्या कहकर बुलाए?",
+    "namePlaceholder": "अपना नाम या उपनाम लिखें",
+    "nameHint": "दैनिक सुझावों और चेक-इन में सखी आपको इसी नाम से बुलाएगी।",
+    "herMode": "हर मोड (Her Mode)",
+    "herModeDesc": "पीरियड ट्रैकिंग, पीएमएस जानकारी, पीसीओएस और हार्मोनल स्वास्थ्य निगरानी।",
+    "momMode": "मॉम मोड (Mom Mode)",
+    "momModeDesc": "गर्भावस्था सफ़र, सप्ताह-दर-सप्ताह शिशु विकास, जांच और तिमाही देखभाल।",
+    "lastPeriodPrompt": "आपका पिछला पीरियड कब शुरू हुआ था?",
+    "exactDateLabel": "या सटीक तारीख लिखें (YYYY-MM-DD)",
+    "avgCycleLength": "औसत चक्र अवधि (दिन)",
+    "periodDuration": "पीरियड की अवधि (रक्तस्राव के दिन)",
+    "cycleRegularity": "आपका पीरियड चक्र कितना नियमित है?",
+    "finish": "सेटअप पूरा करें",
+  },
+  "triage": {
+    "title": "लक्षण जांच",
+    "checkAgain": "फिर से जांचें / लक्षण बदलें",
+    "crampsPain": "ऐंठन / पेट के निचले हिस्से में दर्द",
+    "flowIntensity": "ब्लीडिंग की तीव्रता",
+    "headacheBloating": "सिरदर्द और पेट फूलना",
+    "additionalIndicators": "अन्य संकेत",
+    "runCheck": "लक्षण जांच शुरू करें",
+  },
+  "mobile": {
+    "privacyConsent": "गोपनीयता और सहमति",
+    "yourDataYourControl": "आपका डेटा, आपका नियंत्रण",
+    "dataProtectionPromise": "डेटा सुरक्षा का वादा",
+    "aiHealthInsights": "AI स्वास्थ्य जानकारी",
+    "privateModeOffline": "प्राइवेट मोड (ऑफ़लाइन AI)",
+    "savePrivacyChoices": "गोपनीयता विकल्प सहेजें",
+    "labReports": "लैब रिपोर्ट",
+    "addReport": "रिपोर्ट जोड़ें",
+    "noLabReports": "अभी तक कोई लैब रिपोर्ट नहीं",
+    "recordLabValues": "लैब मान दर्ज करें",
+    "enterPin": "पिन दर्ज करें",
+    "forgotPin": "पिन भूल गए?",
+    "sakhiTyping": "सखी लिख रही है",
+    "hideSakhiNow": "सखी को अभी छिपाएं",
+    "appointments": "अपॉइंटमेंट",
+    "resetMonth": "महीना रीसेट करें",
+    "done": "हो गया",
+    "snooze1h": "1 घंटा स्नूज़",
+    "deleteReminder": "रिमाइंडर हटाएं",
+    "addTablet": "दवा जोड़ें",
+    "tabletName": "दवा का नाम",
+    "letFamilyKnow": "अपने परिवार को बताएं",
+    "nearestHospital": "नज़दीकी अस्पताल",
+    "moodHistory": "मूड जांच इतिहास",
+    "seeHowDoing": "देखें मैं कैसा महसूस कर रही हूँ",
+    "notNow": "अभी नहीं",
   },
 };

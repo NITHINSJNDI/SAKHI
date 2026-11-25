@@ -85,7 +85,7 @@ export default function PainTodayCard({ logs, onSaved, onOpenRelief }: { logs: a
         </View>
       ) : null}
 
-      <View style={{ marginTop: 16 }} accessibilityRole="radiogroup" accessibilityLabel="Pain level from 0 to 10">
+      <View style={{ marginTop: 16 }} accessibilityRole="radiogroup" accessibilityLabel={t("relief.painLevelHint")}>
         <View style={{ flexDirection: "row", gap: 3 }}>
           {Array.from({ length: 11 }, (_, n) => {
             const on = level === n;
@@ -127,7 +127,7 @@ export default function PainTodayCard({ logs, onSaved, onOpenRelief }: { logs: a
 
       {level !== null && level > 0 ? (
         <View style={{ marginTop: 12, gap: 6 }}>
-          <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>Where? (optional)</AppText>
+          <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>{t("relief.whereOptional")}</AppText>
           <View style={atom.wrap}>
             {PAIN_WHERE.map((w) => {
               const on = where.includes(w);
@@ -153,7 +153,7 @@ export default function PainTodayCard({ logs, onSaved, onOpenRelief }: { logs: a
 
       {events.length > 0 ? (
         <View style={{ marginTop: 20 }}>
-          <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>Today</AppText>
+          <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>{t("common.today")}</AppText>
           <View style={{ marginTop: 8, gap: 8 }}>
             {events.map((e) => (
               <View key={e.at} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>

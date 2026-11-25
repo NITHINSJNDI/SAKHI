@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const ta: TranslationSchema = {
   "common": {
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "somethingWrong": "ஏதோ தவறு நடந்துவிட்டது",
+    "tryAgain": "மீண்டும் முயற்சிக்கவும்",
     "backToDashboard": "டாஷ்போர்டுக்குத் திரும்பு",
     "last30Days": "கடந்த 30 நாட்கள்",
     "last90Days": "கடந்த 90 நாட்கள்",
@@ -29,6 +33,17 @@ export const ta: TranslationSchema = {
     "friend": "தோழி"
   },
   "auth": {
+    "privacy": "ஒவ்வொரு கணக்கிற்கும் தனிப்பட்ட இடம். எப்போது வேண்டுமானாலும் பதிவிறக்கவும் அல்லது நீக்கவும்.",
+    "forgotPassword": "கடவுச்சொல் மறந்துவிட்டதா?",
+    "resetTitle": "கடவுச்சொல்லை மீட்டமைக்கவும்",
+    "nameTooLong": "பெயர் 80 எழுத்துக்கள் அல்லது அதற்குக் குறைவாக இருக்க வேண்டும்.",
+    "passwordTooLong": "கடவுச்சொல் 128 எழுத்துக்கள் அல்லது அதற்குக் குறைவாக இருக்க வேண்டும்.",
+    "resetCodeLabel": "6-இலக்க குறியீடு",
+    "newPasswordLabel": "புதிய கடவுச்சொல்",
+    "confirmNewPasswordLabel": "புதிய கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+    "sendCode": "குறியீடு அனுப்பு",
+    "setNewPassword": "புதிய கடவுச்சொல்லை அமைக்கவும்",
+    "sendNewCode": "புதிய குறியீட்டை அனுப்பு",
     "exploreSampleData": "மாதிரி தரவுகளுடன் பார்க்கவும்",
     "exploreSampleDesc": "பதிவு செய்யாமல் இந்தச் சாதனத்தில் மாதிரி பணியிடத்தை முயற்சிக்கவும்.",
     "demoHerCycles": "3 மாத சுழற்சிகள்",
@@ -184,6 +199,9 @@ export const ta: TranslationSchema = {
     "basedOnCycles": "உங்கள் {count} சுழற்சிகளின் அடிப்படையில் (வழக்கமாக {mean} நாட்கள், ±{sd} நாட்கள்)."
   },
   "pregnancy": {
+    "daysToDue": "{days} நாட்கள் உள்ளன",
+    "dueAround": "எதிர்பார்க்கப்படும் தேதி: {date}",
+    "weeksPregnant": "{weeks} வார கர்ப்பம்",
     "pregnancyMode": "கர்ப்பகால பயன்முறை",
     "maternalVitals": "தாய் மற்றும் குழந்தையின் ஆரோக்கியம்",
     "firstTrimester": "முதல் மூன்று மாதங்கள்",
@@ -201,6 +219,10 @@ export const ta: TranslationSchema = {
     "hospitalBag": "மருத்துவமனை பை சரிபார்ப்பு பட்டியல்"
   },
   "chat": {
+    "askHerMobile": "சகியிடம் கேளுங்கள்",
+    "askMomMobile": "சகியிடம் கேளுங்கள்",
+    "herSubtitle": "உங்கள் மாதவிடாய், அறிகுறிகள் அல்லது உங்கள் உணர்வுகளைப் பற்றி கேளுங்கள்.",
+    "placeholderMobile": "சகிக்கு செய்தி அனுப்புங்கள்...",
     "title": "சகி AI பலமொழி உரையாடல்",
     "placeholder": "தட்டச்சு செய்யவும் அல்லது பேச மைக்-ஐ அழுத்தவும்…",
     "placeholderHandsFree": "ஹேண்ட்ஸ்-ஃப்ரீ இயக்கத்தில் உள்ளது, பேசுங்கள்…",
@@ -250,6 +272,8 @@ export const ta: TranslationSchema = {
     "quickPostnatalFoodMsg": "தாய்ப்பால் கொடுக்கும் போது நான் என்ன சாப்பிட வேண்டும்?"
   },
   "settings": {
+    "language": "மொழி",
+    "pinCurrent": "தற்போதைய 4-இலக்க பின்",
     "title": "அமைப்புகள்",
     "preferredName": "விருப்பப் பெயர்",
     "preferredNameHint": "சகி உங்களை அழைக்கும் பெயர்.",
@@ -294,6 +318,8 @@ export const ta: TranslationSchema = {
     "pinWrongError": "தவறான பின்."
   },
   "menu": {
+    "account": "கணக்கு",
+    "profile": "சுயவிவரம்",
     "switchToMom": "தாய் முறைக்கு மாறவும்",
     "switchToHer": "சகி முறைக்கு மாறவும்",
     "doctorSummary": "மருத்துவர் அறிக்கை (PDF)",
@@ -320,6 +346,7 @@ export const ta: TranslationSchema = {
     "notNow": "இப்போது வேண்டாம்"
   },
   "checkin": {
+    "title": "தினசரி செக்-இன்",
     "greeting": "வணக்கம் {name} 👋",
     "flowDefaultQ": "இன்று ரத்தப்போக்கு அல்லது கறை உள்ளதா?",
     "flowPeriodQ": "உங்கள் மாதவிடாயின் {day}-வது நாள். இன்று ரத்தப்போக்கு எப்படி உள்ளது?",
@@ -495,6 +522,10 @@ export const ta: TranslationSchema = {
     "signedInAs": "உள்நுழைந்தீர்கள்"
   },
   "relief": {
+    "painCanChange": "வலி மணிக்கு மணி மாறலாம்.",
+    "painRightNow": "இப்போது",
+    "worst": "கடுமையானது",
+    "worstToday": "இன்று அதிகபட்சம்",
     "painRelief": "வலி நிவாரணம்",
     "letUsEase": "வலியை ஒன்றாகக் குறைப்போம்",
     "reliefSubtitle": "இவை வலியை உடனே போக்காவிட்டாலும், அதன் தீவிரத்தை நிச்சயமாகக் குறைக்கும்.",
@@ -1082,5 +1113,58 @@ export const ta: TranslationSchema = {
       "tapToReportSymptoms": "குரல் மூலம் அறிகுறிகளைப் பதிவு செய்ய தட்டவும்",
       "correlationHistory": "தொடர்பு வரலாறு",
       "symptomTracking": "அறிகுறிகளைக் கண்காணித்தல்"
+  },
+  "onboarding": {
+    "title": "உங்கள் சகி இடத்தை அமைக்கவும்",
+    "nameLabel": "சகி உங்களை எப்படி அழைக்க வேண்டும்?",
+    "namePlaceholder": "உங்கள் பெயர் அல்லது செல்லப்பெயரை உள்ளிடவும்",
+    "nameHint": "தினசரி குறிப்புகள் மற்றும் செக்-இன்களில் சகி உங்களை இவ்வாறு அழைக்கும்.",
+    "herMode": "ஹெர் மோட் (Her Mode)",
+    "herModeDesc": "மாதவிடாய் சுழற்சி கண்காணிப்பு, பிஎம்எஸ் தகவல்கள், பிசிஓஎஸ் மற்றும் ஹார்மோன் ஆரோக்கியம்.",
+    "momMode": "மாம் மோட் (Mom Mode)",
+    "momModeDesc": "கர்ப்ப காலப் பயணம், வாராந்திர குழந்தை வளர்ச்சி, பரிசோதனைகள் மற்றும் பராமரிப்பு.",
+    "lastPeriodPrompt": "உங்கள் கடைசி மாதவிடாய் எப்போது தொடங்கியது?",
+    "exactDateLabel": "அல்லது சரியான தேதியை உள்ளிடவும் (YYYY-MM-DD)",
+    "avgCycleLength": "சராசரி சுழற்சி காலம் (நாட்கள்)",
+    "periodDuration": "மாதவிடாய் காலம் (நாட்கள்)",
+    "cycleRegularity": "உங்கள் மாதவிடாய் சுழற்சி எவ்வளவு சீரானது?",
+    "finish": "அமைப்பை முடிக்கவும்",
+  },
+  "triage": {
+    "title": "அறிகுறி பரிசோதனை",
+    "checkAgain": "மீண்டும் சரிபார்க்கவும் / அறிகுறிகளை மாற்றவும்",
+    "crampsPain": "வலி / அடிவயிற்று வலி",
+    "flowIntensity": "உதிரப்போக்கு அளவு",
+    "headacheBloating": "தலைவலி மற்றும் வயிறு உப்புசம்",
+    "additionalIndicators": "கூடுதல் அறிகுறிகள்",
+    "runCheck": "பரிசோதனை செய்யவும்",
+  },
+  "mobile": {
+    "privacyConsent": "தனியுரிமை & ஒப்புதல்",
+    "yourDataYourControl": "உங்கள் தரவு, உங்கள் கட்டுப்பாடு",
+    "dataProtectionPromise": "தரவு பாதுகாப்பு உறுதிமொழி",
+    "aiHealthInsights": "AI ஆரோக்கிய தகவல்கள்",
+    "privateModeOffline": "தனிப்பட்ட பயன்முறை (ஆஃப்லைன் AI)",
+    "savePrivacyChoices": "தனியுரிமை விருப்பங்களைச் சேமிக்கவும்",
+    "labReports": "ஆய்வக அறிக்கைகள்",
+    "addReport": "அறிக்கை சேர்க்கவும்",
+    "noLabReports": "இன்னும் ஆய்வக அறிக்கைகள் இல்லை",
+    "recordLabValues": "ஆய்வக மதிப்புகளைப் பதிவு செய்யவும்",
+    "enterPin": "பின் எண்ணை உள்ளிடவும்",
+    "forgotPin": "பின் மறந்துவிட்டதா?",
+    "sakhiTyping": "சகி தட்டச்சு செய்கிறார்",
+    "hideSakhiNow": "சகியை இப்போது மறைக்கவும்",
+    "appointments": "சந்திப்புகள்",
+    "resetMonth": "மாதத்தை மீட்டமைக்கவும்",
+    "done": "முடிந்தது",
+    "snooze1h": "1 மணிநேரம் ஒத்திவை",
+    "deleteReminder": "நினைவூட்டலை நீக்கு",
+    "addTablet": "மாத்திரை சேர்க்கவும்",
+    "tabletName": "மாத்திரையின் பெயர்",
+    "letFamilyKnow": "உங்கள் குடும்பத்திற்குத் தெரியப்படுத்துங்கள்",
+    "nearestHospital": "அருகிலுள்ள மருத்துவமனை",
+    "moodHistory": "மனநிலை பரிசோதனை வரலாறு",
+    "seeHowDoing": "நான் எப்படி இருக்கிறேன் எனப் பார்க்கவும்",
+    "notNow": "இப்போது வேண்டாம்",
   },
 };

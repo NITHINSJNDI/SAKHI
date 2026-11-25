@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/AppText";
 import { ErrorState, LoadingState } from "@/components/StateView";
 import { apiFetch } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { apiDateToLocal } from "@/lib/date";
 import { queryKeys } from "@/lib/queryKeys";
 import { palette, radii, spacing, useAppTheme } from "@/theme";
@@ -53,6 +54,7 @@ export default function DoctorSummaryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
+  const { t } = useT();
   const params = useLocalSearchParams<{ mode?: "her" | "pregnancy"; days?: string }>();
 
   const [mode, setMode] = useState<"her" | "pregnancy">(
@@ -125,22 +127,22 @@ export default function DoctorSummaryScreen() {
           ${
             herData
               ? `
-            <h2>Menstrual Cycle & Bleeding</h2>
+            <h2>{t("doctor.cycle")}</h2>
             <div class="grid">
               <div class="stat">
-                <div class="stat-lbl">Last Period Start</div>
+                <div class="stat-lbl">{t("doctor.lastPeriod")}</div>
                 <div class="stat-val">${fmtDate(herData.cycle.lastPeriodStart)}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Avg Cycle Length</div>
+                <div class="stat-lbl">{t("doctor.cycleLength")}</div>
                 <div class="stat-val">${herData.cycle.prediction?.average_cycle_length ?? herData.cycle.reportedCycleLength ? `${herData.cycle.prediction?.average_cycle_length ?? herData.cycle.reportedCycleLength} days` : "—"}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Period Duration</div>
+                <div class="stat-lbl">{t("doctor.periodDuration")}</div>
                 <div class="stat-val">${herData.cycle.reportedPeriodDuration ? `${herData.cycle.reportedPeriodDuration} days` : "—"}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Next Period Est.</div>
+                <div class="stat-lbl">{t("doctor.nextPeriodEst")}</div>
                 <div class="stat-val">${fmtDate(herData.cycle.prediction?.next_period_date)}</div>
               </div>
             </div>
@@ -148,18 +150,18 @@ export default function DoctorSummaryScreen() {
               Regularity: <strong>${herData.cycle.regularity || "Not specified"}</strong> · Diagnosed Conditions: <strong>${herData.patient.diagnosedConditions.length ? herData.patient.diagnosedConditions.join(", ") : "None reported"}</strong>
             </div>
 
-            <h2>Symptoms & Bleeding Severity</h2>
+            <h2>{t("doctor.symptomsPeriod")}</h2>
             <div class="grid">
               <div class="stat">
-                <div class="stat-lbl">Avg Cramps</div>
+                <div class="stat-lbl">{t("doctor.avgCramps")}</div>
                 <div class="stat-val">${herData.stats.avgCramps !== null ? `${herData.stats.avgCramps}/10` : "—"}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Worst Cramps</div>
+                <div class="stat-lbl">{t("doctor.worstCramps")}</div>
                 <div class="stat-val">${herData.stats.maxCramps !== null ? `${herData.stats.maxCramps}/10` : "—"}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Heavy Flow Days</div>
+                <div class="stat-lbl">{t("doctor.heavyFlowDays")}</div>
                 <div class="stat-val">${herData.stats.heavyDays}</div>
               </div>
               <div class="stat">
@@ -167,7 +169,7 @@ export default function DoctorSummaryScreen() {
                 <div class="stat-val">${herData.stats.bloodLoss.length ? herData.stats.bloodLoss.map(p => p.score).join(", ") : "—"}</div>
               </div>
               <div class="stat">
-                <div class="stat-lbl">Avg Sleep</div>
+                <div class="stat-lbl">{t("doctor.avgSleep")}</div>
                 <div class="stat-val">${herData.stats.avgSleep !== null ? `${herData.stats.avgSleep} hrs` : "—"}</div>
               </div>
             </div>
@@ -265,7 +267,7 @@ export default function DoctorSummaryScreen() {
           ${
             herData?.screens
               ? `
-            <h2>Screening Results</h2>
+            <h2>{t("doctor.screeningResults")}</h2>
             <div class="grid">
               ${
                 herData.screens.pcos
@@ -443,7 +445,7 @@ export default function DoctorSummaryScreen() {
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
           style={styles.backButton}
         >
@@ -641,13 +643,13 @@ export default function DoctorSummaryScreen() {
               </AppText>
               <View style={styles.statsGrid}>
                 <View style={[styles.statBox, { borderColor: theme.border }]}>
-                  <AppText variant="caption" tone="faint">Avg Cramps</AppText>
+                  <AppText variant="caption" tone="faint">{t("doctor.avgCramps")}</AppText>
                   <AppText variant="bodyStrong">
                     {herData.stats.avgCramps !== null ? `${herData.stats.avgCramps}/10` : "—"}
                   </AppText>
                 </View>
                 <View style={[styles.statBox, { borderColor: theme.border }]}>
-                  <AppText variant="caption" tone="faint">Worst Cramps</AppText>
+                  <AppText variant="caption" tone="faint">{t("doctor.worstCramps")}</AppText>
                   <AppText variant="bodyStrong">
                     {herData.stats.maxCramps !== null ? `${herData.stats.maxCramps}/10` : "—"}
                   </AppText>
@@ -657,7 +659,7 @@ export default function DoctorSummaryScreen() {
                   <AppText variant="bodyStrong">{herData.stats.heavyDays}</AppText>
                 </View>
                 <View style={[styles.statBox, { borderColor: theme.border }]}>
-                  <AppText variant="caption" tone="faint">Avg Sleep</AppText>
+                  <AppText variant="caption" tone="faint">{t("doctor.avgSleep")}</AppText>
                   <AppText variant="bodyStrong">
                     {herData.stats.avgSleep !== null ? `${herData.stats.avgSleep} h` : "—"}
                   </AppText>

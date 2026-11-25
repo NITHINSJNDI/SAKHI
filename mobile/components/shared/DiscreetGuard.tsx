@@ -13,6 +13,7 @@ import { AppText } from "@/components/AppText";
 import { PressableScale } from "@/components/ui";
 import { ink } from "@/components/web/Panel";
 import { useAuth } from "@/lib/auth";
+import { useT } from "@/lib/i18n";
 import { checkPin, isDiscreet, loadDiscreet, onDiscreetChange, onLockRequest } from "@/lib/discreet";
 import { errorHaptic, successHaptic } from "@/lib/haptics";
 import { clearAllLocalReminders } from "@/lib/localReminders";
@@ -34,6 +35,7 @@ function Key({ d, onPress }: { d: string; onPress: (d: string) => void }) {
 export default function DiscreetGuard() {
   const router = useRouter();
   const qc = useQueryClient();
+  const { t } = useT();
   const { signOut } = useAuth();
   const [on, setOn] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -121,9 +123,9 @@ export default function DiscreetGuard() {
   if (!on || !locked) return null;
   return (
     <Modal visible animationType="fade" statusBarTranslucent onRequestClose={() => {}}>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: palette.cream, paddingHorizontal: 24 }} accessibilityViewIsModal accessibilityLabel="Enter PIN">
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: palette.cream, paddingHorizontal: 24 }} accessibilityViewIsModal accessibilityLabel={t("discreet.enterPin")}>
         <LockSimple size={32} color={ink[50]} weight="duotone" />
-        <AppText style={{ marginTop: 16, fontSize: 18, fontWeight: "600", color: palette.plum900 }}>Enter PIN</AppText>
+        <AppText style={{ marginTop: 16, fontSize: 18, fontWeight: "600", color: palette.plum900 }}>{t("discreet.enterPin")}</AppText>
         <View style={{ marginTop: 20, flexDirection: "row", gap: 14 }} accessibilityElementsHidden>
           {[0, 1, 2, 3].map((i) => (
             <View key={i} style={{ width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: i < pin.length ? palette.plum900 : ink[40], backgroundColor: i < pin.length ? palette.plum900 : "transparent" }} />
@@ -141,26 +143,26 @@ export default function DiscreetGuard() {
           <View style={{ flexDirection: "row", gap: 14 }}>
             <View style={{ width: 72 }} />
             <Key d="0" onPress={press} />
-            <PressableScale onPress={back} accessibilityLabel="Delete" style={{ width: 72, height: 72, borderRadius: 36, alignItems: "center", justifyContent: "center" }}>
+            <PressableScale onPress={back} accessibilityLabel={t("common.delete")} style={{ width: 72, height: 72, borderRadius: 36, alignItems: "center", justifyContent: "center" }}>
               <Backspace size={26} color={ink[60]} />
             </PressableScale>
           </View>
         </View>
         {forgot ? (
           <View style={{ marginTop: 28, maxWidth: 300, alignItems: "center", gap: 12 }}>
-            <AppText style={{ fontSize: 14, lineHeight: 20, textAlign: "center", color: ink[60] }}>To reset the PIN you need to sign out on this phone. Your data stays in your account.</AppText>
+            <AppText style={{ fontSize: 14, lineHeight: 20, textAlign: "center", color: ink[60] }}>{t("discreet.resetPinNote")}</AppText>
             <View style={{ flexDirection: "row", gap: 10 }}>
               <PressableScale onPress={() => setForgot(false)} style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 22, justifyContent: "center" }}>
-                <AppText style={{ fontSize: 14, fontWeight: "500", color: palette.plum900 }}>Cancel</AppText>
+                <AppText style={{ fontSize: 14, fontWeight: "500", color: palette.plum900 }}>{t("common.cancel")}</AppText>
               </PressableScale>
               <PressableScale onPress={() => void resetBySignOut()} style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 22, justifyContent: "center", backgroundColor: palette.plum900 }}>
-                <AppText style={{ fontSize: 14, fontWeight: "600", color: palette.cream }}>Sign out</AppText>
+                <AppText style={{ fontSize: 14, fontWeight: "600", color: palette.cream }}>{t("discreet.signOut")}</AppText>
               </PressableScale>
             </View>
           </View>
         ) : (
           <PressableScale onPress={() => setForgot(true)} style={{ marginTop: 28, minHeight: 44, justifyContent: "center" }}>
-            <AppText style={{ fontSize: 14, color: ink[60] }}>Forgot PIN?</AppText>
+            <AppText style={{ fontSize: 14, color: ink[60] }}>{t("discreet.forgotPin")}</AppText>
           </PressableScale>
         )}
       </View>

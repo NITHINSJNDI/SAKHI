@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/AppText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { apiFetch } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { useCountdown } from "@/lib/useCountdown";
 import { queryKeys } from "@/lib/queryKeys";
 import { palette, radii, spacing, useAppTheme } from "@/theme";
@@ -49,6 +50,7 @@ const FLOW_OPTIONS = [
 
 function TipTimer({ seconds }: { seconds: number }) {
   const theme = useAppTheme();
+  const { t, tValue } = useT();
   const { left, running, toggle } = useCountdown(seconds);
 
   const fmt = (s: number) =>
@@ -85,6 +87,7 @@ export default function TriageScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
+  const { t, tValue } = useT();
 
   // Mode: "symptom" or "relief"
   const [activeTab, setActiveTab] = useState<"triage" | "relief">("triage");
@@ -207,16 +210,16 @@ export default function TriageScreen() {
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <CaretLeft size={24} color={theme.text} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <AppText variant="title">Symptom Checker</AppText>
+          <AppText variant="title">{t("triage.title")}</AppText>
           <AppText variant="caption" tone="soft">
-            Triage & Quick Relief Guidance
+            {t("relief.painRelief")}
           </AppText>
         </View>
         <View style={{ width: 40 }} />
@@ -380,7 +383,7 @@ export default function TriageScreen() {
                 ) : null}
 
                 <PrimaryButton
-                  label="Check Again / Adjust Symptoms"
+                  label={t("triage.checkAgain")}
                   variant="secondary"
                   onPress={() => setTriageResult(null)}
                   style={{ marginTop: spacing.md }}
@@ -392,7 +395,7 @@ export default function TriageScreen() {
                 {/* Cramps Severity */}
                 <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                   <View style={styles.cardHeaderRow}>
-                    <AppText variant="section">Cramps / Pelvic Pain</AppText>
+                    <AppText variant="section">{t("triage.crampsPelvic")}</AppText>
                     <View style={[styles.scoreBadge, { backgroundColor: theme.primary }]}>
                       <AppText variant="label" style={{ color: theme.primaryContrast }}>
                         {crampSeverity} / 10
@@ -431,7 +434,7 @@ export default function TriageScreen() {
 
                 {/* Flow Intensity */}
                 <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                  <AppText variant="section">Flow Intensity</AppText>
+                  <AppText variant="section">{t("triage.flowIntensity")}</AppText>
                   <AppText variant="caption" tone="soft" style={styles.cardSub}>
                     Bleeding volume experienced today.
                   </AppText>
@@ -464,7 +467,7 @@ export default function TriageScreen() {
 
                 {/* Headache & Bloating */}
                 <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                  <AppText variant="section">Headache & Bloating</AppText>
+                  <AppText variant="section">{t("triage.headacheBloating")}</AppText>
                   <View style={{ marginTop: spacing.sm, gap: spacing.sm }}>
                     <View style={styles.sliderRow}>
                       <AppText variant="body">Headache (0–10):</AppText>
@@ -586,7 +589,7 @@ export default function TriageScreen() {
 
                 {/* Other Signs (PCOS / Thyroid) */}
                 <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                  <AppText variant="section">Additional Indicators</AppText>
+                  <AppText variant="section">{t("triage.additionalIndicators")}</AppText>
                   <View style={styles.toggleList}>
                     {[
                       {
@@ -638,7 +641,7 @@ export default function TriageScreen() {
                 </View>
 
                 <PrimaryButton
-                  label="Run Triage Check"
+                  label={t("triage.runCheck")}
                   loading={triageMutation.isPending}
                   onPress={() => triageMutation.mutate()}
                   style={{ marginTop: spacing.sm }}

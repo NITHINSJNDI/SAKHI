@@ -30,6 +30,7 @@ import { AppText } from "@/components/AppText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { EmptyState, ErrorState, LoadingState } from "@/components/StateView";
 import { apiFetch } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { MEASURED_BY, isMeasuredBy, type MeasuredBy } from "@/lib/shared/readings";
 import { localIso } from "@/lib/date";
 import {
@@ -59,6 +60,7 @@ export default function LabReportScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
+  const { t } = useT();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ mode?: string; measuredBy?: string; add?: string }>();
 
@@ -218,7 +220,7 @@ export default function LabReportScreen() {
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
           style={styles.backButton}
         >
@@ -226,7 +228,7 @@ export default function LabReportScreen() {
         </Pressable>
 
         <View style={styles.headerCenter}>
-          <AppText variant="title">Lab Reports</AppText>
+          <AppText variant="title">{t("labs.title")}</AppText>
           <AppText variant="caption" tone="soft">
             Biomarkers & Test Records
           </AppText>
@@ -252,7 +254,7 @@ export default function LabReportScreen() {
         <LoadingState message="Loading your lab reports..." style={{ flex: 1 }} />
       ) : isError ? (
         <ErrorState
-          title="Could not load reports"
+          title={t("common.couldNotLoad")}
           message="Please check your connection and try again."
           onRetry={() => void refetch()}
           style={{ flex: 1, margin: spacing.md }}
@@ -379,7 +381,7 @@ export default function LabReportScreen() {
           ) : (
             <EmptyState
               icon={<Flask size={36} color={theme.primary} weight="duotone" />}
-              title="No lab reports yet"
+              title={t("labs.noResults")}
               message="Snap a photo of your blood test or antenatal card to track hemoglobin, sugar, thyroid, and other vitals."
               actionLabel="Add First Test"
               onAction={() => {
@@ -412,7 +414,7 @@ export default function LabReportScreen() {
           >
             <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
               <View>
-                <AppText variant="title">Record Lab Values</AppText>
+                <AppText variant="title">{t("labs.addResult")}</AppText>
                 <AppText variant="caption" tone="soft">
                   Verify extracted numbers before saving
                 </AppText>

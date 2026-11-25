@@ -10,6 +10,7 @@ import { View } from "react-native";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
 import { AppText } from "@/components/AppText";
+import { useT } from "@/lib/i18n";
 import { PressableScale } from "@/components/ui";
 import { Panel, PanelTitle, ink } from "@/components/web/Panel";
 import { successHaptic } from "@/lib/haptics";
@@ -26,6 +27,7 @@ const SLEEP = [5, 6, 7, 8, 9];
 const SYMPTOMS = ["Nausea / Morning Sickness", "Swelling in Feet / Hands", "Lower Back Pain", "Heartburn / Acidity", "Severe Headache ⚠️", "Vision Changes ⚠️", "None"];
 
 export default function MomCheckIn({ name, onComplete }: { name: string; onComplete: (data: any) => void }) {
+  const { t } = useT();
   const [step, setStep] = useState(0);
   const [movement, setMovement] = useState<string | null>(null);
   const [bp, setBp] = useState<string | null>(null);
@@ -78,14 +80,14 @@ export default function MomCheckIn({ name, onComplete }: { name: string; onCompl
 
   return (
     <Panel style={{ borderColor: "rgba(221,214,254,0.9)" }}>
-      <PanelTitle title="How are you and baby today?" icon={Sparkle} iconColor={palette.lavender500} />
+      <PanelTitle title={t("pregnancy.howAreYouToday")} icon={Sparkle} iconColor={palette.lavender500} />
       {step === 99 ? (
         <Animated.View entering={ZoomIn.duration(240)} style={{ alignItems: "center", paddingVertical: 20, gap: 6 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: palette.pink100, alignItems: "center", justifyContent: "center" }}>
             <Sparkle size={24} color={palette.pink500} weight="duotone" />
           </View>
           <AppText style={{ fontSize: 15, fontWeight: "500", color: palette.plum900 }}>Thank you, {name}! 🌸</AppText>
-          <AppText style={{ fontSize: 13, color: ink[60] }}>Your maternal logs and vitals are updated in your dashboard.</AppText>
+          <AppText style={{ fontSize: 13, color: ink[60] }}>{t("pregnancy.logsUpdated")}</AppText>
         </Animated.View>
       ) : (
         <View style={{ marginTop: 14, gap: 4 }}>
@@ -126,7 +128,7 @@ export default function MomCheckIn({ name, onComplete }: { name: string; onCompl
 
           {step >= 5 ? (
             <Animated.View entering={FadeInDown.duration(260)} style={{ gap: 6 }}>
-              <Bot>Any symptoms to report today? (Tap all that apply)</Bot>
+              <Bot>{t("pregnancy.anySymptomsToday")}</Bot>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "flex-end" }}>
                 {SYMPTOMS.map((s) => {
                   const on = symptoms.includes(s);
@@ -141,7 +143,7 @@ export default function MomCheckIn({ name, onComplete }: { name: string; onCompl
               </View>
               <PressableScale onPress={submit} style={{ alignSelf: "flex-end", marginTop: 6, flexDirection: "row", gap: 6, alignItems: "center", minHeight: 44, paddingHorizontal: 18, borderRadius: 22, backgroundColor: palette.plum900 }}>
                 <CheckCircle size={16} color="#fff" weight="bold" />
-                <AppText style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>Complete Daily Check-in</AppText>
+                <AppText style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>{t("pregnancy.completeCheckIn")}</AppText>
               </PressableScale>
             </Animated.View>
           ) : null}

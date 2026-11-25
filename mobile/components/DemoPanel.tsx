@@ -2,7 +2,7 @@ import { Sparkle } from "phosphor-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/AppText";
-import { AUTH_COPY } from "@/lib/auth-copy";
+import { useT } from "@/lib/i18n";
 import { palette, radii, spacing } from "@/theme";
 import type { DemoMode } from "@/types/auth-ui";
 
@@ -12,16 +12,17 @@ export interface DemoPanelProps {
 }
 
 export function DemoPanel({ onSelect, disabled = false }: DemoPanelProps) {
+  const { t } = useT();
   return (
     <View style={styles.panel}>
       <View style={styles.titleRow}>
         <Sparkle size={15} color={palette.pink500} weight="fill" />
         <AppText variant="label" style={styles.title}>
-          {AUTH_COPY.exploreSampleData}
+          {t("auth.exploreSampleData")}
         </AppText>
       </View>
       <AppText variant="caption" tone="soft" style={styles.description}>
-        {AUTH_COPY.exploreSampleDesc}
+        {t("auth.exploreSampleDesc")}
       </AppText>
       <View style={styles.grid}>
         <Pressable
@@ -36,11 +37,11 @@ export function DemoPanel({ onSelect, disabled = false }: DemoPanelProps) {
           <View style={styles.itemHeader}>
             <View style={[styles.dot, { backgroundColor: palette.pink500 }]} />
             <AppText variant="label" style={styles.itemTitle}>
-              {AUTH_COPY.demoHer}
+              {t("auth.demoHer")}
             </AppText>
           </View>
           <AppText variant="caption" tone="soft" style={styles.itemSub}>
-            {AUTH_COPY.demoHerCycles}
+            {t("auth.demoHerCycles")}
           </AppText>
         </Pressable>
         <Pressable
@@ -55,11 +56,11 @@ export function DemoPanel({ onSelect, disabled = false }: DemoPanelProps) {
           <View style={styles.itemHeader}>
             <View style={[styles.dot, { backgroundColor: palette.lavender500 }]} />
             <AppText variant="label" style={styles.itemTitle}>
-              {AUTH_COPY.demoMom}
+              {t("auth.demoMom")}
             </AppText>
           </View>
           <AppText variant="caption" tone="soft" style={styles.itemSub}>
-            {AUTH_COPY.demoMomWeeks}
+            {t("auth.demoMomWeeks")}
           </AppText>
         </Pressable>
       </View>

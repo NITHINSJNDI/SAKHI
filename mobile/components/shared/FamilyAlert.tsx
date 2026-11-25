@@ -63,6 +63,7 @@ export function alertText(contact: Contact, reason: string | null, mapLink: stri
 }
 
 export function AlertButtons({ contacts, reason, tone = "light" }: { contacts: Contact[]; reason: string | null; tone?: "light" | "onRed" }) {
+  const { t } = useT();
   const [map, setMap] = useState<string | null>(null);
   const [locState, setLocState] = useState<"idle" | "busy" | "denied">("idle");
   const [me, setMe] = useState("");
@@ -108,9 +109,9 @@ export function AlertButtons({ contacts, reason, tone = "light" }: { contacts: C
               {c.relation ? ` (${c.relation})` : ""}
             </AppText>
             <View style={atom.wrap}>
-              <Btn label="WhatsApp" icon={WhatsappLogo} variant="solid" onPress={() => void whatsapp(waNumber(c.phone), text)} />
-              <Btn label="SMS" icon={ChatText} variant="ghost" onPress={() => void sms(digits(c.phone), text)} />
-              <Btn label="Call" icon={Phone} variant="ghost" onPress={() => void call(digits(c.phone))} />
+              <Btn label={t("familyExtra.whatsapp")} icon={WhatsappLogo} variant="solid" onPress={() => void whatsapp(waNumber(c.phone), text)} />
+              <Btn label={t("familyExtra.sms")} icon={ChatText} variant="ghost" onPress={() => void sms(digits(c.phone), text)} />
+              <Btn label={t("familyExtra.call")} icon={Phone} variant="ghost" onPress={() => void call(digits(c.phone))} />
             </View>
           </View>
         );
@@ -133,6 +134,7 @@ export function AlertButtons({ contacts, reason, tone = "light" }: { contacts: C
 
 /** Red-flag banner for both modes; listens on the emergency bus. */
 export function RedFlagBanner({ mode }: { mode: "her" | "pregnancy" }) {
+  const { t } = useT();
   const [hit, setHit] = useState<{ reason: string | null; level: string; afterBirth?: boolean } | null>(null);
   const { doc } = useUserDoc<FamilyDoc>("family", EMPTY);
   useEffect(
@@ -164,16 +166,16 @@ export function RedFlagBanner({ mode }: { mode: "her" | "pregnancy" }) {
       </View>
       {doc.contacts.length > 0 ? (
         <View style={{ borderRadius: 16, backgroundColor: "rgba(255,255,255,0.1)", padding: 12, gap: 8 }}>
-          <AppText style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>Let your family know</AppText>
+          <AppText style={{ fontSize: 14, fontWeight: "600", color: "#fff" }}>{t("familyExtra.letFamilyKnow")}</AppText>
           <AlertButtons contacts={doc.contacts} reason={hit.reason} tone="onRed" />
         </View>
       ) : (
-        <AppText style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>Tip: add a family contact in the Care tab so you can alert them in one tap.</AppText>
+        <AppText style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>{t("familyExtra.tipAddContact")}</AppText>
       )}
       <View style={atom.wrap}>
         {crisis ? <BannerBtn label="Call 14416" solid fg={palette.plum800} onPress={() => void call("14416")} /> : null}
         <BannerBtn label="Call 112" solid fg={TW.rose[700]} onPress={() => void call("112")} />
-        {!crisis ? <BannerBtn label="Nearest hospital" onPress={() => void openUrl(mapsSearch(mode === "pregnancy" ? "government maternity hospital near me" : "government hospital near me"))} /> : null}
+        {!crisis ? <BannerBtn label={t("familyExtra.nearestHospital")} onPress={() => void openUrl(mapsSearch(mode === "pregnancy" ? "government maternity hospital near me" : "government hospital near me"))} /> : null}
         <BannerBtn label="Dismiss" onPress={() => setHit(null)} />
       </View>
     </Animated.View>

@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const kn: TranslationSchema = {
   "common": {
+    "yes": "ಹೌದು",
+    "no": "ಇಲ್ಲ",
+    "somethingWrong": "ಏನೋ ತಪ್ಪಾಗಿದೆ",
+    "tryAgain": "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     "backToDashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ",
     "last30Days": "ಕಳೆದ 30 ದಿನಗಳು",
     "last90Days": "ಕಳೆದ 90 ದಿನಗಳು",
@@ -29,6 +33,17 @@ export const kn: TranslationSchema = {
     "friend": "ಗೆಳತಿ"
   },
   "auth": {
+    "privacy": "ಪ್ರತಿ ಖಾತೆಗೆ ಖಾಸಗಿ ಸ್ಥಳ. ನಿಮ್ಮ ದಾಖಲೆಗಳನ್ನು ಯಾವಾಗ ಬೇಕಾದರೂ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ ಅಥವಾ ಅಳಿಸಿ.",
+    "forgotPassword": "ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರುವಿರಾ?",
+    "resetTitle": "ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ",
+    "nameTooLong": "ಹೆಸರು 80 ಅಕ್ಷರಗಳು ಅಥವಾ ಅದಕ್ಕಿಂತ ಕಡಿಮೆ ಇರಬೇಕು.",
+    "passwordTooLong": "ಪಾಸ್‌ವರ್ಡ್ 128 ಅಕ್ಷರಗಳು ಅಥವಾ ಅದಕ್ಕಿಂತ ಕಡಿಮೆ ಇರಬೇಕು.",
+    "resetCodeLabel": "6-ಅಂಕಿಯ ಕೋಡ್",
+    "newPasswordLabel": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್",
+    "confirmNewPasswordLabel": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
+    "sendCode": "ಕೋಡ್ ಕಳುಹಿಸಿ",
+    "setNewPassword": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಸಿ",
+    "sendNewCode": "ಹೊಸ ಕೋಡ್ ಕಳುಹಿಸಿ",
     "exploreSampleData": "ಮಾದರಿ ಡೇಟಾದೊಂದಿಗೆ ಅನ್ವೇಷಿಸಿ",
     "exploreSampleDesc": "ಸೈನ್-ಅಪ್ ಅಗತ್ಯವಿಲ್ಲದೇ ಈ ಸಾಧನದಲ್ಲಿ ಮಾದರಿ ಕಾರ್ಯಕ್ಷೇತ್ರವನ್ನು ಪ್ರಯತ್ನಿಸಿ.",
     "demoHerCycles": "3 ತಿಂಗಳ ಚಕ್ರಗಳು",
@@ -184,6 +199,9 @@ export const kn: TranslationSchema = {
     "basedOnCycles": "ನಿಮ್ಮ {count} ಸೈಕಲ್‌ಗಳ ಆಧಾರದ ಮೇಲೆ (ಸಾಮಾನ್ಯವಾಗಿ {mean} ದಿನಗಳು, ±{sd} ದಿನಗಳು)."
   },
   "pregnancy": {
+    "daysToDue": "{days} ದಿನಗಳು ಬಾಕಿ",
+    "dueAround": "ಸಂಭವನೀಯ ದಿನಾಂಕ: {date}",
+    "weeksPregnant": "{weeks} ವಾರಗಳ ಗರ್ಭಧಾರಣೆ",
     "pregnancyMode": "ಗರ್ಭಾವಸ್ಥೆ ಮೋಡ್",
     "maternalVitals": "ತಾಯಿ ಮತ್ತು ಮಗುವಿನ ಆರೋಗ್ಯ",
     "firstTrimester": "ಮೊದಲ ತ್ರೈಮಾಸಿಕ",
@@ -201,6 +219,10 @@ export const kn: TranslationSchema = {
     "hospitalBag": "ಆಸ್ಪತ್ರೆ ಬ್ಯಾಗ್ ಪಟ್ಟಿ"
   },
   "chat": {
+    "askHerMobile": "ಸಖಿಯನ್ನು ಕೇಳಿ",
+    "askMomMobile": "ಸಖಿಯನ್ನು ಕೇಳಿ",
+    "herSubtitle": "ನಿಮ್ಮ ಋತುಚಕ್ರ, ಲಕ್ಷಣಗಳು ಅಥವಾ ನೀವು ಹೇಗೆ ಭಾವಿಸುತ್ತಿದ್ದೀರಿ ಎಂದು ಕೇಳಿ.",
+    "placeholderMobile": "ಸಖಿಗೆ ಸಂದೇಶ ಕಳುಹಿಸಿ...",
     "title": "ಸಖಿ AI ಬಹುಭಾಷಾ ಸಂಭಾಷಣೆ",
     "placeholder": "ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ…",
     "placeholderHandsFree": "ಹ್ಯಾಂಡ್ಸ್-ಫ್ರೀ ಆನ್ ಆಗಿದೆ, ಮಾತನಾಡಿ…",
@@ -250,6 +272,8 @@ export const kn: TranslationSchema = {
     "quickPostnatalFoodMsg": "ಸ್ತನ್ಯಪಾನ ಮಾಡುವಾಗ ಏನು ತಿನ್ನಬೇಕು?"
   },
   "settings": {
+    "language": "ಭಾಷೆ",
+    "pinCurrent": "ಪ್ರಸ್ತುತ 4-ಅಂಕಿಯ ಪಿನ್",
     "title": "ಸೆಟ್ಟಿಂಗ್ಸ್",
     "preferredName": "ಕರೆಯಬೇಕಾದ ಹೆಸರು",
     "preferredNameHint": "ಸಖಿ ನಿಮ್ಮನ್ನು ಈ ಹೆಸರಿನಿಂದ ಸಂಬೋಧಿಸುತ್ತದೆ.",
@@ -294,6 +318,8 @@ export const kn: TranslationSchema = {
     "pinWrongError": "ತಪ್ಪು ಪಿನ್."
   },
   "menu": {
+    "account": "ಖಾತೆ",
+    "profile": "ಪ್ರೊಫೈಲ್",
     "switchToMom": "ಮಾಮ್ ಮೋಡ್‌ಗೆ ಬದಲಾಯಿಸಿ",
     "switchToHer": "ಹರ್ ಮೋಡ್‌ಗೆ ಬದಲಾಯಿಸಿ",
     "doctorSummary": "ವೈದ್ಯರ ಸಾರಾಂಶ (PDF)",
@@ -320,6 +346,7 @@ export const kn: TranslationSchema = {
     "notNow": "ಈಗ ಬೇಡ"
   },
   "checkin": {
+    "title": "ದೈನಂದಿನ ಚೆಕ್-ಇನ್",
     "greeting": "ನಮಸ್ಕಾರ {name} 👋",
     "flowDefaultQ": "ಇಂದು ರಕ್ತಸ್ರಾವ ಅಥವಾ ಸ್ಪಾಟಿಂಗ್ ಇದೆಯೇ?",
     "flowPeriodQ": "ನಿಮ್ಮ ಮುಟ್ಟಿನ {day}ನೇ ದಿನ. ಇಂದು ನಿಮ್ಮ ಹರಿವು ಹೇಗಿದೆ?",
@@ -495,6 +522,10 @@ export const kn: TranslationSchema = {
     "signedInAs": "ಎಂದು ಸೈನ್ ಇನ್ ಆಗಿದ್ದಾರೆ"
   },
   "relief": {
+    "painCanChange": "ನೋವು ಗಂಟೆಗೊಮ್ಮೆ ಬದಲಾಗಬಹುದು.",
+    "painRightNow": "ಈಗ",
+    "worst": "ತೀವ್ರ",
+    "worstToday": "ಇಂದು ಅತ್ಯಧಿಕ",
     "painRelief": "ನೋವು ನಿವಾರಣೆ",
     "letUsEase": "ನೋವನ್ನು ಒಟ್ಟಿಗೆ ಕಡಿಮೆ ಮಾಡೋಣ",
     "reliefSubtitle": "ಇವು ತಕ್ಷಣವೇ ನೋವನ್ನು ಗುಣಪಡಿಸದಿದ್ದರೂ, ಶಮನ ನೀಡುತ್ತವೆ.",
@@ -1082,5 +1113,58 @@ export const kn: TranslationSchema = {
       "tapToReportSymptoms": "ಧ್ವನಿಯ ಮೂಲಕ ರೋಗಲಕ್ಷಣಗಳನ್ನು ವರದಿ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ",
       "correlationHistory": "ಸಂಬಂಧ ಇತಿಹಾಸ",
       "symptomTracking": "ರೋಗಲಕ್ಷಣ ಟ್ರ್ಯಾಕಿಂಗ್"
+  },
+  "onboarding": {
+    "title": "ನಿಮ್ಮ ಸಖಿ ಸ್ಥಳವನ್ನು ಹೊಂದಿಸಿ",
+    "nameLabel": "ಸಖಿ ನಿಮ್ಮನ್ನು ಏನೆಂದು ಕರೆಯಬೇಕು?",
+    "namePlaceholder": "ನಿಮ್ಮ ಹೆಸರು ಅಥವಾ ಅಡ್ಡಹೆಸರು ನಮೂದಿಸಿ",
+    "nameHint": "ದೈನಂದಿನ ಸಲಹೆಗಳು ಮತ್ತು ಚೆಕ್-ಇನ್‌ಗಳಲ್ಲಿ ಸಖಿ ನಿಮ್ಮನ್ನು ಹೀಗೆ ಕರೆಯುತ್ತದೆ.",
+    "herMode": "ಹರ್ ಮೋಡ್ (Her Mode)",
+    "herModeDesc": "ಋತುಚಕ್ರ ಟ್ರ್ಯಾಕಿಂಗ್, ಪಿಎಂಎಸ್ ಮಾಹಿತಿ, ಪಿಸಿಒಎಸ್ ಮತ್ತು ಹಾರ್ಮೋನ್ ಆರೋಗ್ಯ ಮೇಲ್ವಿಚಾರಣೆ.",
+    "momMode": "ಮಾಮ್ ಮೋಡ್ (Mom Mode)",
+    "momModeDesc": "ಗರ್ಭಧಾರಣೆಯ ಪ್ರಯಾಣ, ವಾರವಾರು ಮಗುವಿನ ಬೆಳವಣಿಗೆ, ತಪಾಸಣೆಗಳು ಮತ್ತು ಆರೈಕೆ.",
+    "lastPeriodPrompt": "ನಿಮ್ಮ ಕೊನೆಯ ಋತುಚಕ್ರ ಯಾವಾಗ ಪ್ರಾರಂಭವಾಯಿತು?",
+    "exactDateLabel": "ಅಥವಾ ನಿಖರ ದಿನಾಂಕ ನಮೂದಿಸಿ (YYYY-MM-DD)",
+    "avgCycleLength": "ಸರಾಸರಿ ಋತುಚಕ್ರದ ಅವಧಿ (ದಿನಗಳು)",
+    "periodDuration": "ಋತುಸ್ರಾವದ ಅವಧಿ (ದಿನಗಳು)",
+    "cycleRegularity": "ನಿಮ್ಮ ಋತುಚಕ್ರ ಎಷ್ಟು ನಿಯಮಿತವಾಗಿದೆ?",
+    "finish": "ಸೆಟಪ್ ಪೂರ್ಣಗೊಳಿಸಿ",
+  },
+  "triage": {
+    "title": "ಲಕ್ಷಣ ಪರಿಶೀಲನೆ",
+    "checkAgain": "ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ / ಲಕ್ಷಣ ಬದಲಾಯಿಸಿ",
+    "crampsPain": "ಸೆಳೆತ / ಶ್ರೋಣಿ ನೋವು",
+    "flowIntensity": "ರಕ್ತಸ್ರಾವದ ತೀವ್ರತೆ",
+    "headacheBloating": "ತಲೆನೋವು ಮತ್ತು ಹೊಟ್ಟೆ ಉಬ್ಬರ",
+    "additionalIndicators": "ಹೆಚ್ಚುವರಿ ಸೂಚಕಗಳು",
+    "runCheck": "ತಪಾಸಣೆ ನಡೆಸಿ",
+  },
+  "mobile": {
+    "privacyConsent": "ಗೌಪ್ಯತೆ ಮತ್ತು ಸಮ್ಮತಿ",
+    "yourDataYourControl": "ನಿಮ್ಮ ಡೇಟಾ, ನಿಮ್ಮ ನಿಯಂತ್ರಣ",
+    "dataProtectionPromise": "ಡೇಟಾ ರಕ್ಷಣೆಯ ಭರವಸೆ",
+    "aiHealthInsights": "AI ಆರೋಗ್ಯ ಮಾಹಿತಿ",
+    "privateModeOffline": "ಪ್ರೈವೇಟ್ ಮೋಡ್ (ಆಫ್‌ಲೈನ್ AI)",
+    "savePrivacyChoices": "ಗೌಪ್ಯತೆ ಆಯ್ಕೆಗಳನ್ನು ಉಳಿಸಿ",
+    "labReports": "ಲ್ಯಾಬ್ ವರದಿಗಳು",
+    "addReport": "ವರದಿ ಸೇರಿಸಿ",
+    "noLabReports": "ಇನ್ನೂ ಯಾವುದೇ ಲ್ಯಾಬ್ ವರದಿಗಳಿಲ್ಲ",
+    "recordLabValues": "ಲ್ಯಾಬ್ ಮೌಲ್ಯಗಳನ್ನು ದಾಖಲಿಸಿ",
+    "enterPin": "ಪಿನ್ ನಮೂದಿಸಿ",
+    "forgotPin": "ಪಿನ್ ಮರೆತಿರುವಿರಾ?",
+    "sakhiTyping": "ಸಖಿ ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ",
+    "hideSakhiNow": "ಸಖಿಯನ್ನು ಈಗ ಮರೆಮಾಡಿ",
+    "appointments": "ನೇಮಕಾತಿಗಳು",
+    "resetMonth": "ತಿಂಗಳು ಮರುಹೊಂದಿಸಿ",
+    "done": "ಮುಗಿದಿದೆ",
+    "snooze1h": "1 ಗಂಟೆ ಸ್ನೂಜ್",
+    "deleteReminder": "ಜ್ಞಾಪನೆ ಅಳಿಸಿ",
+    "addTablet": "ಮಾತ್ರೆ ಸೇರಿಸಿ",
+    "tabletName": "ಮಾತ್ರೆಯ ಹೆಸರು",
+    "letFamilyKnow": "ನಿಮ್ಮ ಕುಟುಂಬಕ್ಕೆ ತಿಳಿಸಿ",
+    "nearestHospital": "ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆ",
+    "moodHistory": "ಮನಸ್ಥಿತಿ ತಪಾಸಣೆ ಇತಿಹಾಸ",
+    "seeHowDoing": "ನಾನು ಹೇಗಿದ್ದೇನೆ ನೋಡಿ",
+    "notNow": "ಈಗ ಬೇಡ",
   },
 };

@@ -130,7 +130,7 @@ function AccountSheet({ open, onClose, mode }: { open: boolean; onClose: () => v
       const data = await apiFetch<unknown>("/api/export-data");
       await Share.share({ title: "Sakhi data export", message: JSON.stringify(data, null, 2) });
     } catch (e) {
-      Alert.alert("Couldn't export", e instanceof Error ? e.message : "Please try again.");
+      Alert.alert(t("settings.couldNotExport"), e instanceof Error ? e.message : "Please try again.");
     }
   };
 

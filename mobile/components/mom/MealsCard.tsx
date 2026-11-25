@@ -67,7 +67,7 @@ export default function MealsCard({ stage }: { stage: Stage }) {
     <Panel>
       <PanelTitle title={tr("mom.mealsTitle")} icon={BowlFood} iconColor={palette.blush500} subtitle={`${STAGE_NOTE[stage]} (ICMR-NIN). Tap a food each time you eat a serving, or tell Sakhi “had 2 roti, dal and curd for lunch”.`} />
 
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 }} accessibilityLabel="Add a serving">
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 }} accessibilityLabel={tr("pregnancy.addServing")}>
         {quick.map((f) => (
           <PressableScale key={f.id} onPress={() => change(f.id, 1)} scaleTo={0.95} accessibilityLabel={`Add ${f.name}, ${f.serving}`} style={{ flexDirection: "row", alignItems: "center", gap: 4, minHeight: 40, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(42,21,47,0.12)", backgroundColor: "#fff" }}>
             <Plus size={13} color={ink[50]} />
@@ -99,7 +99,7 @@ export default function MealsCard({ stage }: { stage: Stage }) {
         </View>
       ) : (
         <View style={{ marginTop: 14, borderRadius: 16, borderWidth: 1, borderStyle: "dashed", borderColor: "rgba(42,21,47,0.15)", padding: 14 }}>
-          <AppText style={{ fontSize: 14, color: ink[60] }}>Nothing logged yet today.</AppText>
+          <AppText style={{ fontSize: 14, color: ink[60] }}>{tr("pregnancy.nothingLoggedToday")}</AppText>
         </View>
       )}
 
@@ -156,7 +156,7 @@ export default function MealsCard({ stage }: { stage: Stage }) {
       ) : null}
 
       <View style={{ marginTop: 18 }}>
-        <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[60], marginBottom: 8 }}>Last 7 days: food groups per day</AppText>
+        <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[60], marginBottom: 8 }}>{tr("pregnancy.last7DaysFood")}</AppText>
         <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 6, height: 60 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           {week.map((w) => (
             <View key={w.date} style={{ flex: 1, alignItems: "center", gap: 4, justifyContent: "flex-end" }}>

@@ -132,7 +132,7 @@ export default function CheckInChat({ phase: info, name, onComplete }: { phase: 
             {step === "pain" && !done ? (
               bleeding ? (
                 <View style={{ gap: 10 }}>
-                  <View style={{ flexDirection: "row", gap: 3 }} accessibilityLabel="Cramp strength, 0 to 10">
+                  <View style={{ flexDirection: "row", gap: 3 }} accessibilityLabel={t("checkin.crampStrength")}>
                     {Array.from({ length: 11 }, (_, n) => {
                       const on = (pain ?? -1) >= n && n > 0;
                       const sel = pain === n;

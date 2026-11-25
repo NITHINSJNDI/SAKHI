@@ -69,7 +69,7 @@ export default function MilestonesCard({ pp, dueDate }: { pp: PP; dueDate?: stri
       />
       {late.length ? (
         <View style={{ marginTop: 14, padding: 14, borderRadius: 16, backgroundColor: TW.amber[50], gap: 8 }} accessibilityRole="alert">
-          <AppText style={{ fontSize: 14, fontWeight: "600", color: "#78350F" }}>Worth asking your doctor about</AppText>
+          <AppText style={{ fontSize: 14, fontWeight: "600", color: "#78350F" }}>{t("pregnancy.worthAskingDoctor")}</AppText>
           <AppText style={{ fontSize: 14, lineHeight: 20, color: "#78350F" }}>Most babies do these by now. It may be nothing, but checking early helps: ask your doctor, or the RBSK team about the free District Early Intervention Centre.</AppText>
           {late.map((m) => (
             <Row key={m.id} m={m} />
@@ -78,13 +78,13 @@ export default function MilestonesCard({ pp, dueDate }: { pp: PP; dueDate?: stri
       ) : null}
       {current.length ? (
         <View style={{ marginTop: 14, gap: 8 }}>
-          <AppText style={{ fontSize: 14, fontWeight: "500", color: palette.plum900 }}>Now and coming up</AppText>
+          <AppText style={{ fontSize: 14, fontWeight: "500", color: palette.plum900 }}>{t("pregnancy.nowAndComingUp")}</AppText>
           {current.map((m) => (
             <Row key={m.id} m={m} />
           ))}
         </View>
       ) : late.length === 0 ? (
-        <AppText style={{ marginTop: 14, fontSize: 14, color: ink[60] }}>Nothing new to look for right now.</AppText>
+        <AppText style={{ marginTop: 14, fontSize: 14, color: ink[60] }}>{t("pregnancy.nothingNewNow")}</AppText>
       ) : null}
       {done.length ? (
         <View style={{ marginTop: 12 }}>

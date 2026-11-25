@@ -1,5 +1,9 @@
 export const en = {
   "common": {
+    "yes": "Yes",
+    "no": "No",
+    "somethingWrong": "Something went wrong",
+    "tryAgain": "Try again",
     "backToDashboard": "Back to dashboard",
     "last30Days": "Last 30 days",
     "last90Days": "Last 90 days",
@@ -27,6 +31,17 @@ export const en = {
     "friend": "friend"
   },
   "auth": {
+    "privacy": "Private workspace per account. Download or delete your records anytime.",
+    "forgotPassword": "Forgot password?",
+    "resetTitle": "Reset your password",
+    "nameTooLong": "Name must be 80 characters or fewer.",
+    "passwordTooLong": "Password must be 128 characters or fewer.",
+    "resetCodeLabel": "6-digit code",
+    "newPasswordLabel": "New password",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "sendCode": "Send code",
+    "setNewPassword": "Set new password",
+    "sendNewCode": "Send a new code",
     "exploreSampleData": "Explore with sample data",
     "exploreSampleDesc": "Try a pre-filled workspace on this device with no sign-up required.",
     "demoHerCycles": "3 months of cycles",
@@ -182,6 +197,9 @@ export const en = {
     "basedOnCycles": "Based on {count} of your cycles (usually {mean} days, give or take {sd} days)."
   },
   "pregnancy": {
+    "daysToDue": "{days} days to go",
+    "dueAround": "Due around {date}",
+    "weeksPregnant": "{weeks} weeks pregnant",
     "pregnancyMode": "Pregnancy Mode",
     "maternalVitals": "Maternal & fetal vitals",
     "firstTrimester": "First trimester",
@@ -199,6 +217,10 @@ export const en = {
     "hospitalBag": "Hospital bag checklist"
   },
   "chat": {
+    "askHerMobile": "Ask Sakhi",
+    "askMomMobile": "Ask Sakhi",
+    "herSubtitle": "Ask about your cycle, symptoms, or how you're feeling.",
+    "placeholderMobile": "Message Sakhi...",
     "title": "Sakhi AI Multilingual",
     "placeholder": "Type or tap the mic to talk…",
     "placeholderHandsFree": "Hands-free is on, just talk…",
@@ -248,6 +270,8 @@ export const en = {
     "quickPostnatalFoodMsg": "What should I eat while breastfeeding?"
   },
   "settings": {
+    "language": "Language",
+    "pinCurrent": "Current 4-digit PIN",
     "title": "Settings",
     "preferredName": "Preferred name",
     "preferredNameHint": "How Sakhi greets you in dashboards and chat.",
@@ -292,6 +316,8 @@ export const en = {
     "pinWrongError": "That's not your PIN."
   },
   "menu": {
+    "account": "Account",
+    "profile": "Profile",
     "switchToMom": "Switch to Mom Mode",
     "switchToHer": "Switch to Her Mode",
     "doctorSummary": "Doctor summary (PDF)",
@@ -318,6 +344,7 @@ export const en = {
     "notNow": "Not now"
   },
   "checkin": {
+    "title": "Daily check-in",
     "greeting": "Hi {name} 👋",
     "flowDefaultQ": "Any bleeding or spotting today?",
     "flowPeriodQ": "Day {day} of your period. How's your flow today?",
@@ -493,6 +520,10 @@ export const en = {
     "signedInAs": "Signed in as"
   },
   "relief": {
+    "painCanChange": "Pain can change hour by hour.",
+    "painRightNow": "Right now",
+    "worst": "Worst",
+    "worstToday": "Worst today",
     "painRelief": "Pain relief",
     "letUsEase": "Let's ease this together",
     "reliefSubtitle": "These won't switch pain off instantly, but they can take the edge off.",
@@ -1080,6 +1111,59 @@ export const en = {
       "tapToReportSymptoms": "Tap to report symptoms via voice",
       "correlationHistory": "Correlation History",
       "symptomTracking": "Symptom tracking"
+  },
+  "onboarding": {
+    "title": "Set up your Sakhi space",
+    "nameLabel": "What should Sakhi call you?",
+    "namePlaceholder": "Enter your name or nickname",
+    "nameHint": "This is how Sakhi will address you in daily tips and check-ins.",
+    "herMode": "Her Mode",
+    "herModeDesc": "Menstrual cycle tracking, PMS insights, PCOS & hormonal health monitoring.",
+    "momMode": "Mom Mode",
+    "momModeDesc": "Pregnancy journey, week-by-week baby development, trimester vitals & ANC visits.",
+    "lastPeriodPrompt": "When did your last period start?",
+    "exactDateLabel": "Or enter exact date (YYYY-MM-DD)",
+    "avgCycleLength": "Average Cycle Length (Days)",
+    "periodDuration": "Period Duration (Bleeding Days)",
+    "cycleRegularity": "How regular are your cycles?",
+    "finish": "Finish Setup",
+  },
+  "triage": {
+    "title": "Symptom Checker",
+    "checkAgain": "Check Again / Adjust Symptoms",
+    "crampsPain": "Cramps / Pelvic Pain",
+    "flowIntensity": "Flow Intensity",
+    "headacheBloating": "Headache & Bloating",
+    "additionalIndicators": "Additional Indicators",
+    "runCheck": "Run Triage Check",
+  },
+  "mobile": {
+    "privacyConsent": "Privacy & Consent",
+    "yourDataYourControl": "Your Data, Your Control",
+    "dataProtectionPromise": "Data Protection Promise",
+    "aiHealthInsights": "AI Health Insights",
+    "privateModeOffline": "Private Mode (Offline AI)",
+    "savePrivacyChoices": "Save Privacy Choices",
+    "labReports": "Lab Reports",
+    "addReport": "Add Report",
+    "noLabReports": "No lab reports yet",
+    "recordLabValues": "Record Lab Values",
+    "enterPin": "Enter PIN",
+    "forgotPin": "Forgot PIN?",
+    "sakhiTyping": "Sakhi is typing",
+    "hideSakhiNow": "Hide Sakhi now",
+    "appointments": "Appointments",
+    "resetMonth": "Reset Month",
+    "done": "Done",
+    "snooze1h": "Snooze 1h",
+    "deleteReminder": "Delete reminder",
+    "addTablet": "Add tablet",
+    "tabletName": "Tablet name",
+    "letFamilyKnow": "Let your family know",
+    "nearestHospital": "Nearest hospital",
+    "moodHistory": "Mood check history",
+    "seeHowDoing": "See how I'm doing",
+    "notNow": "Not now",
   },
 };
 

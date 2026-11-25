@@ -11,16 +11,18 @@ import SchemesCard from "@/components/mom/SchemesCard";
 import { ModeScroll } from "@/components/shared/ModeScroll";
 import { PressableScale } from "@/components/ui";
 import { Panel, PanelTitle, ink } from "@/components/web/Panel";
+import { useT } from "@/lib/i18n";
 import { useMom } from "@/lib/momData";
 import { MomTop } from "@/lib/momUi";
 import { stageFor } from "@/lib/shared/meals";
 
 export default function MomPlan() {
+  const { t } = useT();
   const m = useMom();
   const { born, pp, weeks, profile, ppStage } = m;
   const resetMonth = () =>
-    Alert.alert("Reset this month?", "Clear appointments and start fresh for this month.", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("pregnancy.resetMonthQuestion"), "Clear appointments and start fresh for this month.", [
+      { text: t("common.cancel"), style: "cancel" },
       { text: "Reset", style: "destructive", onPress: () => void m.resetAppointments() },
     ]);
 
@@ -36,12 +38,12 @@ export default function MomPlan() {
       ) : (
         <Panel>
           <PanelTitle
-            title="Appointments"
+            title={t("pregnancy.appointments")}
             subtitle={`${new Date().toLocaleString("default", { month: "long", year: "numeric" })} Schedule • Resets monthly`}
             right={
               m.appointments.length ? (
                 <PressableScale onPress={resetMonth} style={{ minHeight: 40, justifyContent: "center", paddingHorizontal: 8 }}>
-                  <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[60] }}>Reset Month</AppText>
+                  <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[60] }}>{t("pregnancy.resetMonth")}</AppText>
                 </PressableScale>
               ) : undefined
             }

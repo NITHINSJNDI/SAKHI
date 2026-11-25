@@ -24,7 +24,7 @@ export default function MomCare() {
       <LabResultsCard mode="pregnancy" pregnant={!born} />
       {!born && weeks < 28 ? (
         <Panel>
-          <PanelTitle title={t("mom.contractionTitle", "Contraction timer")} subtitle="Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are." />
+          <PanelTitle title={t("mom.contractionTitle", "Contraction timer")} subtitle={t("pregnancy.contractionHint")} />
           <View style={{ marginTop: 14 }}>
             <ContractionTimer weeks={weeks} />
           </View>

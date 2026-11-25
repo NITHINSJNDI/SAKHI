@@ -62,7 +62,7 @@ export default function BabyGrowthCard({ pp, dueDate }: { pp: PP; dueDate?: stri
         iconColor={TW.emerald[600]}
         subtitle={`Weigh baby once a month (free at the Anganwadi) and add it here. A line that keeps rising is what matters most.${age.corrected ? ` Born ${age.weeksEarly} weeks early, so Sakhi uses the age from the due date.` : ""}`}
       />
-      <AppText style={{ marginTop: 4, fontSize: 11, color: ink[45] }}>WHO growth standards, as on the MCP card</AppText>
+      <AppText style={{ marginTop: 4, fontSize: 11, color: ink[45] }}>{t("pregnancy.whoGrowthNote")}</AppText>
 
       <View style={{ marginTop: 14 }}>
         {!doc.sex ? (
@@ -101,8 +101,8 @@ export default function BabyGrowthCard({ pp, dueDate }: { pp: PP; dueDate?: stri
       ) : null}
 
       <View style={{ marginTop: 16, gap: 12 }}>
-        <DateField label="Date weighed" value={date} onChange={setDate} min={birth} max={today} />
-        <Field label="Weight (kg)" value={kg} onChangeText={setKg} keyboardType="decimal-pad" placeholder="e.g. 4.6" />
+        <DateField label={t("pregnancy.dateWeighed")} value={date} onChange={setDate} min={birth} max={today} />
+        <Field label={t("pregnancy.weightKg")} value={kg} onChangeText={setKg} keyboardType="decimal-pad" placeholder="e.g. 4.6" />
         <PillButton label={t("mom.addWeight")} onPress={add} />
         {error ? <AppText style={{ fontSize: 14, color: TW.rose[700] }} accessibilityRole="alert">{error}</AppText> : null}
       </View>

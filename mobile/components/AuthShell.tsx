@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/AppText";
 import { BrandHeader } from "@/components/BrandHeader";
-import { AUTH_COPY } from "@/lib/auth-copy";
+import { useT } from "@/lib/i18n";
 import { spacing, useAppTheme } from "@/theme";
 
 export interface AuthShellProps {
@@ -25,6 +25,7 @@ export interface AuthShellProps {
  */
 export function AuthShell({ children }: AuthShellProps) {
   const theme = useAppTheme();
+  const { t } = useT();
 
   return (
     <SafeAreaView edges={["top", "bottom"]} style={[styles.safe, { backgroundColor: theme.stage }]}>
@@ -55,7 +56,7 @@ export function AuthShell({ children }: AuthShellProps) {
             <View style={styles.privacy}>
               <Lock size={15} color={theme.textFaint} weight="duotone" />
               <AppText variant="caption" tone="faint" style={styles.privacyText}>
-                {AUTH_COPY.privacy}
+                {t("auth.privacy")}
               </AppText>
             </View>
           </View>

@@ -272,9 +272,9 @@ export default function TabletsCard({ mode, weeks = 0 }: { mode: "her" | "pregna
               </PressableScale>
             ))}
           </View>
-          <Field label="Tablet name" value={draft.name} onChangeText={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder="e.g. Calcium, Metformin 500" />
+          <Field label={t("tabletsExtra.tabletName")} value={draft.name} onChangeText={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("tabletsExtra.tabletExample")} />
           <View style={{ gap: 6 }}>
-            <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>When (as on the prescription)</AppText>
+            <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>{t("tabletsExtra.whenPrescribed")}</AppText>
             <View style={atom.wrap}>
               {PATTERNS.map((pt) => (
                 <ToggleChip key={pt.code} label={pt.code} on={patternOf(draft.slots) === pt.code} onPress={() => setDraft((d) => ({ ...d, slots: pt.slots }))} />
@@ -295,7 +295,7 @@ export default function TabletsCard({ mode, weeks = 0 }: { mode: "her" | "pregna
             </View>
           </View>
           <View style={{ gap: 6 }}>
-            <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>Food</AppText>
+            <AppText style={{ fontSize: 12, fontWeight: "500", color: ink[70] }}>{t("tabletsExtra.food")}</AppText>
             <View style={atom.wrap}>
               {FOODS.map((f) => (
                 <ToggleChip key={f} label={FOOD_LABEL[f]} on={draft.food === f} onPress={() => setDraft((d) => ({ ...d, food: f }))} />
@@ -303,8 +303,8 @@ export default function TabletsCard({ mode, weeks = 0 }: { mode: "her" | "pregna
             </View>
           </View>
           <View style={{ flexDirection: "row", gap: 8 }}>
-            <PillButton label="Add tablet" onPress={() => add({ name: draft.name, note: "", slots: draft.slots, food: draft.food })} disabled={!draft.name.trim() || !draft.slots.length} />
-            <PillButton label="Cancel" variant="ghost" onPress={() => setAdding(false)} />
+            <PillButton label={t("tabletsExtra.addTablet")} onPress={() => add({ name: draft.name, note: "", slots: draft.slots, food: draft.food })} disabled={!draft.name.trim() || !draft.slots.length} />
+            <PillButton label={t("common.cancel")} variant="ghost" onPress={() => setAdding(false)} />
           </View>
         </View>
       ) : (
@@ -346,7 +346,7 @@ export default function TabletsCard({ mode, weeks = 0 }: { mode: "her" | "pregna
         <View style={{ marginTop: 20, borderTopWidth: 1, borderTopColor: ink[7], paddingTop: 16 }}>
           <Pressable onPress={() => setShowLedger((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: showLedger }} style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <AppText style={atom.strong}>Intake ledger, last 14 days</AppText>
+              <AppText style={atom.strong}>{t("tabletsExtra.intakeLedger14")}</AppText>
               <AppText style={atom.small}>
                 {book.onTime} on time · {book.late} late · {book.missed} missed. On time means within {ON_TIME_MIN} minutes.
               </AppText>

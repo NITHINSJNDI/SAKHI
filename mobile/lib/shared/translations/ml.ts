@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const ml: TranslationSchema = {
   "common": {
+    "yes": "അതെ",
+    "no": "ഇല്ല",
+    "somethingWrong": "എന്തോ പിശക് സംഭവിച്ചു",
+    "tryAgain": "വീണ്ടും ശ്രമിക്കുക",
     "backToDashboard": "ഡാഷ്‌ബോർഡിലേക്ക് മടങ്ങുക",
     "last30Days": "കഴിഞ്ഞ 30 ദിവസങ്ങൾ",
     "last90Days": "കഴിഞ്ഞ 90 ദിവസങ്ങൾ",
@@ -29,6 +33,17 @@ export const ml: TranslationSchema = {
     "friend": "സഖി"
   },
   "auth": {
+    "privacy": "ഓരോ അക്കൗണ്ടിനും സ്വകാര്യ ഇടം. എപ്പോൾ വേണമെങ്കിലും ഡാറ്റ ഡൗൺലോഡ് ചെയ്യാനോ ഇല്ലാതാക്കാനോ കഴിയും.",
+    "forgotPassword": "പാസ്‌വേഡ് മറന്നോ?",
+    "resetTitle": "പാസ്‌വേഡ് പുനഃസജ്ജമാക്കുക",
+    "nameTooLong": "പേര് 80 അക്ഷരങ്ങളോ അതിൽ കുറവോ ആയിരിക്കണം.",
+    "passwordTooLong": "പാസ്‌വേഡ് 128 അക്ഷരങ്ങളോ അതിൽ കുറവോ ആയിരിക്കണം.",
+    "resetCodeLabel": "6-അക്ക കോഡ്",
+    "newPasswordLabel": "പുதிய പാസ്‌വേഡ്",
+    "confirmNewPasswordLabel": "പുதிய പാസ്‌വേഡ് സ്ഥിരീകരിക്കുക",
+    "sendCode": "കോഡ് അയയ്ക്കുക",
+    "setNewPassword": "പുதிய പാസ്‌വേഡ് സജ്ജമാക്കുക",
+    "sendNewCode": "പുതിയ കോഡ് അയയ്ക്കുക",
     "exploreSampleData": "മാതൃകാ വിവരങ്ങളോടെ കാണുക",
     "exploreSampleDesc": "സൈൻ അപ്പ് ചെയ്യാതെ തന്നെ ഈ ഉപകരണത്തിൽ മുൻകൂട്ടി ചേർത്ത വിവരങ്ങൾ കാണുക.",
     "demoHerCycles": "3 മാസത്തെ ചക്രങ്ങൾ",
@@ -184,6 +199,9 @@ export const ml: TranslationSchema = {
     "basedOnCycles": "നിങ്ങളുടെ {count} ചക്രങ്ങളെ അടിസ്ഥാനമാക്കി (സാധാരണമായി {mean} ദിവസങ്ങൾ, ±{sd} ദിവസങ്ങൾ)."
   },
   "pregnancy": {
+    "daysToDue": "{days} ദിവസം ബാക്കി",
+    "dueAround": "പ്രതീക്ഷിക്കുന്ന തീയതി: {date}",
+    "weeksPregnant": "{weeks} ആഴ്ച ഗർഭകാലം",
     "pregnancyMode": "ഗർഭകാല മോഡ്",
     "maternalVitals": "അമ്മയുടെയും കുഞ്ഞിന്റെയും ആരോഗ്യം",
     "firstTrimester": "ഒന്നാം ത്രൈമാസം",
@@ -201,13 +219,10 @@ export const ml: TranslationSchema = {
     "hospitalBag": "ഹോസ്പിറ്റൽ ബാഗ് വിവരങ്ങൾ"
   },
   "chat": {
-    "askSakhi": "സഖിയോട് ചോദിക്കൂ",
-    "newChat": "പുതിയ ചാറ്റ്",
-    "pastChats": "മുൻ ചാറ്റുകൾ",
-    "noPastChats": "പുതിയ ചാറ്റ് തുടങ്ങുമ്പോൾ മുൻ ചാറ്റുകൾ ഇവിടെ കാണാം.",
-    "deleteChat": "ഈ ചാറ്റ് നീക്കണോ?",
-    "messagesCount_one": "{count} സന്ദേശം",
-    "messagesCount_other": "{count} സന്ദേശങ്ങൾ",
+    "askHerMobile": "സഖിയോട് ചോദിക്കുക",
+    "askMomMobile": "സഖിയോട് ചോദിക്കുക",
+    "herSubtitle": "നിങ്ങളുടെ ആർത്തവം, ലക്ഷണങ്ങൾ, അല്ലെങ്കിൽ തോന്നലുകൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കുക.",
+    "placeholderMobile": "സഖിക്ക് സന്ദേശം അയയ്ക്കുക...",
     "title": "സഖി AI ബഹുഭാഷാ സംഭാഷണം",
     "placeholder": "മെസ്സേജ് ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ സംസാരിക്കാൻ മൈക്ക് തൊടുക…",
     "placeholderHandsFree": "ഹാൻഡ്സ്-ഫ്രീ ഓൺ ആണ്, സംസാരിക്കൂ…",
@@ -257,8 +272,8 @@ export const ml: TranslationSchema = {
     "quickPostnatalFoodMsg": "മുലയൂട്ടുമ്പോൾ ഞാൻ എന്ത് കഴിക്കണം?"
   },
   "settings": {
-    "voice_girl": "യുവ",
-    "voice_woman": "സൗമ്യം",
+    "language": "ഭാഷ",
+    "pinCurrent": "നിലവിലെ 4-അക്ക പിൻ",
     "title": "ക്രമീകരണങ്ങൾ",
     "preferredName": "വിളിക്കേണ്ട പേര്",
     "preferredNameHint": "സഖി നിങ്ങളെ ഈ പേരിൽ സംബോധന ചെയ്യും.",
@@ -303,6 +318,8 @@ export const ml: TranslationSchema = {
     "pinWrongError": "തെറ്റായ പിൻ."
   },
   "menu": {
+    "account": "അക്കൗണ്ട്",
+    "profile": "പ്രൊഫൈൽ",
     "switchToMom": "മോം മോഡിലേക്ക് മാറുക",
     "switchToHer": "ഹെർ മോഡിലേക്ക് മാറുക",
     "doctorSummary": "ഡോക്ടർ സംഗ്രഹം (PDF)",
@@ -329,6 +346,7 @@ export const ml: TranslationSchema = {
     "notNow": "ഇപ്പോഴല്ല"
   },
   "checkin": {
+    "title": "പ്രതിദിന ചെക്ക്-ഇൻ",
     "greeting": "ഹലോ {name} 👋",
     "flowDefaultQ": "ഇന്ന് രക്തസ്രാവമോ പാടുകളോ ഉണ്ടോ?",
     "flowPeriodQ": "ആർത്തവത്തിന്റെ {day}-ാം ദിവസം. ഇന്ന് രക്തസ്രാവം എങ്ങനെയുണ്ട്?",
@@ -504,6 +522,10 @@ export const ml: TranslationSchema = {
     "signedInAs": "ആയി സൈൻ ഇൻ ചെയ്തു"
   },
   "relief": {
+    "painCanChange": "വേദന ഓരോ മണിക്കൂറിലും മാറാം.",
+    "painRightNow": "ഇപ്പോൾ",
+    "worst": "ഏറ്റവും കഠിനം",
+    "worstToday": "ഇന്ന് ഏറ്റവും കൂടുതൽ",
     "painRelief": "വേദനാ ശമനം",
     "letUsEase": "വേദന ഒരുമിച്ച് കുറയ്ക്കാം",
     "reliefSubtitle": "ഇവ വേദന പൂർണ്ണമായി മാറ്റില്ലെങ്കിലും തീവ്രത കുറയ്ക്കും.",
@@ -764,24 +786,6 @@ export const ml: TranslationSchema = {
     "close": "അടയ്ക്കുക"
   },
   "hygiene": {
-    "period_underwear": "പീരിയഡ് അടിവസ്ത്രം",
-    "tapWhenChange": "മാറ്റുമ്പോൾ ടാപ്പ് ചെയ്യൂ, അടുത്തത് എപ്പോഴെന്ന് സഖി പറയും.",
-    "lastChanged": "അവസാനം മാറ്റിയത് {time} മുമ്പ്.",
-    "changesToday_one": "ഇന്ന് {count} തവണ മാറ്റി",
-    "changesToday_other": "ഇന്ന് {count} തവണ മാറ്റി",
-    "howFull": "മാറ്റിയത് എത്ര നിറഞ്ഞിരുന്നു?",
-    "soakLight": "കുറച്ച്",
-    "soakHalf": "പകുതി",
-    "soakFull": "മുഴുവൻ നനഞ്ഞു",
-    "skip": "ഒഴിവാക്കുക",
-    "clotCheck": "₹5 നാണയത്തേക്കാൾ വലിയ കട്ട പോയി",
-    "clothRough": "തുണിയാണെങ്കിൽ ഇത് ഏകദേശ കണക്കാണ്.",
-    "tooMany": "ഒരു ദിവസത്തിന് ഇത് ധാരാളമാണ്. ഓരോ മണിക്കൂറിലും പാഡ് നനയുന്നുണ്ടെങ്കിൽ ഡോക്ടറെ കാണുക.",
-    "careFor": "നിങ്ങളുടെ {item} പരിചരണവും നിർമാർജനവും",
-    "disposal": "നിർമാർജനം:",
-    "call": "വിളിക്കുക",
-    "findNearest": "Google Maps-ൽ അടുത്തുള്ളത് കണ്ടെത്തുക",
-    "emergency": "അടിയന്തരം: 112 അല്ലെങ്കിൽ 108 വിളിക്കുക.",
     "title": "ആർത്തവ ശുചിത്വം",
     "whatDoYouUse": "നിങ്ങൾ എന്താണ് ഉപയോഗിക്കുന്നത്?",
     "changeTimer": "മാറ്റാനുള്ള സമയം",
@@ -1110,21 +1114,57 @@ export const ml: TranslationSchema = {
       "correlationHistory": "പരസ്പരബന്ധ ചരിത്രം",
       "symptomTracking": "ലക്ഷണങ്ങൾ ട്രാക്ക് ചെയ്യൽ"
   },
-  "aram": {
-    "rating": "Google-ൽ 4.9 · 293 റിവ്യൂകൾ",
-    "partner": "സഖി പങ്കാളി",
-    "pitch": "തമിഴ്നാട്ടിലെ പള്ളിപ്പാളയത്തിൽ നിർമ്മിച്ച മൃദുവായ കോട്ടൺ നാപ്കിനുകൾ. ഉപയോഗിക്കുന്ന സ്ത്രീകൾ സുഖത്തെക്കുറിച്ചും ചൊറിച്ചിലോ റാഷോ ഇല്ലാത്തതിനെക്കുറിച്ചും പറയുന്നു.",
-    "find": "ആരം കണ്ടെത്തുക",
-    "watch": "വീഡിയോ കാണുക"
+  "onboarding": {
+    "title": "നിങ്ങളുടെ സഖി ഇടം സജ്ജമാക്കുക",
+    "nameLabel": "സഖി നിങ്ങളെ എന്താണ് വിളിക്കേണ്ടത്?",
+    "namePlaceholder": "നിങ്ങളുടെ പേരോ വിളിപ്പേരോ നൽകുക",
+    "nameHint": "ദൈനംദിന നിർദ്ദേശങ്ങളിലും ചെക്ക്-ഇന്നുകളിലും സഖി നിങ്ങളെ ഇങ്ങനെ വിളിക്കും.",
+    "herMode": "ഹെർ മോഡ് (Her Mode)",
+    "herModeDesc": "ആർത്തവ ചക്ര ട്രാക്കിംഗ്, പിഎംഎസ് വിവരങ്ങൾ, പിസിഒഎസ്, ഹോർമോൺ ആരോഗ്യ നിരീക്ഷണം.",
+    "momMode": "മോം മോഡ് (Mom Mode)",
+    "momModeDesc": "ഗർഭകാല യാത്ര, ആഴ്ചതോറുമുള്ള കുഞ്ഞിന്റെ വളർച്ച, പരിശോധനകൾ, പരിചരണം.",
+    "lastPeriodPrompt": "നിങ്ങളുടെ അവസാന ആർത്തവം എപ്പോഴാണ് തുടങ്ങിയത്?",
+    "exactDateLabel": "അല്ലെങ്കിൽ കൃത്യമായ തീയതി നൽകുക (YYYY-MM-DD)",
+    "avgCycleLength": "ശരാശരി ആർത്തവ ചക്ര ദൈർഘ്യം (ദിവസം)",
+    "periodDuration": "ആർത്തവ ദൈർഘ്യം (ദിവസങ്ങൾ)",
+    "cycleRegularity": "നിങ്ങളുടെ ആർത്തവ ചക്രം എത്രത്തോളം കൃത്യമാണ്?",
+    "finish": "സെറ്റപ്പ് പൂർത്തിയാക്കുക",
   },
-  "padCheck": {
-    "calling": "സഖി നിങ്ങളെ വിളിക്കുന്നു 💜",
-    "title": "{item} മാറ്റാൻ സമയമായോ?",
-    "body": "അവസാനം മാറ്റിയിട്ട് ഏകദേശം {hours} മണിക്കൂറായി. പുതിയത് റാഷും അണുബാധയും തടയാൻ സഹായിക്കും.",
-    "changed": "ഇപ്പോൾ മാറ്റി",
-    "later": "1 മണിക്കൂറിൽ ഓർമ്മിപ്പിക്കുക"
+  "triage": {
+    "title": "ലക്ഷണ പരിശോധന",
+    "checkAgain": "വീണ്ടും പരിശോധിക്കുക / ലക്ഷണങ്ങൾ മാറ്റുക",
+    "crampsPain": "വേദന / അടിവയറ്റിലെ വേദന",
+    "flowIntensity": "രക്തസ്രാവത്തിന്റെ തീവ്രത",
+    "headacheBloating": "തലവേദനയും വയറുവീർക്കലും",
+    "additionalIndicators": "കൂടുതൽ ലക്ഷണങ്ങൾ",
+    "runCheck": "പരിശോധന നടത്തുക",
   },
-  "nudge": {
-    "checkIn": "നിങ്ങളുടെ ദിവസേനയുള്ള ചെക്ക്-ഇൻ കാത്തിരിക്കുന്നു 💜 30 സെക്കൻഡ് മതി."
+  "mobile": {
+    "privacyConsent": "സ്വകാര്യതയും സമ്മതവും",
+    "yourDataYourControl": "നിങ്ങളുടെ ഡാറ്റ, നിങ്ങളുടെ നിയന്ത്രണം",
+    "dataProtectionPromise": "ഡാറ്റാ സുരക്ഷാ വാഗ്ദാനം",
+    "aiHealthInsights": "AI ആരോഗ്യ വിവരങ്ങൾ",
+    "privateModeOffline": "പ്രൈവറ്റ് മോഡ് (ഓഫ്‌ലൈൻ AI)",
+    "savePrivacyChoices": "സ്വകാര്യതാ തിരഞ്ഞെടുപ്പുകൾ സംരക്ഷിക്കുക",
+    "labReports": "ലാബ് റിപ്പോർട്ടുകൾ",
+    "addReport": "റിപ്പോർട്ട് ചേർക്കുക",
+    "noLabReports": "ഇതുവരെ ലാബ് റിപ്പോർട്ടുകളൊന്നുമില്ല",
+    "recordLabValues": "ലാബ് മൂല്യങ്ങൾ രേഖപ്പെടുത്തുക",
+    "enterPin": "പിൻ നൽകുക",
+    "forgotPin": "പിൻ മറന്നോ?",
+    "sakhiTyping": "സഖി ടൈപ്പ് ചെയ്യുന്നു",
+    "hideSakhiNow": "സഖിയെ ഇപ്പോൾ മറയ്ക്കുക",
+    "appointments": "അപ്പോയിന്റ്‌മെന്റുകൾ",
+    "resetMonth": "മാസം പുനഃസജ്ജമാക്കുക",
+    "done": "പൂർത്തിയായി",
+    "snooze1h": "1 മണിക്കൂർ സ്നൂസ്",
+    "deleteReminder": "ഓർമ്മപ്പെടുത്തൽ ഇല്ലാതാക്കുക",
+    "addTablet": "ഗുളിക ചേർക്കുക",
+    "tabletName": "ഗുളികയുടെ പേര്",
+    "letFamilyKnow": "കുടുംബത്തെ അറിയിക്കുക",
+    "nearestHospital": "അടുത്തുള്ള ആശുപത്രി",
+    "moodHistory": "മാനസികാവസ്ഥ പരിശോധനാ ചരിത്രം",
+    "seeHowDoing": "ഞാൻ എങ്ങനെയുണ്ടെന്ന് നോക്കൂ",
+    "notNow": "ഇപ്പോൾ വേണ്ട",
   },
 };

@@ -1,5 +1,9 @@
 export const en = {
   "common": {
+    "yes": "Yes",
+    "no": "No",
+    "somethingWrong": "Something went wrong",
+    "tryAgain": "Try again",
     "backToDashboard": "Back to dashboard",
     "last30Days": "Last 30 days",
     "last90Days": "Last 90 days",
@@ -27,14 +31,25 @@ export const en = {
     "friend": "friend"
   },
   "auth": {
+    "privacy": "Private workspace per account. Download or delete your records anytime.",
+    "forgotPassword": "Forgot password?",
+    "resetTitle": "Reset your password",
+    "nameTooLong": "Name must be 80 characters or fewer.",
+    "passwordTooLong": "Password must be 128 characters or fewer.",
+    "resetCodeLabel": "6-digit code",
+    "newPasswordLabel": "New password",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "sendCode": "Send code",
+    "setNewPassword": "Set new password",
+    "sendNewCode": "Send a new code",
     "exploreSampleData": "Explore with sample data",
     "exploreSampleDesc": "Try a pre-filled workspace on this device with no sign-up required.",
     "demoHerCycles": "3 months of cycles",
     "demoMomWeeks": "32 weeks pregnant",
-    "welcome": "Welcome to Sakhi",
+    "welcome": "Welcome to SAKHI",
     "welcomeTagline": "Your private, compassionate women's health companion.",
     "selectLanguageTitle": "Choose your language",
-    "selectLanguagePrompt": "Which language would you prefer to use Sakhi in?",
+    "selectLanguagePrompt": "Which language would you prefer to use SAKHI in?",
     "step1": "1. Select Language",
     "step2": "2. Your Details",
     "signIn": "Sign in",
@@ -182,6 +197,9 @@ export const en = {
     "basedOnCycles": "Based on {count} of your cycles (usually {mean} days, give or take {sd} days)."
   },
   "pregnancy": {
+    "daysToDue": "{days} days to go",
+    "dueAround": "Due around {date}",
+    "weeksPregnant": "{weeks} weeks pregnant",
     "pregnancyMode": "Pregnancy Mode",
     "maternalVitals": "Maternal & fetal vitals",
     "firstTrimester": "First trimester",
@@ -199,13 +217,10 @@ export const en = {
     "hospitalBag": "Hospital bag checklist"
   },
   "chat": {
-    "askSakhi": "Ask Sakhi",
-    "newChat": "New chat",
-    "pastChats": "Past chats",
-    "noPastChats": "Your earlier chats will appear here when you start a new one.",
-    "deleteChat": "Delete this chat?",
-    "messagesCount_one": "{count} message",
-    "messagesCount_other": "{count} messages",
+    "askHerMobile": "Ask Sakhi",
+    "askMomMobile": "Ask Sakhi",
+    "herSubtitle": "Ask about your cycle, symptoms, or how you're feeling.",
+    "placeholderMobile": "Message Sakhi...",
     "title": "Sakhi AI Multilingual",
     "placeholder": "Type or tap the mic to talk…",
     "placeholderHandsFree": "Hands-free is on, just talk…",
@@ -255,8 +270,8 @@ export const en = {
     "quickPostnatalFoodMsg": "What should I eat while breastfeeding?"
   },
   "settings": {
-    "voice_girl": "Young",
-    "voice_woman": "Warm",
+    "language": "Language",
+    "pinCurrent": "Current 4-digit PIN",
     "title": "Settings",
     "preferredName": "Preferred name",
     "preferredNameHint": "How Sakhi greets you in dashboards and chat.",
@@ -301,6 +316,8 @@ export const en = {
     "pinWrongError": "That's not your PIN."
   },
   "menu": {
+    "account": "Account",
+    "profile": "Profile",
     "switchToMom": "Switch to Mom Mode",
     "switchToHer": "Switch to Her Mode",
     "doctorSummary": "Doctor summary (PDF)",
@@ -327,6 +344,7 @@ export const en = {
     "notNow": "Not now"
   },
   "checkin": {
+    "title": "Daily check-in",
     "greeting": "Hi {name} 👋",
     "flowDefaultQ": "Any bleeding or spotting today?",
     "flowPeriodQ": "Day {day} of your period. How's your flow today?",
@@ -502,6 +520,10 @@ export const en = {
     "signedInAs": "Signed in as"
   },
   "relief": {
+    "painCanChange": "Pain can change hour by hour.",
+    "painRightNow": "Right now",
+    "worst": "Worst",
+    "worstToday": "Worst today",
     "painRelief": "Pain relief",
     "letUsEase": "Let's ease this together",
     "reliefSubtitle": "These won't switch pain off instantly, but they can take the edge off.",
@@ -762,23 +784,6 @@ export const en = {
     "close": "Close"
   },
   "hygiene": {
-    "tapWhenChange": "Tap when you change, and Sakhi will tell you when the next one is due.",
-    "lastChanged": "Last changed {time} ago.",
-    "changesToday_one": "{count} change today",
-    "changesToday_other": "{count} changes today",
-    "howFull": "How full was the one you took off?",
-    "soakLight": "A little",
-    "soakHalf": "Half",
-    "soakFull": "Fully soaked",
-    "skip": "Skip",
-    "clotCheck": "Passed a clot bigger than a ₹5 coin",
-    "clothRough": "With cloth this is a rough guide.",
-    "tooMany": "That is a lot of changes for one day. If you are soaking a pad every hour, see a doctor.",
-    "careFor": "Caring for your {item} and disposal",
-    "disposal": "Disposal:",
-    "call": "Call",
-    "findNearest": "Find nearest on Google Maps",
-    "emergency": "Emergency: call 112 or 108.",
     "title": "Period care",
     "whatDoYouUse": "What do you use?",
     "changeTimer": "Change timer",
@@ -792,8 +797,7 @@ export const en = {
     "pad": "Sanitary pad",
     "tampon": "Tampon",
     "cup": "Menstrual cup",
-    "cloth": "Cloth pad",
-    "period_underwear": "Period underwear"
+    "cloth": "Cloth pad"
   },
   "anaemia": {
     "title": "Iron check",
@@ -1108,22 +1112,58 @@ export const en = {
       "correlationHistory": "Correlation History",
       "symptomTracking": "Symptom tracking"
   },
-  "aram": {
-    "rating": "4.9 on Google · 293 reviews",
-    "partner": "Sakhi partner",
-    "pitch": "Soft cotton napkins made in Pallipalayam, Tamil Nadu. Women who use them talk about comfort and no itching or rashes.",
-    "find": "Find Aram",
-    "watch": "Watch video"
+  "onboarding": {
+    "title": "Set up your Sakhi space",
+    "nameLabel": "What should Sakhi call you?",
+    "namePlaceholder": "Enter your name or nickname",
+    "nameHint": "This is how Sakhi will address you in daily tips and check-ins.",
+    "herMode": "Her Mode",
+    "herModeDesc": "Menstrual cycle tracking, PMS insights, PCOS & hormonal health monitoring.",
+    "momMode": "Mom Mode",
+    "momModeDesc": "Pregnancy journey, week-by-week baby development, trimester vitals & ANC visits.",
+    "lastPeriodPrompt": "When did your last period start?",
+    "exactDateLabel": "Or enter exact date (YYYY-MM-DD)",
+    "avgCycleLength": "Average Cycle Length (Days)",
+    "periodDuration": "Period Duration (Bleeding Days)",
+    "cycleRegularity": "How regular are your cycles?",
+    "finish": "Finish Setup",
   },
-  "padCheck": {
-    "calling": "Sakhi is calling you 💜",
-    "title": "Time to change your {item}?",
-    "body": "It's been about {hours} hours since your last change. A fresh one helps keep rashes and infection away.",
-    "changed": "I changed just now",
-    "later": "Remind me in 1 hour"
+  "triage": {
+    "title": "Symptom Checker",
+    "checkAgain": "Check Again / Adjust Symptoms",
+    "crampsPain": "Cramps / Pelvic Pain",
+    "flowIntensity": "Flow Intensity",
+    "headacheBloating": "Headache & Bloating",
+    "additionalIndicators": "Additional Indicators",
+    "runCheck": "Run Triage Check",
   },
-  "nudge": {
-    "checkIn": "Your daily check-in is waiting 💜 It takes 30 seconds."
+  "mobile": {
+    "privacyConsent": "Privacy & Consent",
+    "yourDataYourControl": "Your Data, Your Control",
+    "dataProtectionPromise": "Data Protection Promise",
+    "aiHealthInsights": "AI Health Insights",
+    "privateModeOffline": "Private Mode (Offline AI)",
+    "savePrivacyChoices": "Save Privacy Choices",
+    "labReports": "Lab Reports",
+    "addReport": "Add Report",
+    "noLabReports": "No lab reports yet",
+    "recordLabValues": "Record Lab Values",
+    "enterPin": "Enter PIN",
+    "forgotPin": "Forgot PIN?",
+    "sakhiTyping": "Sakhi is typing",
+    "hideSakhiNow": "Hide Sakhi now",
+    "appointments": "Appointments",
+    "resetMonth": "Reset Month",
+    "done": "Done",
+    "snooze1h": "Snooze 1h",
+    "deleteReminder": "Delete reminder",
+    "addTablet": "Add tablet",
+    "tabletName": "Tablet name",
+    "letFamilyKnow": "Let your family know",
+    "nearestHospital": "Nearest hospital",
+    "moodHistory": "Mood check history",
+    "seeHowDoing": "See how I'm doing",
+    "notNow": "Not now",
   },
 };
 

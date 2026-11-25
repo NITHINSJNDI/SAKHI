@@ -80,10 +80,10 @@ export default function MoodCheckCard({ pregnant }: { pregnant: boolean }) {
             </View>
           ))}
           <View style={{ flexDirection: "row", gap: 8 }}>
-            <PillButton label="See how I'm doing" onPress={submit} disabled={answers.some((a) => a === null)} />
-            <PillButton label="Not now" variant="ghost" onPress={() => setOpen(false)} />
+            <PillButton label={t("familyExtra.moodSeeDoing")} onPress={submit} disabled={answers.some((a) => a === null)} />
+            <PillButton label={t("familyExtra.moodNotNow")} variant="ghost" onPress={() => setOpen(false)} />
           </View>
-          <AppText style={atom.faint}>Your answers stay private to you. This is a short screening, not a diagnosis.</AppText>
+          <AppText style={atom.faint}>{t("familyExtra.moodPrivateNote")}</AppText>
         </View>
       ) : result && last ? (
         <View style={{ marginTop: 12 }}>
@@ -97,8 +97,8 @@ export default function MoodCheckCard({ pregnant }: { pregnant: boolean }) {
           ) : null}
           {history.length > 1 ? (
             <View style={{ marginTop: 16 }}>
-              <AppText style={[atom.small, { marginBottom: 8 }]}>Your last check-ins (shorter bar is better)</AppText>
-              <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 8, height: 72 }} accessibilityLabel="Mood check history">
+              <AppText style={[atom.small, { marginBottom: 8 }]}>{t("familyExtra.moodLastCheckins")}</AppText>
+              <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 8, height: 72 }} accessibilityLabel={t("familyExtra.moodHistory")}>
                 {history.map((c) => (
                   <View key={c.date} style={{ flex: 1, alignItems: "center", gap: 4 }} accessible accessibilityLabel={`${shortDate(c.date)}: score ${c.total} of 12`}>
                     <View style={{ width: "100%", maxWidth: 32, borderTopLeftRadius: 6, borderTopRightRadius: 6, height: Math.max(8, (c.total / 12) * 48), backgroundColor: BAR[bandOf(c.total)] }} />

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/AppText";
 import { tapHaptic } from "@/lib/haptics";
+import { useT } from "@/lib/i18n";
 import { palette } from "@/theme";
 
 import { ink } from "./Panel";
@@ -32,6 +33,7 @@ export function Sheet({
   footer?: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const { t } = useT();
   const { height } = useWindowDimensions();
   const [mounted, setMounted] = useState(open);
   const y = useSharedValue(height);
@@ -74,7 +76,7 @@ export function Sheet({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
           <Animated.View style={[s.backdrop, dimStyle]}>
-            <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Close" accessibilityRole="button" />
+            <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel={t("common.close")} accessibilityRole="button" />
           </Animated.View>
           <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 16) }, sheetStyle]} accessibilityViewIsModal>
             <GestureDetector gesture={drag}>
@@ -87,7 +89,7 @@ export function Sheet({
                     </AppText>
                     {subtitle ? <AppText style={{ fontSize: 14, lineHeight: 20, color: ink[60] }}>{subtitle}</AppText> : null}
                   </View>
-                  <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close" style={s.close}>
+                  <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("common.close")} style={s.close}>
                     <X size={18} color={ink[70]} weight="bold" />
                   </Pressable>
                 </View>

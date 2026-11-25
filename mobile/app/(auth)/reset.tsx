@@ -9,7 +9,7 @@ import { AppText } from "@/components/AppText";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { TextField } from "@/components/TextField";
 import { apiFetch } from "@/lib/api";
-import { AUTH_COPY } from "@/lib/auth-copy";
+import { useT } from "@/lib/i18n";
 import { radii, spacing, useAppTheme } from "@/theme";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,6 +21,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export default function ResetScreen() {
   const theme = useAppTheme();
+  const { t } = useT();
   const router = useRouter();
 
   const [step, setStep] = useState<"email" | "code">("email");
@@ -38,7 +39,7 @@ export default function ResetScreen() {
     setError(null);
     const clean = email.trim().toLowerCase();
     if (!EMAIL_RE.test(clean)) {
-      setError(AUTH_COPY.validEmailRequired);
+      setError(t("auth.validEmailRequired"));
       return;
     }
     setBusy(true);
@@ -52,7 +53,7 @@ export default function ResetScreen() {
       setStep("code");
       setInfo(`If an account exists for ${clean}, we've emailed a 6-digit code. It expires in 15 minutes.`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : AUTH_COPY.genericError);
+      setError(e instanceof Error ? e.message : t("auth.genericError"));
     } finally {
       setBusy(false);
     }
@@ -61,15 +62,15 @@ export default function ResetScreen() {
   const resetPassword = async () => {
     setError(null);
     if (!/^\d{6}$/.test(code.trim())) {
-      setError("Enter the 6-digit code from the email.");
+      setError(t("auth.resetCode"));
       return;
     }
     if (password.length < 8) {
-      setError(AUTH_COPY.passwordTooShort);
+      setError(t("auth.passwordTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError(AUTH_COPY.passwordsDoNotMatch);
+      setError(t("auth.passwordsDoNotMatch"));
       return;
     }
     setBusy(true);
@@ -81,7 +82,7 @@ export default function ResetScreen() {
       });
       router.replace("/(auth)/login");
     } catch (e) {
-      setError(e instanceof Error ? e.message : AUTH_COPY.genericError);
+      setError(e instanceof Error ? e.message : t("auth.genericError"));
     } finally {
       setBusy(false);
     }
@@ -97,13 +98,13 @@ export default function ResetScreen() {
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={AUTH_COPY.back}
+            accessibilityLabel={t("common.back")}
             onPress={goBack}
             style={styles.backLink}
           >
             <ArrowLeft size={16} color={theme.textSoft} weight="bold" />
             <AppText variant="caption" tone="soft">
-              {AUTH_COPY.back}
+              {t("common.back")}
             </AppText>
           </Pressable>
 
@@ -111,18 +112,16 @@ export default function ResetScreen() {
             <View style={[styles.iconBubble, { backgroundColor: theme.accentSoft }]}>
               <Lock size={26} color={theme.accent} weight="duotone" />
             </View>
-            <AppText variant="title">{AUTH_COPY.resetTitle}</AppText>
+            <AppText variant="title">{t("auth.resetTitle")}</AppText>
             <AppText variant="body" tone="soft">
-              {step === "email"
-                ? "Enter your account email and we'll send you a code."
-                : "Enter the code and choose a new password."}
+              {t("auth.resetSubtitle")}
             </AppText>
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             {step === "email" ? (
               <TextField
-                label="Email"
+                label={t("auth.email")}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -134,15 +133,15 @@ export default function ResetScreen() {
               <>
                 {info ? <AlertMessage kind="success" message={info} /> : null}
                 <TextField
-                  label="6-digit code"
+                  label={t("auth.resetCode")}
                   value={code}
-                  onChangeText={(t) => setCode(t.replace(/\D/g, "").slice(0, 6))}
+                  onChangeText={(txt) => setCode(txt.replace(/\D/g, "").slice(0, 6))}
                   keyboardType="number-pad"
                   autoComplete="one-time-code"
                   textContentType="oneTimeCode"
                 />
                 <TextField
-                  label="New password"
+                  label={t("auth.newPassword")}
                   value={password}
                   onChangeText={setPassword}
                   secure
@@ -150,7 +149,7 @@ export default function ResetScreen() {
                   textContentType="newPassword"
                 />
                 <TextField
-                  label="Confirm new password"
+                  label={t("auth.confirmNewPassword")}
                   value={confirm}
                   onChangeText={setConfirm}
                   secure
@@ -163,12 +162,12 @@ export default function ResetScreen() {
           </View>
 
           {step === "email" ? (
-            <PrimaryButton label="Send code" loading={busy} disabled={busy} onPress={sendCode} />
+            <PrimaryButton label={t("auth.sendCode")} loading={busy} disabled={busy} onPress={sendCode} />
           ) : (
             <>
-              <PrimaryButton label="Set new password" loading={busy} disabled={busy} onPress={resetPassword} />
+              <PrimaryButton label={t("auth.setNewPassword")} loading={busy} disabled={busy} onPress={resetPassword} />
               <PrimaryButton
-                label="Send a new code"
+                label={t("auth.sendNewCode")}
                 variant="secondary"
                 disabled={busy}
                 onPress={() => {

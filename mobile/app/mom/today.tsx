@@ -53,7 +53,7 @@ export default function MomToday() {
       ) : null}
       {!born && weeks >= 28 ? (
         <Panel>
-          <PanelTitle title={t("mom.contractionTitle")} subtitle="Tap when a contraction starts and again when it ends. Sakhi tracks how long and how far apart they are." />
+          <PanelTitle title={t("mom.contractionTitle")} subtitle={t("pregnancy.contractionHint")} />
           <View style={{ marginTop: 14 }}>
             <ContractionTimer weeks={weeks} />
           </View>

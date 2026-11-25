@@ -87,7 +87,7 @@ export default function SchemesCard() {
 
   return (
     <Panel>
-      <PanelTitle title={t("mom.schemesTitle")} icon={Bank} iconColor={palette.lavender500} subtitle="Answer a few questions to see which schemes fit you. Nothing here is saved or sent anywhere." />
+      <PanelTitle title={t("mom.schemesTitle")} icon={Bank} iconColor={palette.lavender500} subtitle={t("pregnancy.schemesIntro")} />
       <View style={{ marginTop: 14, gap: 12 }}>
         {shown.map(({ key, q }) => (
           <View key={key} style={{ gap: 6 }}>
@@ -112,11 +112,11 @@ export default function SchemesCard() {
                     <AppText style={{ fontSize: 14, fontWeight: "600", color: palette.plum900 }}>{s.name}</AppText>
                     {fit === true ? (
                       <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: TW.emerald[100] }}>
-                        <AppText style={{ fontSize: 11, fontWeight: "600", color: TW.emerald[700] }}>Likely for you</AppText>
+                        <AppText style={{ fontSize: 11, fontWeight: "600", color: TW.emerald[700] }}>{t("pregnancy.likelyForYou")}</AppText>
                       </View>
                     ) : fit === false ? (
                       <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: ink[5] }}>
-                        <AppText style={{ fontSize: 11, fontWeight: "600", color: ink[55] }}>May not apply</AppText>
+                        <AppText style={{ fontSize: 11, fontWeight: "600", color: ink[55] }}>{t("pregnancy.mayNotApply")}</AppText>
                       </View>
                     ) : null}
                   </View>

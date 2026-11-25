@@ -45,7 +45,7 @@ export function WeekCard({ weeks, daysToGo }: { weeks: number; daysToGo: number 
       <View style={{ marginTop: 18 }}>
         <PregnancyWeekProgress weeks={weeks} />
       </View>
-      <AppText style={{ marginTop: 20, marginBottom: 8, fontSize: 13, fontWeight: "500", color: ink[60] }}>Baby growth timeline</AppText>
+      <AppText style={{ marginTop: 20, marginBottom: 8, fontSize: 13, fontWeight: "500", color: ink[60] }}>{t("pregnancy.babyGrowthTimeline")}</AppText>
       <BabyGrowthTimeline weeks={weeks} />
     </Panel>
   );
@@ -53,6 +53,7 @@ export function WeekCard({ weeks, daysToGo }: { weeks: number; daysToGo: number 
 
 /** Today: the most recent reading of each vital, colour-coded. */
 export function LatestVitalsCard({ logs, onOpenVitals, afterBirth = false }: { logs: any[]; onOpenVitals: () => void; afterBirth?: boolean }) {
+  const { t } = useT();
   const sorted = [...(logs || [])].sort((a, b) => String(b.log_date).localeCompare(String(a.log_date)));
   const latest = (key: string) => sorted.find((l) => l[key] !== undefined && l[key] !== null && Number(l[key]) > 0);
   const bp = latest("blood_pressure_systolic");
@@ -77,7 +78,7 @@ export function LatestVitalsCard({ logs, onOpenVitals, afterBirth = false }: { l
   return (
     <Panel>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-        <AppText style={{ fontSize: 20, fontWeight: "600", letterSpacing: -0.4, color: palette.plum900 }} accessibilityRole="header">Latest readings</AppText>
+        <AppText style={{ fontSize: 20, fontWeight: "600", letterSpacing: -0.4, color: palette.plum900 }} accessibilityRole="header">{t("pregnancy.latestReadings")}</AppText>
         <PressableScale onPress={onOpenVitals} accessibilityRole="link" style={{ minHeight: 40, justifyContent: "center", paddingHorizontal: 4 }}>
           <AppText style={{ fontSize: 14, fontWeight: "500", color: TW.pink[600] }}>See trends →</AppText>
         </PressableScale>
@@ -169,6 +170,7 @@ const levelStyle = (l: string) => (l === "High" ? { bg: TW.rose[100], fg: TW.ros
 const shortDate = (d: string | null) => (d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "");
 
 function RiskTile({ title, ml, loading, reading, date, by, stale, notes, missing }: { title: string; ml: any; loading: boolean; reading: string; date: string | null; by?: string | null; stale?: string | null; notes: { High: string; Moderate: string; Low: string }; missing: string }) {
+  const { t } = useT();
   const ls = ml ? levelStyle(ml.risk_level) : null;
   return (
     <View style={{ padding: 14, borderRadius: 18, borderWidth: 1, borderColor: ink[7], backgroundColor: "rgba(255,255,255,0.8)" }}>
@@ -180,7 +182,7 @@ function RiskTile({ title, ml, loading, reading, date, by, stale, notes, missing
           </View>
         ) : !loading ? (
           <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: ink[5] }}>
-            <AppText style={{ fontSize: 11, fontWeight: "600", color: ink[55] }}>Not scored</AppText>
+            <AppText style={{ fontSize: 11, fontWeight: "600", color: ink[55] }}>{t("pregnancy.notScored")}</AppText>
           </View>
         ) : null}
       </View>
@@ -195,7 +197,7 @@ function RiskTile({ title, ml, loading, reading, date, by, stale, notes, missing
         <AppText style={{ marginTop: 6, fontSize: 12, lineHeight: 17, color: ink[65] }}>{loading ? "Checking…" : missing}</AppText>
       )}
       <View style={{ marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderTopColor: ink[5], flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-        <AppText style={{ fontSize: 11, color: ink[50] }}>Based on</AppText>
+        <AppText style={{ fontSize: 11, color: ink[50] }}>{t("pregnancy.basedOn")}</AppText>
         <AppText style={{ flexShrink: 1, textAlign: "right", fontSize: 11, fontWeight: "500", color: ink[75] }}>{ml ? `${reading}${date ? ` · ${shortDate(date)}` : ""}${by ? ` · ${by}` : ""}` : "No reading yet"}</AppText>
       </View>
       {ml && stale ? (
@@ -209,6 +211,7 @@ function RiskTile({ title, ml, loading, reading, date, by, stale, notes, missing
 
 /** Pregnancy risk check: scores only readings she logged. */
 export function RiskCard({ profile, logs, ml, weeks }: { profile: any; logs: any[]; ml: MlState; weeks: number }) {
+  const { t } = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"pe" | "gdm">("pe");
@@ -225,7 +228,7 @@ export function RiskCard({ profile, logs, ml, weeks }: { profile: any; logs: any
           <ShieldCheck size={24} color={palette.lavender600} weight="duotone" />
         </View>
         <View style={{ flex: 1 }}>
-          <AppText style={{ fontSize: 20, fontWeight: "600", letterSpacing: -0.4, color: palette.plum900 }} accessibilityRole="header">Pregnancy risk check</AppText>
+          <AppText style={{ fontSize: 20, fontWeight: "600", letterSpacing: -0.4, color: palette.plum900 }} accessibilityRole="header">{t("pregnancy.riskCheck")}</AppText>
           <AppText style={{ marginTop: 2, fontSize: 12, lineHeight: 16, color: ink[60] }}>{ml.isLoading ? "Checking your latest readings…" : "From readings you logged, your MCP card or your ASHA worker · a screening guide, not a diagnosis"}</AppText>
         </View>
       </View>
@@ -257,7 +260,7 @@ export function RiskCard({ profile, logs, ml, weeks }: { profile: any; logs: any
         />
       </View>
       <View style={{ marginTop: 12, borderRadius: 18, backgroundColor: palette.lavender50, padding: 14 }}>
-        <AppText style={{ fontSize: 13, fontWeight: "600", color: palette.plum900 }}>No BP machine or sugar meter? That&apos;s fine.</AppText>
+        <AppText style={{ fontSize: 13, fontWeight: "600", color: palette.plum900 }}>{t("pregnancy.noMeterFine")}</AppText>
         <AppText style={{ marginTop: 2, fontSize: 12, lineHeight: 17, color: ink[65] }}>Your BP, Hb and urine are checked at every antenatal visit and written on your MCP card. Your ASHA worker can check BP too.</AppText>
         <View style={{ marginTop: 10, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           <PressableScale onPress={() => addReading("mcp_card")} style={{ minHeight: 40, paddingHorizontal: 14, borderRadius: 20, justifyContent: "center", backgroundColor: palette.plum900 }}>

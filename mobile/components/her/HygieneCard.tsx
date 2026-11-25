@@ -214,7 +214,7 @@ export default function HygieneCard({ cycle }: { cycle: HygieneCycle }) {
             <PillButton label="−" variant="secondary" onPress={() => setStock((doc.stock ?? 0) - 1)} style={{ minWidth: 44, paddingHorizontal: 0 }} />
             <TextInput
               keyboardType="number-pad"
-              accessibilityLabel="Pads or tampons at home"
+              accessibilityLabel={t("relief.padsAtHome")}
               value={doc.stock === null || doc.stock === undefined ? "" : String(doc.stock)}
               placeholder="?"
               placeholderTextColor={ink[40]}

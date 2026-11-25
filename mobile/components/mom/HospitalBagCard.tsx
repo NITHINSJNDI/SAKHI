@@ -36,7 +36,7 @@ export default function HospitalBagCard({ weeks }: { weeks: number }) {
         subtitle={weeks >= 36 ? "Keep it by the door now." : `Aim to have it packed by week 36 (${36 - weeks} weeks to go).`}
         right={<AppText style={{ fontSize: 13, fontWeight: "600", color: palette.plum900 }}>{packed.length} of {TOTAL}</AppText>}
       />
-      <View style={{ marginTop: 12, height: 8, borderRadius: 4, backgroundColor: ink[10] }} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: pct }} accessibilityLabel="Bag packed">
+      <View style={{ marginTop: 12, height: 8, borderRadius: 4, backgroundColor: ink[10] }} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: pct }} accessibilityLabel={t("pregnancy.bagPacked")}>
         <View style={{ width: `${pct}%`, height: 8, borderRadius: 4, backgroundColor: TW.emerald[400] }} />
       </View>
       <View style={{ marginTop: 16, gap: 16 }}>

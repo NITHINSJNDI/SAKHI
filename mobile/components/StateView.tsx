@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } f
 
 import { AppText } from "@/components/AppText";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { useT } from "@/lib/i18n";
 import { radii, spacing, useAppTheme } from "@/theme";
 
 export interface LoadingStateProps {
@@ -11,13 +12,14 @@ export interface LoadingStateProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function LoadingState({ message = "Loading...", style }: LoadingStateProps) {
+export function LoadingState({ message, style }: LoadingStateProps) {
   const theme = useAppTheme();
+  const { t } = useT();
   return (
     <View style={[styles.center, style]}>
       <ActivityIndicator size="large" color={theme.accent} />
       <AppText variant="body" tone="soft" style={styles.textMargin}>
-        {message}
+        {message ?? t("common.loading")}
       </AppText>
     </View>
   );
@@ -31,12 +33,13 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  message = "We couldn't load your information. Please check your connection and try again.",
+  title,
+  message,
   onRetry,
   style,
 }: ErrorStateProps) {
   const theme = useAppTheme();
+  const { t } = useT();
   return (
     <View
       style={[
@@ -52,14 +55,14 @@ export function ErrorState({
         <WarningCircle size={28} color={theme.errorText} weight="duotone" />
       </View>
       <AppText variant="section" style={[styles.title, { color: theme.errorText }]}>
-        {title}
+        {title ?? t("common.somethingWrong")}
       </AppText>
       <AppText variant="body" style={[styles.message, { color: theme.errorText }]}>
-        {message}
+        {message ?? t("common.couldNotLoad")}
       </AppText>
       {onRetry ? (
         <PrimaryButton
-          label="Try again"
+          label={t("common.tryAgain")}
           icon={<ArrowsClockwise size={18} color={theme.primaryContrast} />}
           onPress={onRetry}
           style={styles.button}

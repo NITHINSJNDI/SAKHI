@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const te: TranslationSchema = {
   "common": {
+    "yes": "అవును",
+    "no": "కాదు",
+    "somethingWrong": "ఏదో తప్పు జరిగింది",
+    "tryAgain": "మళ్లీ ప్రయత్నించండి",
     "backToDashboard": "డాష్‌బోర్డ్‌కి తిరిగి వెళ్లండి",
     "last30Days": "గత 30 రోజులు",
     "last90Days": "గత 90 రోజులు",
@@ -29,6 +33,17 @@ export const te: TranslationSchema = {
     "friend": "చెలి"
   },
   "auth": {
+    "privacy": "ప్రతి ఖాతాకు ప్రైవేట్ స్థలం. మీ రికార్డులను ఎప్పుడైనా డౌన్‌లోడ్ చేయండి లేదా తొలగించండి.",
+    "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా?",
+    "resetTitle": "పాస్‌వర్డ్ రీసెట్ చేయండి",
+    "nameTooLong": "పేరు 80 అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి.",
+    "passwordTooLong": "పాస్‌వర్డ్ 128 అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి.",
+    "resetCodeLabel": "6-అంకెల కోడ్",
+    "newPasswordLabel": "కొత్త పాస్‌వర్డ్",
+    "confirmNewPasswordLabel": "కొత్త పాస్‌వర్డ్ నిర్ధారించండి",
+    "sendCode": "కోడ్ పంపండి",
+    "setNewPassword": "కొత్త పాస్‌వర్డ్ సెట్ చేయండి",
+    "sendNewCode": "కొత్త కోడ్ పంపండి",
     "exploreSampleData": "నమూనా డేటాతో అన్వేషించండి",
     "exploreSampleDesc": "సైన్-అప్ అవసరం లేకుండా ఈ పరికరంలో ముందే నింపిన వర్క్‌స్పేస్‌ను ప్రయత్నించండి.",
     "demoHerCycles": "3 నెలల సైకిల్స్",
@@ -184,6 +199,9 @@ export const te: TranslationSchema = {
     "basedOnCycles": "మీ {count} సైకిళ్ల ఆధారంగా (సాధారణంగా {mean} రోజులు, ±{sd} రోజులు)."
   },
   "pregnancy": {
+    "daysToDue": "{days} రోజులు మిగిలి ఉన్నాయి",
+    "dueAround": "అంచనా తేదీ: {date}",
+    "weeksPregnant": "{weeks} వారాల గర్భం",
     "pregnancyMode": "గర్భధారణ మోడ్",
     "maternalVitals": "తల్లి మరియు బిడ్డ ఆరోగ్యం",
     "firstTrimester": "మొదటి త్రైమాసికం",
@@ -201,13 +219,10 @@ export const te: TranslationSchema = {
     "hospitalBag": "హాస్పిటల్ బ్యాగ్ జాబితా"
   },
   "chat": {
-    "askSakhi": "సఖిని అడగండి",
-    "newChat": "కొత్త చాట్",
-    "pastChats": "గత చాట్‌లు",
-    "noPastChats": "కొత్త చాట్ మొదలుపెట్టినప్పుడు మీ పాత చాట్‌లు ఇక్కడ కనిపిస్తాయి.",
-    "deleteChat": "ఈ చాట్‌ను తొలగించాలా?",
-    "messagesCount_one": "{count} సందేశం",
-    "messagesCount_other": "{count} సందేశాలు",
+    "askHerMobile": "సఖిని అడగండి",
+    "askMomMobile": "సఖిని అడగండి",
+    "herSubtitle": "మీ పీరియడ్, లక్షణాలు లేదా మీకు ఎలా అనిపిస్తుందో అడగండి.",
+    "placeholderMobile": "సఖికి సందేశం పంపండి...",
     "title": "సఖి AI బహుభాషా సంభాషణ",
     "placeholder": "టైప్ చేయండి లేదా మాట్లాడటానికి మైక్ నొక్కండి…",
     "placeholderHandsFree": "హ్యాండ్స్-ఫ్రీ ఆన్‌లో ఉంది, మాట్లాడండి…",
@@ -257,8 +272,8 @@ export const te: TranslationSchema = {
     "quickPostnatalFoodMsg": "తల్లిపాలు ఇచ్చేటప్పుడు ఏమి తినాలి?"
   },
   "settings": {
-    "voice_girl": "యువ",
-    "voice_woman": "ఆప్యాయమైన",
+    "language": "భాష",
+    "pinCurrent": "ప్రస్తుత 4-అంకెల పిన్",
     "title": "సెట్టింగులు",
     "preferredName": "పిలవాల్సిన పేరు",
     "preferredNameHint": "సఖి మిమ్మల్ని ఈ పేరుతో పిలుస్తుంది.",
@@ -303,6 +318,8 @@ export const te: TranslationSchema = {
     "pinWrongError": "తప్పుడు పిన్."
   },
   "menu": {
+    "account": "ఖాతా",
+    "profile": "ప్రొఫైల్",
     "switchToMom": "మామ్ మోడ్‌కి మారండి",
     "switchToHer": "హెర్ మోడ్‌కి మారండి",
     "doctorSummary": "డాక్టర్ సారాంశం (PDF)",
@@ -329,6 +346,7 @@ export const te: TranslationSchema = {
     "notNow": "ఇప్పుడు కాదు"
   },
   "checkin": {
+    "title": "రోజువారీ చెక్-ఇన్",
     "greeting": "నమస్కారం {name} 👋",
     "flowDefaultQ": "ఈ రోజు బ్లీడింగ్ లేదా స్పాటింగ్ ఉందా?",
     "flowPeriodQ": "మీ పీరియడ్ యొక్క {day}వ రోజు. ఈ రోజు ఫ్లో ఎలా ఉంది?",
@@ -504,6 +522,10 @@ export const te: TranslationSchema = {
     "signedInAs": "గా సైನ್ ఇన్ అయ్యారు"
   },
   "relief": {
+    "painCanChange": "నొప్పి గంటగంటకు మారవచ్చు.",
+    "painRightNow": "ఇప్పుడు",
+    "worst": "తీవ్రమైనది",
+    "worstToday": "ఈ రోజు అత్యధికం",
     "painRelief": "నొప్పి నివారణ",
     "letUsEase": "నొప్పిని కలిసి తగ్గిద్దాం",
     "reliefSubtitle": "ఇవి నొప్పిని వెంటనే తగ్గించకపోయినా, తీవ్రతను తగ్గిస్తాయి.",
@@ -764,24 +786,6 @@ export const te: TranslationSchema = {
     "close": "మూసివేయండి"
   },
   "hygiene": {
-    "period_underwear": "పీరియడ్ లోదుస్తులు",
-    "tapWhenChange": "మార్చినప్పుడు నొక్కండి, తదుపరిది ఎప్పుడో సఖి చెబుతుంది.",
-    "lastChanged": "చివరిగా {time} క్రితం మార్చారు.",
-    "changesToday_one": "ఈ రోజు {count} సార్లు మార్చారు",
-    "changesToday_other": "ఈ రోజు {count} సార్లు మార్చారు",
-    "howFull": "తీసినది ఎంత నిండింది?",
-    "soakLight": "కొంచెం",
-    "soakHalf": "సగం",
-    "soakFull": "పూర్తిగా తడిసింది",
-    "skip": "దాటవేయి",
-    "clotCheck": "₹5 నాణెం కంటే పెద్ద గడ్డ వచ్చింది",
-    "clothRough": "బట్టకు ఇది అంచనా మాత్రమే.",
-    "tooMany": "ఒక రోజుకు ఇది చాలా ఎక్కువ. ప్రతి గంటకూ ప్యాడ్ తడిస్తే డాక్టర్‌ను కలవండి.",
-    "careFor": "మీ {item} సంరక్షణ, పారవేయడం",
-    "disposal": "పారవేయడం:",
-    "call": "కాల్ చేయండి",
-    "findNearest": "Google Maps‌లో దగ్గర్లో వెతకండి",
-    "emergency": "అత్యవసరం: 112 లేదా 108కి కాల్ చేయండి.",
     "title": "పీరియడ్ సంరక్షణ",
     "whatDoYouUse": "మీరు దేనిని ఉపయోగిస్తున్నారు?",
     "changeTimer": "మార్చుకునే సమయం",
@@ -1110,21 +1114,57 @@ export const te: TranslationSchema = {
       "correlationHistory": "పరస్పర సంబంధ చరిత్ర",
       "symptomTracking": "లక్షణాల ట్రాకింగ్"
   },
-  "aram": {
-    "rating": "Google‌లో 4.9 · 293 సమీక్షలు",
-    "partner": "సఖి భాగస్వామి",
-    "pitch": "తమిళనాడులోని పల్లిపాళయంలో తయారైన మెత్తని కాటన్ నాప్కిన్లు. వాడే మహిళలు సౌకర్యం, దురద లేదా దద్దుర్లు లేకపోవడం గురించి చెబుతారు.",
-    "find": "ఆరం చూడండి",
-    "watch": "వీడియో చూడండి"
+  "onboarding": {
+    "title": "మీ సఖి స్థలాన్ని సెట్ చేయండి",
+    "nameLabel": "సఖి మిమ్మల్ని ఏమని పిలవాలి?",
+    "namePlaceholder": "మీ పేరు లేదా మారుపేరు నమోదు చేయండి",
+    "nameHint": "రోజువారీ చిట్కాలు మరియు చెక్-ఇన్‌లలో సఖి మిమ్మల్ని ఇలా పిలుస్తుంది.",
+    "herMode": "హర్ మోడ్ (Her Mode)",
+    "herModeDesc": "పీరియడ్ ట్రాకింగ్, పిఎంఎస్ సమాచారం, పిసిఒఎస్ మరియు హార్మోన్ ఆరోగ్య పర్యవేక్షణ.",
+    "momMode": "మామ్ మోడ్ (Mom Mode)",
+    "momModeDesc": "గర్భధారణ ప్రయాణం, వారం వారీ శిశువు ఎదుగుదల, పరీక్షలు మరియు సంరక్షణ.",
+    "lastPeriodPrompt": "మీ చివరి పీరియడ్ ఎప్పుడు మొదలైంది?",
+    "exactDateLabel": "లేదా ఖచ్చితమైన తేదీని నమోదు చేయండి (YYYY-MM-DD)",
+    "avgCycleLength": "సగటు సైకిల్ వ్యవధి (రోజులు)",
+    "periodDuration": "పీరియడ్ వ్యవధి (రోజులు)",
+    "cycleRegularity": "మీ పీరియడ్స్ ఎంత క్రమంగా ఉంటాయి?",
+    "finish": "సెటప్ పూర్తి చేయండి",
   },
-  "padCheck": {
-    "calling": "సఖి మిమ్మల్ని పిలుస్తోంది 💜",
-    "title": "{item} మార్చే సమయమా?",
-    "body": "చివరిగా మార్చి సుమారు {hours} గంటలైంది. కొత్తది దద్దుర్లు, ఇన్ఫెక్షన్ రాకుండా సహాయపడుతుంది.",
-    "changed": "ఇప్పుడే మార్చాను",
-    "later": "1 గంటలో గుర్తు చేయండి"
+  "triage": {
+    "title": "లక్షణాల తనిఖీ",
+    "checkAgain": "మళ్లీ తనిఖీ చేయండి / లక్షణాలు మార్చండి",
+    "crampsPain": "నొప్పులు / కటి నొప్పి",
+    "flowIntensity": "రక్తస్రావం తీవ్రత",
+    "headacheBloating": "తలనొప్పి & కడుపు ఉబ్బరం",
+    "additionalIndicators": "అదనపు సూచికలు",
+    "runCheck": "తనిఖీని అమలు చేయండి",
   },
-  "nudge": {
-    "checkIn": "మీ రోజువారీ చెక్-ఇన్ ఎదురుచూస్తోంది 💜 30 సెకన్లు చాలు."
+  "mobile": {
+    "privacyConsent": "గోప్యత & సమ్మతి",
+    "yourDataYourControl": "మీ డೇಟಾ, మీ నియంత్రణ",
+    "dataProtectionPromise": "డేటా రక్షణ హామీ",
+    "aiHealthInsights": "AI ఆరోగ్య అంతర్దృష్టులు",
+    "privateModeOffline": "ప్రైవేట్ మోడ్ (ఆఫ్‌లైన్ AI)",
+    "savePrivacyChoices": "గోప్యతా ఎంపికలను సేవ్ చేయండి",
+    "labReports": "ల్యాబ్ నివేదికలు",
+    "addReport": "నివేదిక జోడించండి",
+    "noLabReports": "ఇంకా ల్యాబ్ నివేదికలు లేవు",
+    "recordLabValues": "ల్యాబ్ విలువలను నమోదు చేయండి",
+    "enterPin": "పిన్ నమోదు చేయండి",
+    "forgotPin": "పిన్ మర్చిపోయారా?",
+    "sakhiTyping": "సఖి టైప్ చేస్తోంది",
+    "hideSakhiNow": "సఖిని ఇప్పుడే దాచండి",
+    "appointments": "అపాయింట్‌మెంట్లు",
+    "resetMonth": "నెలను రీసెట్ చేయండి",
+    "done": "పూర్తయింది",
+    "snooze1h": "1 గం. స్నూజ్",
+    "deleteReminder": "రిమైండర్ తొలగించు",
+    "addTablet": "మాత్రను జోడించండి",
+    "tabletName": "మాత్ర పేరు",
+    "letFamilyKnow": "మీ కుటుంబానికి తెలియజేయండి",
+    "nearestHospital": "సమీప ఆసుపత్రి",
+    "moodHistory": "మూడ్ తనిఖీ చరిత్ర",
+    "seeHowDoing": "నేను ఎలా ఉన్నానో చూడండి",
+    "notNow": "ఇప్పుడు కాదు",
   },
 };

@@ -277,7 +277,7 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1, backgroundColor: palette.cream }} keyboardVerticalOffset={0}>
       <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 8, paddingBottom: 8, flexDirection: "row", alignItems: "center", gap: 4, borderBottomWidth: 1, borderBottomColor: "rgba(251,207,232,0.6)", backgroundColor: "rgba(255,255,255,0.7)" }}>
-        <PressableScale onPress={() => router.back()} accessibilityLabel="Back" style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
+        <PressableScale onPress={() => router.back()} accessibilityLabel={t("common.back")} style={{ width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" }}>
           <CaretLeft size={22} color={palette.plum900} />
         </PressableScale>
         <SakhiFace speaking={speaking || loading} accent={accent} />

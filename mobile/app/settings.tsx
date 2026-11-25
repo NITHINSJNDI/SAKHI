@@ -199,7 +199,7 @@ export default function SettingsScreen() {
       setSaved(true);
       setTimeout(() => router.back(), 700);
     } catch (e) {
-      Alert.alert("Couldn't save", e instanceof Error ? e.message : "Please try again.");
+      Alert.alert(t("settings.couldNotSave"), e instanceof Error ? e.message : "Please try again.");
     } finally {
       setSaving(false);
     }
@@ -224,7 +224,7 @@ export default function SettingsScreen() {
         message: JSON.stringify(data, null, 2),
       });
     } catch (e) {
-      Alert.alert("Couldn't export", e instanceof Error ? e.message : "Please try again.");
+      Alert.alert(t("settings.couldNotExport"), e instanceof Error ? e.message : "Please try again.");
     }
   };
 
@@ -280,7 +280,7 @@ export default function SettingsScreen() {
         <PressableScale
           onPress={() => router.back()}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t("common.back")}
           style={styles.backButton}
         >
           <CaretLeft size={20} color={palette.plum900} weight="bold" />

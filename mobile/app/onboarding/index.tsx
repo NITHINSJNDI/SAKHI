@@ -19,6 +19,7 @@ import { TextField } from "@/components/TextField";
 import { apiFetch } from "@/lib/api";
 import { localIso } from "@/lib/date";
 import { useAuth } from "@/lib/auth";
+import { useT } from "@/lib/i18n";
 import { useMode } from "@/lib/mode";
 import { queryKeys } from "@/lib/queryKeys";
 import { palette, radii, spacing, useAppTheme } from "@/theme";
@@ -57,6 +58,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, refreshSession } = useAuth();
+  const { t, tValue } = useT();
 
   const [step, setStep] = useState<number>(1);
   const params = useLocalSearchParams<{ mode?: string }>();
@@ -260,15 +262,15 @@ export default function OnboardingScreen() {
               <Sparkle size={26} color={theme.accent} weight="fill" />
             </View>
             <AppText variant="title" style={styles.title}>
-              Welcome to <AppText variant="serif" tone="accent">Sakhi</AppText>
+              {t("auth.welcome")}
             </AppText>
             <AppText variant="body" tone="soft" style={styles.subtitle}>
-              {step === 1 && "Let's personalize your companion."}
-              {step === 2 && "Choose your health journey."}
+              {step === 1 && t("onboarding.whatShouldCall")}
+              {step === 2 && t("onboarding.chooseMode")}
               {step === 3 &&
                 (mode === "her"
-                  ? "Tell us about your menstrual cycle."
-                  : "Tell us about your pregnancy.")}
+                  ? t("onboarding.lastPeriodQuestion")
+                  : t("onboarding.dueDateQuestion"))}
             </AppText>
           </View>
 
@@ -282,14 +284,14 @@ export default function OnboardingScreen() {
           {step === 1 && (
             <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
               <TextField
-                label="What should Sakhi call you?"
-                placeholder="Enter your name or nickname"
+                label={t("onboarding.whatShouldCall")}
+                placeholder={t("onboarding.enterName")}
                 value={preferredName}
                 onChangeText={setPreferredName}
                 autoFocus
               />
               <AppText variant="caption" tone="faint">
-                This is how Sakhi will address you in daily tips and wellness check-ins.
+                {t("settings.preferredNameHint")}
               </AppText>
             </View>
           )}
@@ -313,7 +315,7 @@ export default function OnboardingScreen() {
                 </View>
                 <View style={styles.modeContent}>
                   <View style={styles.modeTitleRow}>
-                    <AppText variant="section">Her Mode</AppText>
+                    <AppText variant="section">{t("onboarding.herMode")}</AppText>
                     {mode === "her" && (
                       <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
                         <Check size={14} color={theme.primaryContrast} weight="bold" />
@@ -321,7 +323,7 @@ export default function OnboardingScreen() {
                     )}
                   </View>
                   <AppText variant="caption" tone="soft">
-                    Menstrual cycle tracking, PMS insights, PCOS & hormonal health monitoring.
+                    {t("onboarding.herModeDesc")}
                   </AppText>
                 </View>
               </Pressable>
@@ -342,7 +344,7 @@ export default function OnboardingScreen() {
                 </View>
                 <View style={styles.modeContent}>
                   <View style={styles.modeTitleRow}>
-                    <AppText variant="section">Mom Mode</AppText>
+                    <AppText variant="section">{t("onboarding.momMode")}</AppText>
                     {mode === "mom" && (
                       <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
                         <Check size={14} color={theme.primaryContrast} weight="bold" />
@@ -350,7 +352,7 @@ export default function OnboardingScreen() {
                     )}
                   </View>
                   <AppText variant="caption" tone="soft">
-                    Pregnancy journey, week-by-week baby development, trimester vitals & ANC visits.
+                    {t("onboarding.momModeDesc")}
                   </AppText>
                 </View>
               </Pressable>
@@ -362,16 +364,16 @@ export default function OnboardingScreen() {
             <View style={styles.formSection}>
               {/* Last Period Start */}
               <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <AppText variant="label">When did your last period start?</AppText>
+                <AppText variant="label">{t("onboarding.lastPeriodQuestion")}</AppText>
                 <View style={styles.quickDates}>
                   {[
-                    { label: "Today", value: isoOffset(0) },
-                    { label: "1 wk ago", value: isoOffset(7) },
-                    { label: "2 wks ago", value: isoOffset(14) },
-                    { label: "3 wks ago", value: isoOffset(21) },
+                    { label: t("common.today"), value: isoOffset(0) },
+                    { label: "1 wk", value: isoOffset(7) },
+                    { label: "2 wks", value: isoOffset(14) },
+                    { label: "3 wks", value: isoOffset(21) },
                   ].map((d) => (
                     <Pressable
-                      key={d.label}
+                      key={d.value}
                       onPress={() => setLastPeriodStart(d.value)}
                       style={[
                         styles.chip,
@@ -398,7 +400,7 @@ export default function OnboardingScreen() {
                   ))}
                 </View>
                 <TextField
-                  label="Or enter exact date (YYYY-MM-DD)"
+                  label={t("onboarding.enterExactDate")}
                   value={lastPeriodStart}
                   onChangeText={setLastPeriodStart}
                   placeholder="YYYY-MM-DD"
@@ -407,7 +409,7 @@ export default function OnboardingScreen() {
 
               {/* Cycle Length & Period Duration */}
               <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <AppText variant="label">Average Cycle Length (Days)</AppText>
+                <AppText variant="label">{t("onboarding.avgCycleLength")}</AppText>
                 <View style={styles.stepperRow}>
                   <Pressable
                     onPress={() => setCycleLength((c) => Math.max(18, c - 1))}
@@ -418,7 +420,7 @@ export default function OnboardingScreen() {
                   <View style={styles.stepperValue}>
                     <AppText variant="title">{cycleLength}</AppText>
                     <AppText variant="caption" tone="soft">
-                      days
+                      {t("common.days")}
                     </AppText>
                   </View>
                   <Pressable
@@ -431,7 +433,7 @@ export default function OnboardingScreen() {
 
                 <View style={styles.divider} />
 
-                <AppText variant="label">Period Duration (Bleeding Days)</AppText>
+                <AppText variant="label">{t("doctor.periodDuration")}</AppText>
                 <View style={styles.stepperRow}>
                   <Pressable
                     onPress={() => setPeriodDuration((p) => Math.max(2, p - 1))}
@@ -442,7 +444,7 @@ export default function OnboardingScreen() {
                   <View style={styles.stepperValue}>
                     <AppText variant="title">{periodDuration}</AppText>
                     <AppText variant="caption" tone="soft">
-                      days
+                      {t("common.days")}
                     </AppText>
                   </View>
                   <Pressable

@@ -24,7 +24,7 @@ export function DateField({
   min?: string;
   placeholder?: string;
 }) {
-  const { fmtDate } = useT();
+  const { t, fmtDate } = useT();
   const [open, setOpen] = useState(false);
   const toDate = (iso?: string) => (iso ? new Date(`${iso}T12:00:00`) : undefined);
 

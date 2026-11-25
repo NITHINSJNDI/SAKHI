@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const bn: TranslationSchema = {
   "common": {
+    "yes": "হ্যাঁ",
+    "no": "না",
+    "somethingWrong": "কিছু ভুল হয়েছে",
+    "tryAgain": "আবার চেষ্টা করুন",
     "backToDashboard": "ড্যাশবোর্ডে ফিরে যান",
     "last30Days": "গত ৩০ দিন",
     "last90Days": "গত ৯০ দিন",
@@ -29,6 +33,17 @@ export const bn: TranslationSchema = {
     "friend": "সখী"
   },
   "auth": {
+    "privacy": "প্রতিটি অ্যাকাউন্টের জন্য ব্যক্তিগত স্থান। যেকোনো সময় ডেটা ডাউনলোড বা মুছুন।",
+    "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
+    "resetTitle": "পাসওয়ার্ড রিসেট করুন",
+    "nameTooLong": "নাম ৮০ অক্ষর বা তার কম হতে হবে।",
+    "passwordTooLong": "পাসওয়ার্ড ১২৮ অক্ষর বা তার কম হতে হবে।",
+    "resetCodeLabel": "৬-সংখ্যার কোড",
+    "newPasswordLabel": "নতুন পাসওয়ার্ড",
+    "confirmNewPasswordLabel": "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+    "sendCode": "কোড পাঠান",
+    "setNewPassword": "নতুন পাসওয়ার্ড সেট করুন",
+    "sendNewCode": "নতুন কোড পাঠান",
     "exploreSampleData": "নমুনা ডেটা দিয়ে অন্বেষণ করুন",
     "exploreSampleDesc": "সাইন-আপ ছাড়াই এই ডিভাইসে প্রাক-পূরণকৃত ওয়ার্কস্পেস চেষ্টা করুন।",
     "demoHerCycles": "৩ মাসের সাইকেল",
@@ -184,6 +199,9 @@ export const bn: TranslationSchema = {
     "basedOnCycles": "আপনার {count}টি চক্রের ভিত্তিতে (সাধারণত {mean} দিন, ±{sd} দিন)।"
   },
   "pregnancy": {
+    "daysToDue": "{days} দিন বাকি",
+    "dueAround": "সম্ভাব্য তারিখ: {date}",
+    "weeksPregnant": "গর্ভাবস্থার {weeks} সপ্তাহ",
     "pregnancyMode": "গর্ভাবস্থা মোড",
     "maternalVitals": "মা ও শিশুর স্বাস্থ্য",
     "firstTrimester": "প্রথম ত্রৈমাসিক",
@@ -201,13 +219,10 @@ export const bn: TranslationSchema = {
     "hospitalBag": "হাসপাতালের ব্যাগের তালিকা"
   },
   "chat": {
-    "askSakhi": "সখীকে জিজ্ঞাসা করুন",
-    "newChat": "নতুন চ্যাট",
-    "pastChats": "আগের চ্যাট",
-    "noPastChats": "নতুন চ্যাট শুরু করলে আগের চ্যাটগুলো এখানে দেখা যাবে।",
-    "deleteChat": "এই চ্যাট মুছবেন?",
-    "messagesCount_one": "{count}টি বার্তা",
-    "messagesCount_other": "{count}টি বার্তা",
+    "askHerMobile": "সখীকে জিজ্ঞাসা করুন",
+    "askMomMobile": "সখীকে জিজ্ঞাসা করুন",
+    "herSubtitle": "আপনার পিরিয়ড, লক্ষণ বা কেমন অনুভব করছেন সে সম্পর্কে জিজ্ঞাসা করুন।",
+    "placeholderMobile": "সখীকে বার্তা পাঠান...",
     "title": "সখী AI বহুভাষিক কথোপকথন",
     "placeholder": "মেসেজ লিখুন বা কথা বলতে মাইক চাপুন…",
     "placeholderHandsFree": "হ্যান্ডস-ফ্রি অন আছে, কথা বলুন…",
@@ -257,8 +272,8 @@ export const bn: TranslationSchema = {
     "quickPostnatalFoodMsg": "দুধ খাওয়ানোর সময় কী খাওয়া উচিত?"
   },
   "settings": {
-    "voice_girl": "তরুণ",
-    "voice_woman": "উষ্ণ",
+    "language": "ভাষা",
+    "pinCurrent": "বর্তমান ৪-সংখ্যার পिन",
     "title": "সেটিংস",
     "preferredName": "যে নামে ডাকবেন",
     "preferredNameHint": "সখী আপনাকে এই নামে সম্বোধন করবে।",
@@ -303,6 +318,8 @@ export const bn: TranslationSchema = {
     "pinWrongError": "ভুল পিন।"
   },
   "menu": {
+    "account": "অ্যাকাউন্ট",
+    "profile": "প্রোফাইল",
     "switchToMom": "মম মোডে পরিবর্তন করুন",
     "switchToHer": "হার মোডে পরিবর্তন করুন",
     "doctorSummary": "ডাক্তার সারাংশ (PDF)",
@@ -329,6 +346,7 @@ export const bn: TranslationSchema = {
     "notNow": "এখন নয়"
   },
   "checkin": {
+    "title": "দৈনিক চেক-ইন",
     "greeting": "নমস্কার {name} 👋",
     "flowDefaultQ": "আজ কি কোনও রক্তপাত বা স্পটিং আছে?",
     "flowPeriodQ": "আপনার পিরিয়ডের {day}তম দিন। আজ প্রবাহ কেমন?",
@@ -504,6 +522,10 @@ export const bn: TranslationSchema = {
     "signedInAs": "হিসেবে সাইন ইন করা হয়েছে"
   },
   "relief": {
+    "painCanChange": "ব্যথা প্রতি ঘণ্টায় পরিবর্তিত হতে পারে।",
+    "painRightNow": "এই মুহূর্তে",
+    "worst": "সবচেয়ে তীব্র",
+    "worstToday": "আজ সবচেয়ে বেশি",
     "painRelief": "ব্যথা উপশম",
     "letUsEase": "একসাথে ব্যথা কমাই",
     "reliefSubtitle": "এগুলি তৎক্ষণাৎ ব্যথা দূর না করলেও আরাম দেবে।",
@@ -764,24 +786,6 @@ export const bn: TranslationSchema = {
     "close": "বন্ধ করুন"
   },
   "hygiene": {
-    "period_underwear": "পিরিয়ড আন্ডারওয়্যার",
-    "tapWhenChange": "বদলানোর সময় ট্যাপ করুন, সখী জানাবে পরেরটা কখন বদলাতে হবে।",
-    "lastChanged": "শেষবার {time} আগে বদলেছেন।",
-    "changesToday_one": "আজ {count} বার বদলেছেন",
-    "changesToday_other": "আজ {count} বার বদলেছেন",
-    "howFull": "যেটা খুললেন, সেটা কতটা ভরা ছিল?",
-    "soakLight": "একটু",
-    "soakHalf": "অর্ধেক",
-    "soakFull": "পুরো ভেজা",
-    "skip": "বাদ দিন",
-    "clotCheck": "৫ টাকার কয়েনের চেয়ে বড় জমাট রক্ত বেরিয়েছে",
-    "clothRough": "কাপড়ের ক্ষেত্রে এটা মোটামুটি হিসাব।",
-    "tooMany": "এক দিনে এটা অনেকবার। প্রতি ঘণ্টায় প্যাড ভিজে গেলে ডাক্তার দেখান।",
-    "careFor": "আপনার {item}-এর যত্ন ও ফেলে দেওয়া",
-    "disposal": "ফেলে দেওয়া:",
-    "call": "কল করুন",
-    "findNearest": "Google Maps-এ কাছেরটি খুঁজুন",
-    "emergency": "জরুরি অবস্থায়: 112 বা 108-এ কল করুন।",
     "title": "ঋতুস্রাবকালীন যত্ন",
     "whatDoYouUse": "আপনি কী ব্যবহার করেন?",
     "changeTimer": "বদলানোর সময়",
@@ -1110,21 +1114,57 @@ export const bn: TranslationSchema = {
       "correlationHistory": "পারস্পরিক সম্পর্ক ইতিহাস",
       "symptomTracking": "লক্ষণ ট্র্যাকিং"
   },
-  "aram": {
-    "rating": "Google-এ 4.9 · 293টি রিভিউ",
-    "partner": "সখী পার্টনার",
-    "pitch": "তামিলনাড়ুর পল্লিপালয়মে তৈরি নরম সুতির ন্যাপকিন। ব্যবহারকারী মহিলারা আরাম আর চুলকানি বা র‍্যাশ না হওয়ার কথা বলেন।",
-    "find": "আরাম খুঁজুন",
-    "watch": "ভিডিও দেখুন"
+  "onboarding": {
+    "title": "আপনার সখী স্পেস সেট আপ করুন",
+    "nameLabel": "সখী আপনাকে কী নামে ডাকবে?",
+    "namePlaceholder": "আপনার নাম বা ডাকনাম লিখুন",
+    "nameHint": "দৈনিক টিপস এবং চেক-ইনে সখী আপনাকে এই নামে সম্বোধন করবে।",
+    "herMode": "হার মোড (Her Mode)",
+    "herModeDesc": "মাসিক চক্র ট্র্যাকিং, পিএমএস তথ্য, পিসিওএস এবং হরমোনজনিত স্বাস্থ্য পর্যবেক্ষণ।",
+    "momMode": "মম মোড (Mom Mode)",
+    "momModeDesc": "গর্ভাবস্থার যাত্রা, সপ্তাহভিত্তিক শিশুর বিকাশ, পরীক্ষা এবং ত্রৈমাসিক যত্ন।",
+    "lastPeriodPrompt": "আপনার শেষ পিরিয়ড কবে শুরু হয়েছিল?",
+    "exactDateLabel": "অথবা সঠিক তারিখ লিখুন (YYYY-MM-DD)",
+    "avgCycleLength": "গড় চক্রের দৈর্ঘ্য (দিন)",
+    "periodDuration": "পিরিয়ডের সময়কাল (রক্তপাতের দিন)",
+    "cycleRegularity": "আপনার পিরিয়ড চক্র কতটা নিয়মিত?",
+    "finish": "সেটআপ সম্পন্ন করুন",
   },
-  "padCheck": {
-    "calling": "সখী আপনাকে ডাকছে 💜",
-    "title": "{item} বদলানোর সময় হলো?",
-    "body": "শেষবার বদলানোর পর প্রায় {hours} ঘণ্টা হয়েছে। নতুনটা র‍্যাশ আর সংক্রমণ থেকে বাঁচায়।",
-    "changed": "এইমাত্র বদলেছি",
-    "later": "১ ঘণ্টা পরে মনে করান"
+  "triage": {
+    "title": "লক্ষণ পরীক্ষা",
+    "checkAgain": "আবার পরীক্ষা করুন / লক্ষণ পরিবর্তন করুন",
+    "crampsPain": "খিঁচুনি / তলপেটে ব্যথা",
+    "flowIntensity": "রক্তপাতের তীব্রতা",
+    "headacheBloating": "মাথাব্যথা এবং পেট ফাঁপা",
+    "additionalIndicators": "অতিরিক্ত লক্ষণ",
+    "runCheck": "ট্রায়াজ পরীক্ষা চালান",
   },
-  "nudge": {
-    "checkIn": "আপনার দৈনিক চেক-ইন অপেক্ষা করছে 💜 মাত্র ৩০ সেকেন্ড লাগবে।"
+  "mobile": {
+    "privacyConsent": "গোপনীয়তা এবং সম্মতি",
+    "yourDataYourControl": "আপনার ডেটা, আপনার নিয়ন্ত্রণ",
+    "dataProtectionPromise": "ডেটা সুরক্ষার প্রতিশ্রুতি",
+    "aiHealthInsights": "AI স্বাস্থ্য তথ্য",
+    "privateModeOffline": "প্রাইভেট মোড (অফলাইন AI)",
+    "savePrivacyChoices": "গোপনীয়তা পছন্দ সংরক্ষণ করুন",
+    "labReports": "ল্যাব রিপোর্ট",
+    "addReport": "রিপোর্ট যোগ করুন",
+    "noLabReports": "এখনো কোনো ল্যাব রিপোর্ট নেই",
+    "recordLabValues": "ল্যাব মান লিখুন",
+    "enterPin": "পিন লিখুন",
+    "forgotPin": "পিন ভুলে গেছেন?",
+    "sakhiTyping": "সখী লিখছে",
+    "hideSakhiNow": "সখীকে এখনই লুকান",
+    "appointments": "অ্যাপয়েন্টমেন্ট",
+    "resetMonth": "মাস রিসেট করুন",
+    "done": "সম্পন্ন",
+    "snooze1h": "১ ঘণ্টা স্নুজ",
+    "deleteReminder": "রিমাইন্ডার মুছুন",
+    "addTablet": "ওষুধ যোগ করুন",
+    "tabletName": "ওষুধের নাম",
+    "letFamilyKnow": "আপনার পরিবারকে জানান",
+    "nearestHospital": "নিকটতম হাসপাতাল",
+    "moodHistory": "মেজাজ পরীক্ষার ইতিহাস",
+    "seeHowDoing": "দেখুন আমি কেমন আছি",
+    "notNow": "এখন নয়",
   },
 };

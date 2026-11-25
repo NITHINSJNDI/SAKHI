@@ -81,7 +81,7 @@ export default function NotificationCenter<P extends { enabled: boolean }>({
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingVertical: 8 }}>
         <View style={{ flex: 1 }}>
           <AppText style={{ fontSize: 16, fontWeight: "500", color: palette.plum900 }}>{t("notifications.enableNotifications")}</AppText>
-          <AppText style={atom.small}>Reminders arrive as phone notifications.</AppText>
+          <AppText style={atom.small}>{t("familyExtra.remindersPhoneNote")}</AppText>
         </View>
         <Switch value={preferences.enabled} onValueChange={onToggleMaster} trackColor={{ true: "#A855F7", false: "#E5E7EB" }} thumbColor="#fff" />
       </View>
@@ -133,13 +133,13 @@ export default function NotificationCenter<P extends { enabled: boolean }>({
                         <View style={{ marginTop: 12, flexDirection: "row", gap: 8 }}>
                           <PressableScale onPress={() => onMarkCompleted(r.id)} style={{ flex: 1, flexDirection: "row", gap: 4, alignItems: "center", justifyContent: "center", minHeight: 40, borderRadius: 10, backgroundColor: "#F3E8FF" }}>
                             <CheckCircle size={16} color="#7E22CE" weight="bold" />
-                            <AppText style={{ fontSize: 14, fontWeight: "500", color: "#7E22CE" }}>Done</AppText>
+                            <AppText style={{ fontSize: 14, fontWeight: "500", color: "#7E22CE" }}>{t("familyExtra.done")}</AppText>
                           </PressableScale>
                           <PressableScale onPress={() => onSnooze(r.id, 1)} style={{ flex: 1, flexDirection: "row", gap: 4, alignItems: "center", justifyContent: "center", minHeight: 40, borderRadius: 10, backgroundColor: "#F3F4F6" }}>
                             <Clock size={16} color="#374151" weight="bold" />
-                            <AppText style={{ fontSize: 14, fontWeight: "500", color: "#374151" }}>Snooze 1h</AppText>
+                            <AppText style={{ fontSize: 14, fontWeight: "500", color: "#374151" }}>{t("familyExtra.snooze1h")}</AppText>
                           </PressableScale>
-                          <PressableScale onPress={() => onDelete(r.id)} accessibilityLabel="Delete reminder" style={{ width: 40, minHeight: 40, alignItems: "center", justifyContent: "center", borderRadius: 10, backgroundColor: TW.red[50] }}>
+                          <PressableScale onPress={() => onDelete(r.id)} accessibilityLabel={t("familyExtra.deleteReminder")} style={{ width: 40, minHeight: 40, alignItems: "center", justifyContent: "center", borderRadius: 10, backgroundColor: TW.red[50] }}>
                             <Trash size={16} color={TW.red[500]} weight="bold" />
                           </PressableScale>
                         </View>

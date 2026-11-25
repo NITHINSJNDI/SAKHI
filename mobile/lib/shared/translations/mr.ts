@@ -2,6 +2,10 @@ import type { TranslationSchema } from "./en";
 
 export const mr: TranslationSchema = {
   "common": {
+    "yes": "होय",
+    "no": "नाही",
+    "somethingWrong": "काहीतरी चुकले",
+    "tryAgain": "पुन्हा प्रयत्न करा",
     "backToDashboard": "डॅशबोर्डवर परत जा",
     "last30Days": "मागील ३० दिवस",
     "last90Days": "मागील ९० दिवस",
@@ -29,6 +33,17 @@ export const mr: TranslationSchema = {
     "friend": "सखी"
   },
   "auth": {
+    "privacy": "प्रत्येक खात्यासाठी खाजगी जागा. तुमचा डेटा कधीही डाउनलोड किंवा हटवा.",
+    "forgotPassword": "पासवर्ड विसरलात?",
+    "resetTitle": "पासवर्ड रीसेट करा",
+    "nameTooLong": "नाव 80 अक्षरे किंवा त्यापेक्षा कमी असावे.",
+    "passwordTooLong": "पासवर्ड 128 अक्षरे किंवा त्यापेक्षा कमी असावा.",
+    "resetCodeLabel": "6-अंकी कोड",
+    "newPasswordLabel": "नवीन पासवर्ड",
+    "confirmNewPasswordLabel": "नवीन पासवर्डची पुष्टी करा",
+    "sendCode": "कोड पाठवा",
+    "setNewPassword": "नवीन पासवर्ड सेट करा",
+    "sendNewCode": "नवीन कोड पाठवा",
     "exploreSampleData": "नमुना डेटासह पहा",
     "exploreSampleDesc": "साइन-अप न करता या डिव्हाइसवर भरलेली जागा वापरून पहा.",
     "demoHerCycles": "३ महिन्यांचे चक्र",
@@ -184,6 +199,9 @@ export const mr: TranslationSchema = {
     "basedOnCycles": "तुमच्या {count} मासिक चक्रांवर आधारित (सहसा {mean} दिवस, ±{sd} दिवस)."
   },
   "pregnancy": {
+    "daysToDue": "{days} दिवस बाकी",
+    "dueAround": "अपेक्षित तारीख: {date}",
+    "weeksPregnant": "गर्भधारणेचे {weeks} आठवडे",
     "pregnancyMode": "गरोदरपण मोड",
     "maternalVitals": "माता आणि बाळाचे आरोग्य",
     "firstTrimester": "पहिली तिमाही",
@@ -201,13 +219,10 @@ export const mr: TranslationSchema = {
     "hospitalBag": "रुग्णालय बॅग यादी"
   },
   "chat": {
-    "askSakhi": "सखीला विचारा",
-    "newChat": "नवीन चॅट",
-    "pastChats": "मागील चॅट",
-    "noPastChats": "नवीन चॅट सुरू केल्यावर तुमच्या आधीच्या चॅट इथे दिसतील.",
-    "deleteChat": "हे चॅट हटवायचे?",
-    "messagesCount_one": "{count} संदेश",
-    "messagesCount_other": "{count} संदेश",
+    "askHerMobile": "सखीला विचारा",
+    "askMomMobile": "सखीला विचारा",
+    "herSubtitle": "तुमच्या मासिक पाळीबद्दल, लक्षणांबद्दल किंवा तुम्हाला कसे वाटत आहे ते विचारा.",
+    "placeholderMobile": "सखीला संदेश पाठवा...",
     "title": "सखी AI बहुभाषिक संभाषण",
     "placeholder": "संदेश लिहा किंवा बोलण्यासाठी माइक दाबा…",
     "placeholderHandsFree": "हँड्स-फ్రీ सुरू आहे, बोला…",
@@ -257,8 +272,8 @@ export const mr: TranslationSchema = {
     "quickPostnatalFoodMsg": "स्तनपान करताना मी काय खावे?"
   },
   "settings": {
-    "voice_girl": "तरुण",
-    "voice_woman": "मायाळू",
+    "language": "भाषा",
+    "pinCurrent": "सध्याचा 4-अंकी पिन",
     "title": "सेटिंग्ज",
     "preferredName": "हाक मारायचे नाव",
     "preferredNameHint": "सखी आपल्याला या नावाने हाक मारेल.",
@@ -303,6 +318,8 @@ export const mr: TranslationSchema = {
     "pinWrongError": "चुकीचा पिन."
   },
   "menu": {
+    "account": "खाते",
+    "profile": "प्रोफाइल",
     "switchToMom": "मॉम मोडवर जा",
     "switchToHer": "हर मोडवर जा",
     "doctorSummary": "डॉक्टर सारांश (PDF)",
@@ -329,6 +346,7 @@ export const mr: TranslationSchema = {
     "notNow": "आता नको"
   },
   "checkin": {
+    "title": "दैनिक चेक-इन",
     "greeting": "नमस्कार {name} 👋",
     "flowDefaultQ": "आज रक्तस्त्राव किंवा स्पॉटिंग आहे का?",
     "flowPeriodQ": "मासिक पाळीचा {day}वा दिवस. आज रक्तस्त्राव कसा आहे?",
@@ -504,6 +522,10 @@ export const mr: TranslationSchema = {
     "signedInAs": "म्हणून साइन इन केले"
   },
   "relief": {
+    "painCanChange": "वेदना तासातासाला बदलू शकतात.",
+    "painRightNow": "आत्ता",
+    "worst": "तीव्र",
+    "worstToday": "आज सर्वाधिक",
     "painRelief": "वेदना निवारण",
     "letUsEase": "वेदना एकत्र कमी करूया",
     "reliefSubtitle": "हे ताबडतोब वेदना थांबवणार नाही, पण आराम नक्की देईल.",
@@ -764,24 +786,6 @@ export const mr: TranslationSchema = {
     "close": "बंद करा"
   },
   "hygiene": {
-    "period_underwear": "पिरियड अंतर्वस्त्र",
-    "tapWhenChange": "बदलताना टॅप करा, पुढचा कधी बदलायचा ते सखी सांगेल.",
-    "lastChanged": "शेवटचे {time} पूर्वी बदलले.",
-    "changesToday_one": "आज {count} वेळा बदलले",
-    "changesToday_other": "आज {count} वेळा बदलले",
-    "howFull": "काढलेले किती भरले होते?",
-    "soakLight": "थोडे",
-    "soakHalf": "अर्धे",
-    "soakFull": "पूर्ण भिजले",
-    "skip": "वगळा",
-    "clotCheck": "₹5 च्या नाण्यापेक्षा मोठी गाठ गेली",
-    "clothRough": "कापडासाठी हा फक्त अंदाज आहे.",
-    "tooMany": "एका दिवसासाठी हे खूप वेळा आहे. दर तासाला पॅड भिजत असेल तर डॉक्टरांना भेटा.",
-    "careFor": "तुमच्या {item}ची काळजी आणि विल्हेवाट",
-    "disposal": "विल्हेवाट:",
-    "call": "कॉल करा",
-    "findNearest": "Google Maps वर जवळचे शोधा",
-    "emergency": "आणीबाणी: 112 किंवा 108 वर कॉल करा.",
     "title": "मासिक पाळीची काळजी",
     "whatDoYouUse": "तुम्ही कशाचा वापर करता?",
     "changeTimer": "बदलण्याची वेळ",
@@ -1110,21 +1114,57 @@ export const mr: TranslationSchema = {
       "correlationHistory": "परस्परसंबंध इतिहास",
       "symptomTracking": "लक्षण ट्रॅकिंग"
   },
-  "aram": {
-    "rating": "Google वर 4.9 · 293 पुनरावलोकने",
-    "partner": "सखी भागीदार",
-    "pitch": "पल्लिपालयम, तमिळनाडू येथे बनवलेले मऊ कॉटन नॅपकिन. वापरणाऱ्या महिला आराम आणि खाज किंवा पुरळ न येण्याबद्दल सांगतात.",
-    "find": "आरम शोधा",
-    "watch": "व्हिडिओ पहा"
+  "onboarding": {
+    "title": "तुमची सखी जागा सेट करा",
+    "nameLabel": "सखीने तुम्हाला काय म्हणावे?",
+    "namePlaceholder": "तुमचे नाव किंवा टोपणनाव लिहा",
+    "nameHint": "दैनिक टिप्स आणि चेक-इनमध्ये सखी तुम्हाला या नावाने हाक मारेल.",
+    "herMode": "हर मोड (Her Mode)",
+    "herModeDesc": "मासिक पाळी ट्रॅकिंग, पीएमएस माहिती, पीसीओएस आणि हार्मोनल आरोग्य निरीक्षण.",
+    "momMode": "मॉम मोड (Mom Mode)",
+    "momModeDesc": "गर्भधारणेचा प्रवास, आठवड्यानुसार बाळाची वाढ, तपासण्या आणि काळजी.",
+    "lastPeriodPrompt": "तुमची शेवटची मासिक पाळी कधी सुरू झाली?",
+    "exactDateLabel": "किंवा अचूक तारीख टाका (YYYY-MM-DD)",
+    "avgCycleLength": "सरासरी पाळी चक्र कालावधी (दिवस)",
+    "periodDuration": "रक्तस्रावाचा कालावधी (दिवस)",
+    "cycleRegularity": "तुमची मासिक पाळी किती नियमित आहे?",
+    "finish": "सेटअप पूर्ण करा",
   },
-  "padCheck": {
-    "calling": "सखी तुम्हाला बोलावत आहे 💜",
-    "title": "{item} बदलायची वेळ?",
-    "body": "शेवटच्या बदलाला सुमारे {hours} तास झाले. नवीन वापरल्याने पुरळ आणि संसर्ग टळतो.",
-    "changed": "मी आत्ताच बदलले",
-    "later": "1 तासाने आठवण करून द्या"
+  "triage": {
+    "title": "लक्षण तपासणी",
+    "checkAgain": "पुन्हा तपासा / लक्षणे बदला",
+    "crampsPain": "पेटदुखी / ओटीपोटात वेदना",
+    "flowIntensity": "रक्तस्रावाची तीव्रता",
+    "headacheBloating": "डोकेदुखी आणि पोट फुगणे",
+    "additionalIndicators": "अतिरिक्त लक्षणे",
+    "runCheck": "तपासणी करा",
   },
-  "nudge": {
-    "checkIn": "तुमचे रोजचे चेक-इन वाट पाहत आहे 💜 फक्त 30 सेकंद लागतील."
+  "mobile": {
+    "privacyConsent": "गोपनीयता आणि संमती",
+    "yourDataYourControl": "तुमचा डेटा, तुमचे नियंत्रण",
+    "dataProtectionPromise": "डेटा संरक्षणाचे आश्वासन",
+    "aiHealthInsights": "AI आरोग्य माहिती",
+    "privateModeOffline": "प्राइवेट मोड (ऑफलाइन AI)",
+    "savePrivacyChoices": "गोपनीयता पर्याय जतन करा",
+    "labReports": "लॅब अहवाल",
+    "addReport": "अहवाल जोडा",
+    "noLabReports": "अद्याप कोणतेही लॅब अहवाल नाहीत",
+    "recordLabValues": "लॅब मूल्ये नोंदवा",
+    "enterPin": "पिन टाका",
+    "forgotPin": "पिन विसरलात?",
+    "sakhiTyping": "सखी टाइप करत आहे",
+    "hideSakhiNow": "सखीला आत्ता लपवा",
+    "appointments": "भेटीची वेळ",
+    "resetMonth": "महिना रीसेट करा",
+    "done": "पूर्ण झाले",
+    "snooze1h": "1 तास स्नूझ",
+    "deleteReminder": "रिमाइंडर हटवा",
+    "addTablet": "गोळी जोडा",
+    "tabletName": "गोळीचे नाव",
+    "letFamilyKnow": "तुमच्या कुटुंबाला कळवा",
+    "nearestHospital": "जवळचे रुग्णालय",
+    "moodHistory": "मूड तपासणी इतिहास",
+    "seeHowDoing": "मी कशी आहे ते पहा",
+    "notNow": "आत्ता नको",
   },
 };

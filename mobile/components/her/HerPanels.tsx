@@ -145,7 +145,7 @@ function PhaseRing({ info }: { info: PhaseInfo }) {
       </View>
 
       {/* Phase legend with this cycle's day ranges */}
-      <View style={s.legend} accessibilityLabel="Phases this cycle">
+      <View style={s.legend} accessibilityLabel={t("relief.phasesThisCycle")}>
         {arcs.map(({ p }) => {
           const [a, b] = ranges[p];
           const current = p === info.phase;
