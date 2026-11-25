@@ -403,7 +403,8 @@ const styles = StyleSheet.create({
   },
   forgot: {
     alignSelf: "center",
-    paddingVertical: spacing.xxs,
+    minHeight: 44,
+    justifyContent: "center",
   },
   orRow: {
     flexDirection: "row",

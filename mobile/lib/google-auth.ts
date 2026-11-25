@@ -60,7 +60,12 @@ export async function signInWithGoogle(): Promise<GoogleResult> {
     if (isErrorWithCode(e) && e.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
       return { type: "unavailable", message: "Google Play services aren't available on this phone." };
     }
-    return { type: "unavailable", message: "Google sign-in failed. Please try again." };
+    const code = isErrorWithCode(e) ? String(e.code) : "";
+    // Code 10 = no Android OAuth client matching this package + signing SHA-1 in Google Cloud
+    if (code === "10" || code === "DEVELOPER_ERROR") {
+      return { type: "unavailable", message: "Google sign-in isn't set up for this app build yet (code 10). Please use email for now." };
+    }
+    return { type: "unavailable", message: `Google sign-in failed${code ? ` (${code})` : ""}. Please try again.` };
   }
 }
 

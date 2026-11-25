@@ -84,7 +84,8 @@ export const ink = {
 
 export const styles = StyleSheet.create({
   panel: {
-    backgroundColor: "rgba(255,255,255,0.78)",
+    // Opaque: Android elevation shows through translucent fills as a grey frame
+    backgroundColor: "#FEFCFB",
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "rgba(42,21,47,0.07)",

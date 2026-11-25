@@ -444,7 +444,7 @@ export function TodayTipsCard({ tips, adapted }: { tips: Tip[]; adapted: boolean
 export function PainNowCard({ onOpen, todayPain }: { onOpen: () => void; todayPain: number }) {
   const { t } = useT();
   return (
-    <Panel tint="rgba(255,241,242,0.85)">
+    <Panel tint="#FFF2F3">
       <IconBubble icon={FirstAidKit} bg={TW.rose[100]} color={TW.rose[600]} />
       <AppText style={[s.h2, { marginTop: 16 }]}>{t("cycle.crampsOrPainNow")}</AppText>
       <AppText style={[s.body, { marginTop: 4, color: ink[65] }]}>
